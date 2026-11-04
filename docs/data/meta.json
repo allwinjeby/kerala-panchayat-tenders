@@ -1,0 +1,7 @@
+{
+  "last_run_utc": null,
+  "total_active": 0,
+  "new_today": 0,
+  "source_counts": {},
+  "warnings": ["No scrape has run yet — this populates after the first GitHub Actions run."]
+}
