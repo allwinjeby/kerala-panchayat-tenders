@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from . import kerala_etenders
+from .classify import classify
 from .common import IST, body_name, today_ist
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "docs" / "data"
@@ -93,6 +94,7 @@ def main() -> None:
     records, new_ids = merge(existing, fresh, today)
     for r in records:
         r["body_name"] = body_name(r.get("organisation", ""), r.get("body_type"), r.get("district"))
+        r["grp"], r["kind"], r["job"] = classify(r.get("title", ""), r.get("category"))
     new_today = [] if first_run else [r for r in records if r["id"] in new_ids]
 
     def dump(path: Path, obj) -> None:

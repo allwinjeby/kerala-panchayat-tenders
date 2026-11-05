@@ -86,6 +86,30 @@ def test_merge_tracks_new_and_drops_expired():
     assert records[1]["first_seen"] == "2026-11-01"
 
 
+def test_classify_work():
+    from scraper.classify import classify
+    cases = {
+        "Cherukunnu anganwadi paattayam road retarring": ("roads", "Tarring & re-tarring"),
+        "PULLERY ROAD CONCRETE WARD 3": ("roads", "Concrete roads"),
+        "Construction of Cholakkundu anganwadi building": ("buildings", "Anganwadis"),
+        "CHENOTH AGANAVADI RENNOVATION, PROJECT NO 157": ("buildings", "Anganwadis"),
+        "Completion of GUPS Mepparambu": ("buildings", "Schools"),
+        "Ozhivupara Thekkumpuram Canal Bund Road Rennovation": ("roads", "Road renovation & maintenance"),
+        "Renovation of Adiyamattom farm RoadGeneral Civil Work": ("roads", "Road renovation & maintenance"),
+        "Construction of protection wall for Palachuvad road": ("walls", "Side protection & retaining walls"),
+        "Kongam Bazar Kappekkad Drainage Construction": ("water", "Drains"),
+        "TARUR GP Providing Water Supply in Mattumala Anganvadi": ("water", "Drinking water & wells"),
+        "Street Light Maintenance": ("electrical", "Street lights"),
+        "Supply and Installation of Highmast Lowmast lights at 46 various locations": ("electrical", "High mast & low mast lights"),
+        "Supply of cot": ("supply", "Beds & furnishings"),
+        "PROVIDING ADDITIONAL FACILITIES FOR MCF BUILDING": ("waste", "MCF / RRF & waste facilities"),
+        "Kavikkunnel SC Sanketham Samagra Vikasanam": ("other", "Colony & area development"),
+    }
+    for title, want in cases.items():
+        got = classify(title)[:2]
+        assert got == want, (title, got)
+
+
 def test_update_bodies_keeps_bodies_with_nothing_open():
     import json
     import tempfile
