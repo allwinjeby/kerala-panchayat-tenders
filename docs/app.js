@@ -295,7 +295,7 @@
       '<button class="fav" type="button" data-fav="' + esc(t.id) + '" aria-pressed="' + isSaved + '" aria-label="' + (isSaved ? "Remove from saved" : "Save tender") + '">' + icon("heart") + "</button></div>" +
       "<h3>" + esc(t.title) + "</h3>" +
       '<div class="pc-org">' + icon("landmark") + "<span>" + (follows.has(t.body_name) ? "♥ " : "") + esc(t.body_name) + (t.district ? " · " + esc(t.district) : "") + "</span></div>" +
-      '<div class="pc-price">' + (val ? "<b>" + val + "</b>" + (t.emd != null ? "<span>EMD " + inr(t.emd) + "</span>" : "") : '<b class="na">Value on portal</b>') + "</div>" +
+      '<div class="pc-price">' + (val ? "<b>" + val + "</b>" + (t.emd != null ? "<span>EMD " + inr(t.emd) + "</span>" : "") : t.details_fetched ? '<b class="na" title="The panchayat did not publish a value for this tender">Value not disclosed</b>' : '<b class="na" title="Values are read from each tender page on the portal; this one is next in the queue">Value coming soon</b>') + "</div>" +
       '<div class="pc-badges">' + badges(t) + "</div>" +
       '<div class="pc-foot">' + icon("clock") + "<span>" + esc(closesLabel(t)) + '</span><span class="cta">View' + icon("right") + "</span></div>" +
       timeBar(t) + "</article>";
@@ -628,7 +628,7 @@
     }
     if(bodiesT.length > 1) html += facetHtml("body", "Type of local body", bodiesT.map(function(b){ return [b, b]; }), "checkbox");
     html += facetHtml("job", "Type of job", ["Repair & maintenance", "New construction", "Supply & installation", "Other"].map(function(j){ return [j, j]; }), "checkbox");
-    html += facetHtml("band", "Contract value", BANDS.map(function(b, i){ return [String(i), b[2]]; }).concat([["u", "Value not published yet"]]), "checkbox");
+    html += facetHtml("band", "Contract value", BANDS.map(function(b, i){ return [String(i), b[2]]; }).concat([["u", "Value not available yet"]]), "checkbox");
     html += facetHtml("close", "Closing date", CLOSE_OPTS, "radio");
     if(aiCount) html += facetHtml("ai", "AI rating", AI_OPTS, "radio");
     $("facets").innerHTML = html;
@@ -805,7 +805,7 @@
       '<span class="cat">' + icon(g.icon) + esc(t.kind || g.name) + "</span>" +
       '<h2 id="dTitle">' + esc(t.title) + "</h2>" +
       '<div class="org"><a href="' + href({view: "browse", pb: t.body_name}) + '" data-act="body">' + icon("landmark") + esc(t.body_name) + "</a>" + esc([t.district, t.body_type].filter(Boolean).join(" · ")) + "</div>" +
-      '<div class="kpis"><div class="kpi"><b>' + (t.value != null ? inr(t.value) : "On portal") + "</b><span>Contract value</span></div><div class=\"kpi\"><b>" + (t.emd != null ? inr(t.emd) : "—") + '</b><span>EMD</span></div><div class="kpi"><b id="cd">' + esc(countdown(t)) + "</b><span>Time left to bid</span></div></div></div>" +
+      '<div class="kpis"><div class="kpi"><b>' + (t.value != null ? inr(t.value) : t.details_fetched ? "Not disclosed" : "Coming soon") + "</b><span>Contract value</span></div><div class=\"kpi\"><b>" + (t.emd != null ? inr(t.emd) : "—") + '</b><span>EMD</span></div><div class="kpi"><b id="cd">' + esc(countdown(t)) + "</b><span>Time left to bid</span></div></div></div>" +
       '<div class="dbody">' + (badges(t) ? '<div class="pc-badges" style="margin-bottom:12px">' + badges(t) + "</div>" : "") +
       '<div class="tabs" role="tablist"><button type="button" role="tab" data-tab="ai" aria-selected="true">' + icon("sparkle") + 'AI analysis</button><button type="button" role="tab" data-tab="calc" aria-selected="false">' + icon("calc") + 'Cost calculator</button><button type="button" role="tab" data-tab="info" aria-selected="false">' + icon("doc") + "Details</button></div>" +
       '<section class="tabpane" data-pane="ai"><div id="aiBox" class="aibox"><div class="skel" style="min-height:140px"></div></div></section>' +

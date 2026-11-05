@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 from pathlib import Path
 
 from . import kerala_etenders
@@ -15,7 +16,7 @@ NEW_TODAY_FILE = DATA_DIR / "new_today.json"
 BODIES_FILE = DATA_DIR / "bodies.json"
 META_FILE = DATA_DIR / "meta.json"
 
-DETAIL_BUDGET = 1200  # detail pages per run; ~35 min at the polite delay
+DETAIL_BUDGET = int(os.environ.get("DETAIL_BUDGET") or 1200)  # detail pages per run; ~35 min per 1,200 at the polite delay
 GRACE_DAYS = 3  # keep a tender this many days if the portal is briefly unreachable
 
 
