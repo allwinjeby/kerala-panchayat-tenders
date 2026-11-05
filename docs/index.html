@@ -1511,24 +1511,36 @@
   window.addEventListener("appinstalled", function(){ $("installBtn").hidden = true; toast("App installed"); });
   if("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(function(){});
 
-  // ---------- free trial + login (demo gate: client-side only) ----------
+  // ---------- free trial + login ----------
+  // AUTH_API: URL of the Cloudflare Worker in worker/ (see README). When set, the
+  // trial clock is kept per IP address on the server (shared by all devices on
+  // that network) and logins are checked on the server. Until it is set, a
+  // browser-only fallback is used: a local timer and the demo password hash below.
+  var AUTH_API = "";
   var TRIAL_SECONDS = 180;
   var AUTH_HASH = "135f33f7ae7639f880ec63e5741e7836def68a873a0d7fcec86f986f7c561027";
   var gate = $("gate"), acct = $("acct");
-  var authed = lsGet("auth", "") === AUTH_HASH;
+  var token = lsGet("token", "");
+  var authed = AUTH_API ? false : lsGet("auth", "") === AUTH_HASH;
   var used = +lsGet("trialUsed", 0) || 0;
+  var serverLeft = null, serverAt = 0;
   function mmss(s){ s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  function secondsLeft(){
+    var local = TRIAL_SECONDS - used;
+    if(serverLeft == null) return local;
+    return Math.min(local, serverLeft - (Date.now() - serverAt) / 1000);
+  }
   function renderAcct(){
     acct.hidden = false;
     if(authed){
       acct.className = "trial";
       acct.innerHTML = '<span>👤 <b>' + esc(lsGet("authUser", "member")) + '</b></span><button type="button" id="logoutBtn">Log out</button>';
       $("logoutBtn").onclick = function(){
-        authed = false; lsSet("auth", ""); toast("Logged out");
-        if(used >= TRIAL_SECONDS) lock(); else renderAcct();
+        authed = false; token = ""; lsSet("token", ""); lsSet("auth", ""); toast("Logged out");
+        if(AUTH_API) checkServer(); else if(secondsLeft() <= 0) lock(); else renderAcct();
       };
     } else {
-      var left = TRIAL_SECONDS - used;
+      var left = secondsLeft();
       acct.className = "trial" + (left <= 60 ? " low" : "");
       acct.innerHTML = '<span><span class="tl">Free trial · </span><b>' + mmss(left) + '</b> left</span><button type="button" id="loginBtn">Log in</button>';
       $("loginBtn").onclick = function(){ openGate(false); };
@@ -1544,35 +1556,59 @@
   }
   function lock(){
     if(dlg.open) dlg.close();
+    closeSheet();
     document.body.classList.add("locked");
     openGate(true); renderAcct();
   }
   function unlock(){ document.body.classList.remove("locked"); gate.hidden = true; renderAcct(); }
+  function welcome(user){
+    authed = true; lsSet("authUser", user);
+    $("lgPass").value = ""; unlock(); toast("Welcome, " + user + "!");
+  }
+  function checkServer(){
+    return fetch(AUTH_API + "/status", {headers: token ? {Authorization: "Bearer " + token} : {}, cache: "no-store"})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d.authed){ authed = true; lsSet("authUser", d.user); unlock(); return; }
+        authed = false; token = ""; lsSet("token", "");
+        if(typeof d.limit === "number") TRIAL_SECONDS = d.limit;
+        serverLeft = d.remaining; serverAt = Date.now();
+        if(secondsLeft() <= 0) lock(); else renderAcct();
+      })
+      .catch(function(){ serverLeft = null; renderAcct(); });
+  }
   $("gateClose").onclick = function(){ gate.hidden = true; };
   $("loginForm").addEventListener("submit", function(e){
     e.preventDefault();
     var user = $("lgUser").value.trim().toLowerCase(), pass = $("lgPass").value;
+    $("lgErr").textContent = "";
+    if(AUTH_API){
+      fetch(AUTH_API + "/login", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({username: user, password: pass})})
+        .then(function(r){ return r.json().then(function(d){ return [r.ok, d]; }); })
+        .then(function(res){
+          if(res[0] && res[1].token){ token = res[1].token; lsSet("token", token); welcome(res[1].user); }
+          else { $("lgErr").textContent = res[1].error || "Wrong username or password."; $("lgPass").select(); }
+        })
+        .catch(function(){ $("lgErr").textContent = "Could not reach the login server. Check your internet and try again."; });
+      return;
+    }
     if(!(window.crypto && crypto.subtle)){ $("lgErr").textContent = "Login needs a secure (https) connection."; return; }
     crypto.subtle.digest("SHA-256", new TextEncoder().encode("kpt-v1|" + user + "|" + pass)).then(function(buf){
       var hex = Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2, "0"); }).join("");
-      if(hex === AUTH_HASH){
-        authed = true; lsSet("auth", hex); lsSet("authUser", user);
-        $("lgPass").value = ""; unlock(); toast("Welcome, " + user + "!");
-      } else {
-        $("lgErr").textContent = "Wrong username or password.";
-        $("lgPass").select();
-      }
+      if(hex === AUTH_HASH){ lsSet("auth", hex); welcome(user); }
+      else { $("lgErr").textContent = "Wrong username or password."; $("lgPass").select(); }
     });
   });
   setInterval(function(){
     if(authed || document.visibilityState !== "visible") return;
     used++;
     if(used % 5 === 0 || used >= TRIAL_SECONDS) lsSet("trialUsed", used);
-    if(used >= TRIAL_SECONDS && !document.body.classList.contains("locked")) lock();
+    if(secondsLeft() <= 0){ if(!document.body.classList.contains("locked")) lock(); }
     else renderAcct();
   }, 1000);
   renderAcct();
-  if(!authed && used >= TRIAL_SECONDS) lock();
+  if(AUTH_API) checkServer();
+  else if(!authed && secondsLeft() <= 0) lock();
 
   var filtersEl = $("filters");
   new IntersectionObserver(function(es){ filtersEl.classList.toggle("stuck", es[0].intersectionRatio < 1); }, {threshold:[1], rootMargin:"-1px 0px 0px 0px"}).observe(filtersEl);

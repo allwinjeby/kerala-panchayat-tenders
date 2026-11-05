@@ -1,0 +1,18 @@
+# Optional: deploy from the command line with `npx wrangler deploy` (run inside worker/).
+# The README describes the no-code route through the Cloudflare dashboard instead.
+name = "kpt-auth"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://allwinjeby.github.io"
+TRIAL_SECONDS = "180"
+
+# Create the namespace with `npx wrangler kv namespace create TRIAL` and paste its id here.
+[[kv_namespaces]]
+binding = "TRIAL"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Secrets (never put them in this file):
+#   npx wrangler secret put SECRET
+#   npx wrangler secret put USERS     e.g. {"allwinjeby":"<password>"}
