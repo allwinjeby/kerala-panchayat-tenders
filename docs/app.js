@@ -454,6 +454,8 @@
             '<span class="bubble">' + icon(g.icon) + "</span><h3>" + esc(g.name) + '</h3><div class="cnt"><b>' + num(stats.groups[g.key]) + "</b>open tenders</div>" +
             '<div class="sub">' + esc(g.blurb) + (stats.groupNew[g.key] ? " · " + stats.groupNew[g.key] + " new today" : "") + "</div></a>";
         }).join("") + "</div>" +
+        sectionHead("pin", "Browse by district", "", "#/insights", "See the map") +
+        '<div class="dgrid">' + dists.map(function(d, i){ return '<a class="dtile anim" style="--i:' + i + '" href="' + href({view: "browse", dist: d}) + '"><span class="pin">' + icon("pin") + "</span><div><b>" + esc(d) + "</b><span>" + num(stats.districts[d]) + ' open</span></div><span class="bar" style="width:' + (stats.districts[d] / dmax * 100).toFixed(0) + '%"></span></a>'; }).join("") + "</div>" +
         (soon.length ? sectionHead("flame", "Closing soon", "Bid before these close in the next 3 days", "#/all?close=3", "See all " + num(stats.soon)) + rail(soon, "rSoon") : "") +
         (picks.length ? sectionHead("sparkle", "AI top picks", "Tenders our AI rates as a high profit chance", "#/all?ai=high&sort=profit") + rail(picks, "rPicks") : "") +
         sectionHead("bell", "Just added", "The newest tenders on the portal", "#/all?sort=newest") + rail(fresh, "rFresh") +
@@ -462,8 +464,6 @@
         '<div class="pbgrid" style="margin-top:12px">' + topPb.map(pbCard).join("") + "</div>" +
         sectionHead("trend", "Popular kinds of work", "", "#/categories", "Browse all") +
         '<div class="chips">' + kinds.map(function(k){ var g = G[stats.kinds[k].grp]; return '<a class="chip" style="--c:' + g.c + '" href="' + href({view: "browse", grp: g.key, kind: slug(k)}) + '"><span class="dot"></span>' + esc(k) + " <b>" + num(stats.kinds[k].n) + "</b></a>"; }).join("") + "</div>" +
-        sectionHead("pin", "Browse by district", "", "#/insights", "See the map") +
-        '<div class="dgrid">' + dists.map(function(d, i){ return '<a class="dtile anim" style="--i:' + i + '" href="' + href({view: "browse", dist: d}) + '"><span class="pin">' + icon("pin") + "</span><div><b>" + esc(d) + "</b><span>" + num(stats.districts[d]) + ' open</span></div><span class="bar" style="width:' + (stats.districts[d] / dmax * 100).toFixed(0) + '%"></span></a>'; }).join("") + "</div>" +
       "</div>"
     );
     var hp = $("homePb");
