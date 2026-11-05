@@ -4,236 +4,263 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kerala Panchayat Tenders</title>
-<meta name="description" content="Daily-updated list of public works tenders from Kerala panchayats and the Local Self Government Department.">
+<meta name="description" content="Daily-updated list of public works tenders from Kerala panchayats, from the Kerala e-Tenders portal.">
 <style>
   :root{
-    --bg:#f7f7f5; --surface:#ffffff; --border:#e3e1dc; --text:#1f1d1a; --text-dim:#6b6860;
-    --accent:#0f6b4c; --accent-weak:#e4f3ec; --new-bg:#fff4d6; --new-border:#e8c766;
-    --warn:#9a3b25; --radius:10px; --shadow:0 1px 2px rgba(0,0,0,.04);
+    --bg:#f6f6f3; --surface:#fff; --border:#e2e0da; --text:#1d1c19; --dim:#6a675f;
+    --accent:#0e6a4b; --new-bg:#fff6dc; --new-border:#e6c25c; --warn:#a63d24; --radius:10px;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#17181a; --surface:#1f2023; --border:#33343a; --text:#eceae6; --text-dim:#9a978f;
-      --accent:#49c893; --accent-weak:#163b2c; --new-bg:#3a3215; --new-border:#8a7326;
-      --warn:#e08a74;
+      --bg:#161719; --surface:#1f2023; --border:#34353b; --text:#ebe9e4; --dim:#9b988f;
+      --accent:#4cc994; --new-bg:#352e14; --new-border:#8a7326; --warn:#e48b74;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#17181a; --surface:#1f2023; --border:#33343a; --text:#eceae6; --text-dim:#9a978f;
-    --accent:#49c893; --accent-weak:#163b2c; --new-bg:#3a3215; --new-border:#8a7326;
-    --warn:#e08a74;
+    --bg:#161719; --surface:#1f2023; --border:#34353b; --text:#ebe9e4; --dim:#9b988f;
+    --accent:#4cc994; --new-bg:#352e14; --new-border:#8a7326; --warn:#e48b74;
   }
   *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--bg); color:var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size:15px; line-height:1.45;
-  }
-  .wrap{max-width:1080px; margin:0 auto; padding:20px 16px 60px}
-  header{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:4px}
-  h1{font-size:20px; margin:0}
-  .sub{color:var(--text-dim); font-size:13px; margin:0 0 18px}
-  .stat-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px}
-  .stat{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; min-width:120px; box-shadow:var(--shadow)}
-  .stat .n{font-size:20px; font-weight:600}
-  .stat .l{font-size:12px; color:var(--text-dim)}
-  .controls{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px}
-  input[type=search], select{
-    background:var(--surface); color:var(--text); border:1px solid var(--border);
-    border-radius:8px; padding:8px 10px; font-size:14px;
-  }
-  input[type=search]{flex:1; min-width:180px}
-  .cards{display:flex; flex-direction:column; gap:10px}
-  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 14px; box-shadow:var(--shadow)}
-  .card.is-new{background:var(--new-bg); border-color:var(--new-border)}
-  .card-top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
-  .card h3{margin:0; font-size:15px; font-weight:600}
-  .card h3 a{color:var(--text); text-decoration:none}
-  .card h3 a:hover{text-decoration:underline}
-  .badge{font-size:11px; font-weight:600; padding:2px 7px; border-radius:999px; white-space:nowrap}
-  .badge.new{background:var(--accent); color:#fff}
-  .badge.soon{background:var(--warn); color:#fff}
-  .meta{display:flex; gap:14px; flex-wrap:wrap; margin-top:6px; font-size:12.5px; color:var(--text-dim)}
-  .meta b{color:var(--text); font-weight:600}
-  footer{margin-top:28px; font-size:12px; color:var(--text-dim)}
-  footer a{color:var(--text-dim)}
-  .empty{color:var(--text-dim); padding:30px 0; text-align:center}
-  .theme-btn{border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:8px; padding:8px 10px; cursor:pointer}
-  .warn-box{border:1px solid var(--new-border); background:var(--new-bg); border-radius:var(--radius); padding:10px 14px; font-size:12.5px; margin-bottom:14px; display:none}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:20px 16px 60px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  h1{font-size:20px;margin:0}
+  .sub{color:var(--dim);font-size:13px;margin:4px 0 16px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px}
+  .stat .n{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+  .stat .l{font-size:12px;color:var(--dim)}
+  .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-bottom:10px}
+  input,select,button{font:inherit;font-size:14px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-width:0}
+  .search{grid-column:1/-1}
+  button{cursor:pointer}
+  .count{font-size:13px;color:var(--dim);margin:6px 0 10px}
+  .cards{display:flex;flex-direction:column;gap:10px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+  .card.is-new{background:var(--new-bg);border-color:var(--new-border)}
+  .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .card h3{margin:0;font-size:15px;font-weight:600;overflow-wrap:anywhere}
+  .badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+  .badge{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap;color:#fff}
+  .badge.new{background:var(--accent)} .badge.soon{background:var(--warn)}
+  .org{font-size:13px;margin-top:4px}
+  .meta{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:6px;font-size:12.5px;color:var(--dim)}
+  .meta b{color:var(--text);font-weight:600}
+  .value{font-size:14px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+  .actions code{font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 6px;overflow-wrap:anywhere}
+  .actions button,.actions a{font-size:12px;padding:4px 9px}
+  .actions a{color:var(--text);border:1px solid var(--border);border-radius:8px;text-decoration:none;background:var(--surface)}
+  .more{display:block;margin:14px auto 0}
+  .notes{font-size:12.5px;color:var(--dim);margin-top:24px}
+  .notes summary{cursor:pointer}
+  footer{margin-top:16px;font-size:12px;color:var(--dim)}
+  footer a{color:var(--dim)}
+  .empty{color:var(--dim);padding:30px 0;text-align:center}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>Kerala Panchayat Tenders</h1>
-    <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle theme">◐</button>
+    <button id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
   </header>
   <p class="sub" id="lastRun">Loading…</p>
 
-  <div class="stat-row">
-    <div class="stat"><div class="n" id="statTotal">–</div><div class="l">Active tenders</div></div>
-    <div class="stat"><div class="n" id="statNew">–</div><div class="l">New today</div></div>
-    <div class="stat"><div class="n" id="statSoon">–</div><div class="l">Closing in 3 days</div></div>
+  <div class="stats">
+    <div class="stat"><div class="n" id="sTotal">–</div><div class="l">Open tenders (matching)</div></div>
+    <div class="stat"><div class="n" id="sNew">–</div><div class="l">New today</div></div>
+    <div class="stat"><div class="n" id="sSoon">–</div><div class="l">Closing in 3 days</div></div>
+    <div class="stat"><div class="n" id="sValue">–</div><div class="l">Total value (known)</div></div>
   </div>
-
-  <div class="warn-box" id="warnBox"></div>
 
   <div class="controls">
-    <input type="search" id="searchBox" placeholder="Search title, panchayat, district…">
-    <select id="sourceFilter">
-      <option value="">All sources</option>
+    <input class="search" type="search" id="q" placeholder="Search work, panchayat, tender ID… (e.g. road, anganwadi, Kuzhalmannam)">
+    <select id="body"></select>
+    <select id="district"><option value="">All districts</option></select>
+    <select id="category"><option value="">All work categories</option></select>
+    <select id="minValue">
+      <option value="0">Any value</option>
+      <option value="500000">₹5 lakh+</option>
+      <option value="1000000">₹10 lakh+</option>
+      <option value="2500000">₹25 lakh+</option>
+      <option value="10000000">₹1 crore+</option>
     </select>
-    <select id="sortBy">
-      <option value="closing">Sort: closing date</option>
-      <option value="new">Sort: newest first</option>
+    <select id="sort">
+      <option value="closing">Closing soonest</option>
+      <option value="newest">Newest first</option>
+      <option value="value">Highest value</option>
     </select>
+    <label style="display:flex;align-items:center;gap:6px;font-size:14px"><input type="checkbox" id="onlyNew"> New today only</label>
   </div>
 
+  <div class="count" id="count"></div>
   <div class="cards" id="cards"></div>
-  <div class="empty" id="emptyMsg" style="display:none">No tenders match your filters.</div>
+  <div class="empty" id="empty" hidden>No tenders match these filters.</div>
+  <button class="more" id="more" hidden>Show more</button>
+
+  <details class="notes" id="notes" hidden><summary>Scraper notes from the last run</summary><div id="notesBody"></div></details>
 
   <footer>
-    Sources: <a href="https://etenders.kerala.gov.in/" target="_blank" rel="noopener">Kerala e-Tenders (NIC GePNIC)</a>
-    and <a href="https://lsgkerala.gov.in/" target="_blank" rel="noopener">lsgkerala.gov.in</a>.
-    Scraped automatically once a day &mdash; always verify details on the official portal before bidding.
-    This is an unofficial aggregator, not affiliated with the Government of Kerala.
+    Source: <a href="https://etenders.kerala.gov.in/nicgep/app" target="_blank" rel="noopener">Kerala e-Tenders portal</a>
+    (Local Self Government Department and panchayat organisations). Updated automatically every morning.
+    To open a tender, copy its Tender ID and search for it on the portal. Always check the official notice before bidding.
+    Unofficial tool, not affiliated with the Government of Kerala.
   </footer>
 </div>
 
 <script>
 (function(){
   "use strict";
-  var state = { all: [], meta: null };
+  var PAGE = 50;
+  var SEARCH_URL = "https://etenders.kerala.gov.in/nicgep/app?page=FrontEndAdvancedSearch&service=page";
+  var PANCHAYAT_TYPES = ["Grama Panchayat","Block Panchayat","District Panchayat","Panchayat (other)"];
+  var all = [], meta = {}, newIds = new Set(), shown = PAGE, filtered = [];
+  var $ = function(id){ return document.getElementById(id); };
 
-  function applyStoredTheme(){
-    try{
-      var t = localStorage.getItem("theme");
-      if(t) document.documentElement.setAttribute("data-theme", t);
-    }catch(e){}
-  }
-  applyStoredTheme();
-  document.getElementById("themeBtn").addEventListener("click", function(){
-    var cur = document.documentElement.getAttribute("data-theme");
-    var next = cur === "dark" ? "light" : "dark";
+  try{ var t = localStorage.getItem("theme"); if(t) document.documentElement.setAttribute("data-theme", t); }catch(e){}
+  $("themeBtn").onclick = function(){
+    var dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+      (!document.documentElement.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = dark ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", next);
     try{ localStorage.setItem("theme", next); }catch(e){}
-  });
+  };
 
-  function daysUntil(iso){
-    if(!iso) return null;
-    var today = new Date(new Date().toISOString().slice(0,10));
-    var d = new Date(iso);
-    return Math.round((d - today) / 86400000);
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function inr(n){
+    if(n == null) return null;
+    if(n >= 1e7) return "₹" + (n/1e7).toFixed(2).replace(/\.?0+$/,"") + " Cr";
+    if(n >= 1e5) return "₹" + (n/1e5).toFixed(2).replace(/\.?0+$/,"") + " L";
+    return "₹" + n.toLocaleString("en-IN");
   }
-
   function fmtDate(iso){
     if(!iso) return "—";
-    var d = new Date(iso + "T00:00:00Z");
-    if(isNaN(d)) return iso;
-    return d.toLocaleDateString(undefined, {day:"numeric", month:"short", year:"numeric"});
+    var d = new Date(iso + "T00:00:00");
+    return isNaN(d) ? iso : d.toLocaleDateString("en-IN", {day:"numeric", month:"short", year:"numeric"});
+  }
+  function daysLeft(iso){
+    if(!iso || !meta.today) return null;
+    return Math.round((new Date(iso) - new Date(meta.today)) / 864e5);
+  }
+  function fillSelect(el, values){
+    values.forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = v; el.appendChild(o); });
+  }
+
+  function apply(){
+    var q = $("q").value.trim().toLowerCase(), body = $("body").value, dist = $("district").value,
+        cat = $("category").value, minV = +$("minValue").value, onlyNew = $("onlyNew").checked, sort = $("sort").value;
+    filtered = all.filter(function(t){
+      if(body === "__panchayat"){ if(PANCHAYAT_TYPES.indexOf(t.body_type) < 0) return false; }
+      else if(body && t.body_type !== body) return false;
+      if(dist && t.district !== dist) return false;
+      if(cat && t.category !== cat) return false;
+      if(minV && !(t.value >= minV)) return false;
+      if(onlyNew && !newIds.has(t.id)) return false;
+      if(q && t._hay.indexOf(q) < 0) return false;
+      return true;
+    });
+    filtered.sort(function(a, b){
+      if(sort === "newest") return (b.published_date || "").localeCompare(a.published_date || "");
+      if(sort === "value") return (b.value || 0) - (a.value || 0);
+      return (a.closing_date || "9").localeCompare(b.closing_date || "9");
+    });
+    var soon = 0, total = 0, newCount = 0;
+    filtered.forEach(function(t){
+      var d = daysLeft(t.closing_date); if(d !== null && d >= 0 && d <= 3) soon++;
+      if(t.value) total += t.value;
+      if(newIds.has(t.id)) newCount++;
+    });
+    $("sTotal").textContent = filtered.length.toLocaleString("en-IN");
+    $("sNew").textContent = newCount.toLocaleString("en-IN");
+    $("sSoon").textContent = soon.toLocaleString("en-IN");
+    $("sValue").textContent = inr(total) || "–";
+    shown = PAGE;
+    render();
+    try{ localStorage.setItem("filters", JSON.stringify({body:body, district:dist, category:cat, minValue:$("minValue").value, sort:sort})); }catch(e){}
+  }
+
+  function card(t){
+    var isNew = newIds.has(t.id), d = daysLeft(t.closing_date);
+    var badges = (isNew ? '<span class="badge new">NEW</span>' : "") +
+      (d !== null && d >= 0 && d <= 3 ? '<span class="badge soon">' + (d === 0 ? "Closes today" : "Closes in " + d + "d") + "</span>" : "");
+    var val = inr(t.value);
+    return '<div class="card' + (isNew ? " is-new" : "") + '">' +
+      '<div class="top"><h3>' + esc(t.title) + '</h3><div class="badges">' + badges + "</div></div>" +
+      '<div class="org">' + esc(t.organisation) + (t.district ? " · " + esc(t.district) : "") + " · " + esc(t.body_type) + "</div>" +
+      '<div class="meta">' +
+        (val ? '<span class="value">' + val + "</span>" : "") +
+        (t.emd != null ? "<span><b>EMD:</b> " + inr(t.emd) + "</span>" : "") +
+        "<span><b>Closes:</b> " + esc(t.closing_time || fmtDate(t.closing_date)) + "</span>" +
+        "<span><b>Published:</b> " + fmtDate(t.published_date) + "</span>" +
+        (t.category ? "<span><b>Category:</b> " + esc(t.category) + "</span>" : "") +
+        (t.work_days ? "<span><b>Period:</b> " + esc(t.work_days) + " days</span>" : "") +
+        (t.location ? "<span><b>Location:</b> " + esc(t.location) + (t.pincode ? " " + esc(t.pincode) : "") + "</span>" : "") +
+      "</div>" +
+      '<div class="actions"><code>' + esc(t.tender_id) + '</code>' +
+        '<button type="button" data-copy="' + esc(t.tender_id) + '">Copy ID</button>' +
+        '<a href="' + SEARCH_URL + '" target="_blank" rel="noopener">Find on portal ↗</a>' +
+        (t.tender_ref && t.tender_ref !== t.title ? '<span style="font-size:12px;color:var(--dim)">Ref: ' + esc(t.tender_ref) + "</span>" : "") +
+      "</div></div>";
   }
 
   function render(){
-    var q = document.getElementById("searchBox").value.trim().toLowerCase();
-    var src = document.getElementById("sourceFilter").value;
-    var sortBy = document.getElementById("sortBy").value;
-
-    var items = state.all.filter(function(t){
-      if(src && t.source !== src) return false;
-      if(!q) return true;
-      var hay = (t.title + " " + t.organisation).toLowerCase();
-      return hay.indexOf(q) !== -1;
-    });
-
-    items.sort(function(a, b){
-      if(sortBy === "new"){
-        return (b.first_seen || "").localeCompare(a.first_seen || "");
-      }
-      var ac = a.closing_date || "9999", bc = b.closing_date || "9999";
-      return ac.localeCompare(bc);
-    });
-
-    var wrap = document.getElementById("cards");
-    wrap.innerHTML = "";
-    document.getElementById("emptyMsg").style.display = items.length ? "none" : "block";
-
-    items.forEach(function(t){
-      var isNew = t.first_seen === state.meta.last_run_date_only;
-      var dleft = daysUntil(t.closing_date);
-      var card = document.createElement("div");
-      card.className = "card" + (isNew ? " is-new" : "");
-
-      var badges = "";
-      if(isNew) badges += '<span class="badge new">NEW</span>';
-      if(dleft !== null && dleft >= 0 && dleft <= 3) badges += '<span class="badge soon">Closes in ' + dleft + 'd</span>';
-
-      var titleHtml = t.url
-        ? '<a href="' + t.url + '" target="_blank" rel="noopener">' + escapeHtml(t.title) + "</a>"
-        : escapeHtml(t.title);
-
-      card.innerHTML =
-        '<div class="card-top"><h3>' + titleHtml + "</h3><span>" + badges + "</span></div>" +
-        '<div class="meta">' +
-          "<span><b>Org:</b> " + escapeHtml(t.organisation || "—") + "</span>" +
-          "<span><b>Published:</b> " + fmtDate(t.published_date) + "</span>" +
-          "<span><b>Closes:</b> " + fmtDate(t.closing_date) + "</span>" +
-          "<span><b>Source:</b> " + escapeHtml(t.source) + "</span>" +
-        "</div>";
-      wrap.appendChild(card);
-    });
+    $("cards").innerHTML = filtered.slice(0, shown).map(card).join("");
+    $("empty").hidden = filtered.length > 0;
+    $("more").hidden = shown >= filtered.length;
+    $("count").textContent = filtered.length ? "Showing " + Math.min(shown, filtered.length).toLocaleString("en-IN") + " of " + filtered.length.toLocaleString("en-IN") : "";
   }
 
-  function escapeHtml(s){
-    return String(s || "").replace(/[&<>"']/g, function(c){
-      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+  $("cards").addEventListener("click", function(e){
+    var id = e.target.getAttribute && e.target.getAttribute("data-copy");
+    if(!id) return;
+    var btn = e.target;
+    var done = function(){ btn.textContent = "Copied ✓"; setTimeout(function(){ btn.textContent = "Copy ID"; }, 1500); };
+    if(navigator.clipboard) navigator.clipboard.writeText(id).then(done, function(){ prompt("Tender ID:", id); });
+    else prompt("Tender ID:", id);
+  });
+  $("more").onclick = function(){ shown += PAGE; render(); };
+
+  function getJson(p){ return fetch(p, {cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
+
+  Promise.all([getJson("data/tenders.json").catch(function(){ return []; }),
+               getJson("data/meta.json").catch(function(){ return {}; }),
+               getJson("data/new_today.json").catch(function(){ return []; })]).then(function(res){
+    all = res[0]; meta = res[1] || {}; newIds = new Set(res[2].map(function(t){ return t.id; }));
+    all.forEach(function(t){ t._hay = [t.title, t.organisation, t.tender_id, t.tender_ref, t.district, t.location, t.category].join(" ").toLowerCase(); });
+
+    $("lastRun").textContent = meta.last_run
+      ? "Updated " + new Date(meta.last_run).toLocaleString("en-IN", {dateStyle:"medium", timeStyle:"short"}) + " · " + all.length.toLocaleString("en-IN") + " open LSGD tenders tracked"
+      : "No data yet. The first daily run hasn't finished.";
+
+    var bodyEl = $("body");
+    bodyEl.innerHTML = '<option value="__panchayat">All panchayats</option><option value="">All local bodies (incl. municipalities)</option>';
+    var counts = {};
+    all.forEach(function(t){ counts[t.body_type] = (counts[t.body_type] || 0) + 1; });
+    Object.keys(counts).sort().forEach(function(b){
+      var o = document.createElement("option"); o.value = b; o.textContent = b + " (" + counts[b] + ")"; bodyEl.appendChild(o);
     });
-  }
+    var uniq = function(k){ return Array.from(new Set(all.map(function(t){ return t[k]; }).filter(Boolean))).sort(); };
+    fillSelect($("district"), uniq("district"));
+    fillSelect($("category"), uniq("category"));
 
-  function loadJson(path){
-    return fetch(path, {cache:"no-store"}).then(function(r){
-      if(!r.ok) throw new Error(path + ": " + r.status);
-      return r.json();
-    });
-  }
+    try{
+      var f = JSON.parse(localStorage.getItem("filters") || "{}");
+      ["body","district","category","minValue","sort"].forEach(function(k){
+        if(f[k] != null && Array.prototype.some.call($(k).options, function(o){ return o.value === f[k]; })) $(k).value = f[k];
+      });
+    }catch(e){}
 
-  Promise.all([
-    loadJson("data/tenders.json").catch(function(){ return []; }),
-    loadJson("data/meta.json").catch(function(){ return null; })
-  ]).then(function(results){
-    state.all = results[0] || [];
-    state.meta = results[1] || {last_run_utc: null, total_active: 0, new_today: 0, warnings: []};
-    state.meta.last_run_date_only = state.meta.last_run_utc ? state.meta.last_run_utc.slice(0,10) : null;
-
-    document.getElementById("lastRun").textContent = state.meta.last_run_utc
-      ? "Last updated " + new Date(state.meta.last_run_utc).toLocaleString() + " (UTC run time)"
-      : "No data yet — the first scheduled run hasn't completed.";
-
-    document.getElementById("statTotal").textContent = state.meta.total_active ?? state.all.length;
-    document.getElementById("statNew").textContent = state.meta.new_today ?? 0;
-    document.getElementById("statSoon").textContent = state.all.filter(function(t){
-      var d = daysUntil(t.closing_date); return d !== null && d >= 0 && d <= 3;
-    }).length;
-
-    var sources = Array.from(new Set(state.all.map(function(t){ return t.source; }))).sort();
-    var sel = document.getElementById("sourceFilter");
-    sources.forEach(function(s){
-      var opt = document.createElement("option");
-      opt.value = s; opt.textContent = s;
-      sel.appendChild(opt);
-    });
-
-    if(state.meta.warnings && state.meta.warnings.length){
-      var box = document.getElementById("warnBox");
-      box.style.display = "block";
-      box.innerHTML = "<b>Scraper notes from the last run:</b><br>" + state.meta.warnings.map(escapeHtml).join("<br>");
+    if(meta.notes && meta.notes.length){
+      $("notes").hidden = false;
+      $("notesBody").innerHTML = meta.notes.map(esc).join("<br>");
     }
-
-    render();
+    apply();
   });
 
-  document.getElementById("searchBox").addEventListener("input", render);
-  document.getElementById("sourceFilter").addEventListener("change", render);
-  document.getElementById("sortBy").addEventListener("change", render);
+  var timer;
+  $("q").addEventListener("input", function(){ clearTimeout(timer); timer = setTimeout(apply, 150); });
+  ["body","district","category","minValue","sort","onlyNew"].forEach(function(id){ $(id).addEventListener("change", apply); });
 })();
 </script>
 </body>

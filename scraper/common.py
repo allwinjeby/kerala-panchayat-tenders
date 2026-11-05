@@ -1,32 +1,23 @@
-"""Shared helpers used by every source scraper: HTTP session, robots.txt
-compliance, date parsing, and the normalized tender record shape."""
+"""Shared helpers: polite HTTP (robots.txt + delay), date parsing, and
+classification of Kerala local bodies and districts."""
 from __future__ import annotations
 
 import datetime as dt
-import hashlib
 import re
 import time
 import urllib.robotparser as robotparser
-from dataclasses import dataclass, field
 from urllib.parse import urljoin, urlparse
 
 import requests
 
-USER_AGENT = "KeralaPanchayatTenderWatch/1.0 (+github.com/{owner}/{repo}; personal, non-commercial, low-rate daily scrape)"
+USER_AGENT = "KeralaPanchayatTenderWatch/1.0 (+https://github.com/allwinjeby/kerala-panchayat-tenders)"
+REQUEST_TIMEOUT = 120
+REQUEST_DELAY_SECONDS = 1.5
+IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 
-REQUEST_TIMEOUT = 30
-REQUEST_DELAY_SECONDS = 2.0
 
-PANCHAYAT_KEYWORDS = (
-    "panchayat",
-    "panchayath",
-    "grama",
-    "gramam",
-    "lsgd",
-    "local self government",
-    "block panchayat",
-    "district panchayat",
-)
+def today_ist() -> dt.date:
+    return dt.datetime.now(IST).date()
 
 
 def new_session() -> requests.Session:
@@ -39,37 +30,28 @@ _robots_cache: dict[str, robotparser.RobotFileParser] = {}
 
 
 def robots_allows(url: str, session: requests.Session) -> bool:
-    """Check robots.txt for the given URL's host, caching per-host. Fails
-    open (returns True) only if robots.txt itself can't be fetched, since a
-    missing robots.txt conventionally means "no restrictions"."""
     parsed = urlparse(url)
     host = f"{parsed.scheme}://{parsed.netloc}"
     rp = _robots_cache.get(host)
     if rp is None:
         rp = robotparser.RobotFileParser()
-        rp.set_url(urljoin(host, "/robots.txt"))
         try:
-            resp = session.get(rp.url, timeout=REQUEST_TIMEOUT)
-            if resp.status_code == 200:
-                rp.parse(resp.text.splitlines())
-            else:
-                rp.parse([])  # no robots.txt -> allow all
+            resp = session.get(urljoin(host, "/robots.txt"), timeout=30)
+            rp.parse(resp.text.splitlines() if resp.status_code == 200 else [])
         except requests.RequestException:
             rp.parse([])
         _robots_cache[host] = rp
     return rp.can_fetch(USER_AGENT, url)
 
 
-def polite_get(session: requests.Session, url: str, **kwargs) -> requests.Response | None:
-    """GET a URL, honoring robots.txt and a fixed delay between requests.
-    Returns None (and never raises) if robots.txt disallows it or the
-    request fails, so one bad fetch never kills the whole scrape."""
+def polite_get(session: requests.Session, url: str) -> requests.Response | None:
+    """GET honoring robots.txt and a delay. Returns None instead of raising."""
     if not robots_allows(url, session):
         print(f"[skip] robots.txt disallows: {url}")
         return None
     time.sleep(REQUEST_DELAY_SECONDS)
     try:
-        resp = session.get(url, timeout=REQUEST_TIMEOUT, **kwargs)
+        resp = session.get(url, timeout=REQUEST_TIMEOUT)
         resp.raise_for_status()
         return resp
     except requests.RequestException as exc:
@@ -77,83 +59,84 @@ def polite_get(session: requests.Session, url: str, **kwargs) -> requests.Respon
         return None
 
 
-def polite_post(session: requests.Session, url: str, data: dict, **kwargs) -> requests.Response | None:
-    if not robots_allows(url, session):
-        print(f"[skip] robots.txt disallows: {url}")
-        return None
-    time.sleep(REQUEST_DELAY_SECONDS)
-    try:
-        resp = session.post(url, data=data, timeout=REQUEST_TIMEOUT, **kwargs)
-        resp.raise_for_status()
-        return resp
-    except requests.RequestException as exc:
-        print(f"[error] POST {url} failed: {exc}")
-        return None
-
-
-def looks_like_panchayat(organisation: str) -> bool:
-    text = (organisation or "").lower()
-    return any(kw in text for kw in PANCHAYAT_KEYWORDS)
-
-
-_DATE_PATTERNS = (
-    "%d-%b-%Y %I:%M %p",
-    "%d-%b-%Y",
-    "%d %b %Y",
-    "%d/%m/%Y %I:%M %p",
-    "%d/%m/%Y",
-    "%d-%m-%Y",
-    "%Y-%m-%d",
-)
-
-
 def parse_date(text: str | None) -> str | None:
-    """Best-effort parse of the many date formats Indian govt portals use.
-    Returns an ISO date string (YYYY-MM-DD) or None if unparseable."""
+    """'17-Nov-2026 05:00 PM' -> '2026-11-17'."""
     if not text:
         return None
-    cleaned = re.sub(r"\s+", " ", text).strip()
-    cleaned = re.sub(r"\s*\(.*?\)\s*", "", cleaned)  # strip "(2 Days left)" etc.
-    for pattern in _DATE_PATTERNS:
-        try:
-            return dt.datetime.strptime(cleaned, pattern).date().isoformat()
-        except ValueError:
-            continue
+    m = re.search(r"\d{1,2}-[A-Za-z]{3}-\d{4}", text)
+    if not m:
+        return None
+    try:
+        return dt.datetime.strptime(m.group(0), "%d-%b-%Y").date().isoformat()
+    except ValueError:
+        return None
+
+
+def parse_rupees(text: str | None) -> int | None:
+    """'83,971' -> 83971; 'NA' / '' -> None."""
+    if not text:
+        return None
+    digits = re.sub(r"[^\d.]", "", text)
+    if not digits:
+        return None
+    try:
+        return int(float(digits))
+    except ValueError:
+        return None
+
+
+DISTRICTS = {
+    "Thiruvananthapuram": ("thiruvananthapuram", "trivandrum", "tvm"),
+    "Kollam": ("kollam", "quilon", "klm"),
+    "Pathanamthitta": ("pathanamthitta", "pta"),
+    "Alappuzha": ("alappuzha", "alleppey", "alp"),
+    "Kottayam": ("kottayam", "ktm"),
+    "Idukki": ("idukki", "idk"),
+    "Ernakulam": ("ernakulam", "ekm"),
+    "Thrissur": ("thrissur", "trichur", "tcr", "trchr"),
+    "Palakkad": ("palakkad", "palghat", "pkd"),
+    "Malappuram": ("malappuram", "mlp"),
+    "Kozhikode": ("kozhikode", "calicut", "kzd", "kkd"),
+    "Wayanad": ("wayanad", "wyd"),
+    "Kannur": ("kannur", "cannanore", "knr"),
+    "Kasaragod": ("kasaragod", "kasargod", "ksd"),
+}
+
+
+def find_district(*texts: str) -> str | None:
+    """First district named in any of the texts (full names first, then
+    the short office codes like 'PKD' that appear in section-office names)."""
+    for text in texts:
+        low = (text or "").lower()
+        for name, aliases in DISTRICTS.items():
+            if aliases[0] in low or (len(aliases) > 1 and aliases[1] in low):
+                return name
+    for text in texts:
+        words = set(re.findall(r"[a-z]+", (text or "").lower()))
+        for name, aliases in DISTRICTS.items():
+            if words & set(aliases[1:]):
+                return name
     return None
 
 
-def make_id(source: str, *parts: str) -> str:
-    """Stable id for dedup: prefer a real reference number when we have
-    one; otherwise hash the distinguishing fields."""
-    joined = "|".join(p.strip() for p in parts if p)
-    digest = hashlib.sha1(joined.encode("utf-8")).hexdigest()[:16]
-    return f"{source}:{digest}"
+def classify_body(chain: str) -> str:
+    """Kind of local body that issued the tender, from the organisation chain."""
+    low = chain.lower().replace("panchayath", "panchayat").replace("panchyat", "panchayat")
+    last = low.split("||")[-1]
+    for text in (last, low):
+        if "district panchayat" in text or "jilla panchayat" in text:
+            return "District Panchayat"
+        if "block panchayat" in text:
+            return "Block Panchayat"
+        if "grama panchayat" in text or "gramapanchayat" in text or re.search(r"\bgp\b", text):
+            return "Grama Panchayat"
+        if "corporation" in text:
+            return "Corporation"
+        if "municipal" in text:
+            return "Municipality"
+        if "panchayat" in text:
+            return "Panchayat (other)"
+    return "Other LSGD"
 
 
-@dataclass
-class TenderRecord:
-    id: str
-    source: str
-    title: str
-    organisation: str
-    tender_ref: str | None = None
-    published_date: str | None = None
-    closing_date: str | None = None
-    value_estimate: str | None = None
-    url: str | None = None
-    extra: dict = field(default_factory=dict)
-
-    def to_dict(self) -> dict:
-        d = {
-            "id": self.id,
-            "source": self.source,
-            "title": self.title,
-            "organisation": self.organisation,
-            "tender_ref": self.tender_ref,
-            "published_date": self.published_date,
-            "closing_date": self.closing_date,
-            "value_estimate": self.value_estimate,
-            "url": self.url,
-        }
-        d.update(self.extra)
-        return d
+PANCHAYAT_TYPES = {"Grama Panchayat", "Block Panchayat", "District Panchayat", "Panchayat (other)"}

@@ -1,17 +1,15 @@
-"""Scraper for the Kerala Government e-Tenders portal (etenders.kerala.gov.in),
-built on NIC's GePNIC e-Procurement platform -- the same software used by
-most Indian state tender portals. Pulls the public "Latest Active Tenders"
-listing (no login required) and keeps only rows whose organisation chain
-looks like a panchayat / LSGD body.
+"""Scraper for the Kerala e-Tenders portal (etenders.kerala.gov.in, NIC GePNIC).
 
-IMPORTANT: the exact table markup and pagination control names on this
-platform vary slightly between state deployments and change occasionally.
-This module is written defensively (header-driven column mapping, several
-fallback selectors) rather than against a fixed XPath, but it has not been
-verified against the live site from this environment (outbound access to
-*.kerala.gov.in is blocked here). The first real GitHub Actions run's logs
-are the actual verification step -- see README "Verifying / fixing the
-scraper" if it ever reports 0 results.
+Flow (all public, no login, no CAPTCHA):
+  1. "Tenders by Organisation" page lists every organisation with a link.
+  2. Following an organisation's link (same session) returns ALL its active
+     tenders in one table -- for Local Self Government Department that is
+     every panchayat / municipality works tender in the state.
+  3. Each row links to a detail page with tender value, EMD, category,
+     location. Detail links only work inside the session that produced
+     them, so details are fetched here and the dashboard links to the
+     portal's search page by Tender ID instead.
+The "Active Tenders" and search pages need a CAPTCHA; they are not used.
 """
 from __future__ import annotations
 
@@ -19,176 +17,154 @@ import re
 
 from bs4 import BeautifulSoup
 
-from .common import TenderRecord, looks_like_panchayat, make_id, parse_date, polite_get, polite_post
+from .common import classify_body, find_district, new_session, parse_date, parse_rupees, polite_get
 
 BASE = "https://etenders.kerala.gov.in"
-LATEST_ACTIVE_URL = f"{BASE}/nicgep/app?page=FrontEndLatestActiveTenders&service=page"
+ORG_LIST_URL = f"{BASE}/nicgep/app?page=FrontEndTendersByOrganisation&service=page"
 SOURCE = "kerala_etenders"
-MAX_PAGES = 15
-
-# Header text -> normalized field name. Matched case-insensitively against
-# whatever <th>/<td> header text the page actually has, so small wording
-# changes ("Closing Date" vs "Bid Submission Closing Date") don't break it.
-HEADER_MAP = {
-    "published": "published_date",
-    "closing": "closing_date",
-    "title": "title_cell",
-    "organisation": "organisation",
-    "organization": "organisation",
+DETAIL_FIELDS = {
+    "Tender Value in ₹": "value",
+    "EMD Amount in ₹": "emd",
+    "Tender Fee in ₹": "tender_fee",
+    "Product Category": "category",
+    "Tender Category": "tender_category",
+    "Tender Type": "tender_type",
+    "Location": "location",
+    "Pincode": "pincode",
+    "Period Of Work(Days)": "work_days",
 }
+MONEY_FIELDS = {"value", "emd", "tender_fee"}
 
 
-def _map_headers(header_cells: list[str]) -> dict[int, str]:
-    mapping = {}
-    for idx, text in enumerate(header_cells):
-        low = text.lower()
-        for key, field in HEADER_MAP.items():
-            if key in low:
-                mapping[idx] = field
-                break
-    return mapping
+def wanted_org(name: str) -> bool:
+    low = name.lower()
+    return "local self government" in low or "panchayat" in low or "panchayath" in low
 
 
-def _find_tender_table(soup: BeautifulSoup):
-    """Find the table most likely to be the tender listing: the one with
-    the most rows and a header mentioning both a date and a title/org."""
-    best = None
-    best_score = 0
-    for table in soup.find_all("table"):
-        rows = table.find_all("tr")
-        if len(rows) < 2:
-            continue
-        header_text = " ".join(c.get_text(" ", strip=True) for c in rows[0].find_all(["th", "td"])).lower()
-        score = len(rows)
-        if "closing" in header_text and ("title" in header_text or "organisation" in header_text or "organization" in header_text):
-            score += 1000  # strong signal this is the right table
-        if score > best_score:
-            best_score = score
-            best = table
-    return best
-
-
-def _parse_listing_page(html: str) -> tuple[list[TenderRecord], str | None]:
-    """Parse one page of results. Returns (records, next_page_event_target)."""
+def parse_org_list(html: str) -> list[tuple[str, int, str]]:
+    """-> [(org name, tender count, link)]"""
     soup = BeautifulSoup(html, "lxml")
-    table = _find_tender_table(soup)
-    records: list[TenderRecord] = []
+    table = soup.find("table", id="table")
+    out = []
     if table is None:
-        return records, None
-
-    rows = table.find_all("tr")
-    header_cells = [c.get_text(" ", strip=True) for c in rows[0].find_all(["th", "td"])]
-    col_map = _map_headers(header_cells)
-
-    for row in rows[1:]:
-        cells = row.find_all("td")
-        if not cells:
+        return out
+    for row in table.find_all("tr"):
+        tds = row.find_all("td")
+        if len(tds) < 3:
             continue
-        values: dict[str, str] = {}
-        link_href = None
-        for idx, cell in enumerate(cells):
-            field = col_map.get(idx)
-            if field is None:
-                continue
-            values[field] = cell.get_text(" ", strip=True)
-            a = cell.find("a", href=True)
-            if a and link_href is None:
-                link_href = a["href"]
-
-        title_cell = values.get("title_cell", "")
-        organisation = values.get("organisation", "")
-        if not title_cell and not organisation:
-            continue  # not a data row (e.g. a spacer/pager row)
-
-        # The title cell usually bundles "Title", "Ref No", "Tender Id" on
-        # separate lines; keep the first non-empty line as the title and
-        # try to pull a reference number out of the rest.
-        lines = [l.strip() for l in title_cell.splitlines() if l.strip()]
-        title = lines[0] if lines else title_cell
-        ref_match = re.search(r"(Ref\.?\s*No\.?|Tender\s*ID)\s*[:\-]?\s*(\S+)", title_cell, re.I)
-        tender_ref = ref_match.group(2) if ref_match else None
-
-        url = f"{BASE}{link_href}" if link_href and link_href.startswith("/") else link_href
-
-        rec = TenderRecord(
-            id=make_id(SOURCE, tender_ref or title, organisation, values.get("published_date", "")),
-            source=SOURCE,
-            title=title,
-            organisation=organisation,
-            tender_ref=tender_ref,
-            published_date=parse_date(values.get("published_date")),
-            closing_date=parse_date(values.get("closing_date")),
-            url=url,
-        )
-        records.append(rec)
-
-    # Pagination: GePNIC pagers are ASP.NET postback links like
-    # javascript:__doPostBack('ctl00$...$lnkbtn_PageNext','')
-    next_target = None
-    for a in soup.find_all("a", href=True):
-        if "pagenext" in a["href"].lower() or (a.get_text(strip=True) == ">" and "__dopostback" in a["href"].lower()):
-            m = re.search(r"__doPostBack\('([^']+)'", a["href"])
-            if m:
-                next_target = m.group(1)
-                break
-
-    return records, next_target
+        a = row.find("a", href=True)
+        name = tds[1].get_text(" ", strip=True)
+        count = tds[2].get_text(strip=True)
+        if a and name:
+            out.append((name, int(count) if count.isdigit() else 0, a["href"]))
+    return out
 
 
-def _extract_aspnet_fields(html: str) -> dict:
+def split_title_cell(text: str) -> tuple[str, str | None, str | None]:
+    """'[Title] [Ref No][2026_LSGD_885678_1]' -> (title, ref, tender_id)."""
+    parts = [p.strip() for p in re.findall(r"\[([^\]]*)\]", text)]
+    if not parts:
+        return text.strip(), None, None
+    tender_id = None
+    if re.fullmatch(r"\d{4}_[A-Za-z0-9]+_\d+_\d+", parts[-1]):
+        tender_id = parts.pop()
+    title = parts[0] if parts else text.strip()
+    ref = parts[1] if len(parts) > 1 else None
+    return title, ref, tender_id
+
+
+def parse_tender_list(html: str) -> list[dict]:
     soup = BeautifulSoup(html, "lxml")
-    fields = {}
-    for name in ("__VIEWSTATE", "__VIEWSTATEGENERATOR", "__EVENTVALIDATION"):
-        tag = soup.find("input", {"name": name})
-        if tag and tag.get("value") is not None:
-            fields[name] = tag["value"]
-    return fields
+    table = soup.find("table", id="table")
+    records = []
+    if table is None:
+        return records
+    for row in table.find_all("tr"):
+        tds = row.find_all("td")
+        if len(tds) < 6 or "list_header" in (row.get("class") or []):
+            continue
+        cells = [td.get_text(" ", strip=True) for td in tds]
+        title, ref, tender_id = split_title_cell(cells[4])
+        if not tender_id:
+            continue
+        chain = cells[5]
+        chain_parts = [p.strip() for p in chain.split("||") if p.strip()]
+        a = tds[4].find("a", href=True)
+        records.append({
+            "id": f"{SOURCE}:{tender_id}",
+            "tender_id": tender_id,
+            "title": title,
+            "tender_ref": ref,
+            "published_date": parse_date(cells[1]),
+            "closing_date": parse_date(cells[2]),
+            "closing_time": cells[2],
+            "opening_date": parse_date(cells[3]),
+            "organisation": chain_parts[-1] if chain_parts else chain,
+            "org_chain": chain,
+            "district": find_district(*chain_parts[1:], title),
+            "body_type": classify_body(chain),
+            "_detail_href": a["href"] if a else None,
+        })
+    return records
 
 
-def scrape() -> tuple[list[TenderRecord], list[str]]:
-    """Returns (panchayat_records, warnings). Never raises -- a failure to
-    reach or parse the site shows up as a warning + empty record list, so
-    the rest of the pipeline (and the other source) keeps working."""
-    from .common import new_session
+def parse_detail(html: str) -> dict:
+    soup = BeautifulSoup(html, "lxml")
+    cells = [td.get_text(" ", strip=True) for td in soup.find_all("td")]
+    out = {}
+    for i, text in enumerate(cells[:-1]):
+        key = DETAIL_FIELDS.get(text)
+        if key and key not in out:
+            val = cells[i + 1]
+            out[key] = parse_rupees(val) if key in MONEY_FIELDS else (val or None)
+    return out
 
-    warnings: list[str] = []
+
+def scrape(known: dict[str, dict], detail_budget: int) -> tuple[list[dict], list[str]]:
+    """Return (records, notes). `known` maps id -> previously stored record so
+    details already fetched are reused; at most `detail_budget` new detail
+    pages are fetched per run (the rest are filled on later runs)."""
+    notes: list[str] = []
     session = new_session()
 
-    resp = polite_get(session, LATEST_ACTIVE_URL)
+    resp = polite_get(session, ORG_LIST_URL)
     if resp is None:
-        warnings.append(f"{SOURCE}: could not fetch {LATEST_ACTIVE_URL}")
-        return [], warnings
+        return [], [f"{SOURCE}: could not load the organisation list"]
+    orgs = [o for o in parse_org_list(resp.text) if wanted_org(o[0])]
+    if not orgs:
+        return [], [f"{SOURCE}: no LSGD/panchayat organisations found on the organisation list (page layout may have changed)"]
 
-    all_records: list[TenderRecord] = []
-    html = resp.text
-    seen_targets: set[str] = set()
+    records: dict[str, dict] = {}
+    for name, count, href in orgs:
+        r = polite_get(session, BASE + href)
+        if r is None:
+            notes.append(f"{SOURCE}: failed to load tenders for {name}")
+            continue
+        rows = parse_tender_list(r.text)
+        notes.append(f"{SOURCE}: {name}: {len(rows)} tenders (portal says {count})")
+        for rec in rows:
+            records.setdefault(rec["id"], rec)
 
-    for page_num in range(1, MAX_PAGES + 1):
-        records, next_target = _parse_listing_page(html)
-        all_records.extend(records)
+    fetched = 0
+    for rec in records.values():
+        href = rec.pop("_detail_href", None)
+        prior = known.get(rec["id"])
+        if prior and prior.get("details_fetched"):
+            for key in list(DETAIL_FIELDS.values()) + ["details_fetched"]:
+                if key in prior:
+                    rec[key] = prior[key]
+            continue
+        if fetched >= detail_budget or not href:
+            continue
+        r = polite_get(session, BASE + href)
+        fetched += 1
+        if r is None or "timed out" in r.text[:3000].lower():
+            continue
+        rec.update(parse_detail(r.text))
+        rec["details_fetched"] = True
+        if not rec.get("district"):
+            rec["district"] = find_district(rec.get("location") or "")
 
-        if not next_target or next_target in seen_targets:
-            break
-        seen_targets.add(next_target)
-
-        form_fields = _extract_aspnet_fields(html)
-        if not form_fields:
-            warnings.append(f"{SOURCE}: page {page_num} had a next-page link but no ASP.NET form fields; stopping pagination")
-            break
-        form_fields["__EVENTTARGET"] = next_target
-        form_fields["__EVENTARGUMENT"] = ""
-
-        resp = polite_post(session, LATEST_ACTIVE_URL, data=form_fields)
-        if resp is None:
-            warnings.append(f"{SOURCE}: pagination POST failed on page {page_num + 1}")
-            break
-        html = resp.text
-    else:
-        warnings.append(f"{SOURCE}: hit MAX_PAGES={MAX_PAGES} safety cap; there may be more results")
-
-    if not all_records:
-        warnings.append(f"{SOURCE}: parsed 0 rows from the listing page -- the site markup likely changed, see README")
-
-    panchayat_records = [r for r in all_records if looks_like_panchayat(r.organisation)]
-    warnings.append(f"{SOURCE}: {len(all_records)} total rows parsed, {len(panchayat_records)} matched panchayat/LSGD keywords")
-    return panchayat_records, warnings
+    missing = sum(1 for r in records.values() if not r.get("details_fetched"))
+    notes.append(f"{SOURCE}: fetched {fetched} detail pages this run; {missing} tenders still waiting for details")
+    return list(records.values()), notes

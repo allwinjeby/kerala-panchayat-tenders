@@ -2,8 +2,8 @@ name: Daily tender scrape
 
 on:
   schedule:
-    # 03:00 UTC = 08:30 IST, every day
-    - cron: "0 3 * * *"
+    # 01:00 UTC = 06:30 IST, every day
+    - cron: "0 1 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -16,6 +16,7 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -25,6 +26,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Test parsers
+        run: python tests/test_parsers.py
 
       - name: Run scraper
         run: python -m scraper.run
@@ -37,6 +41,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No data changes."
           else
-            git commit -m "Daily tender data update $(date -u +%Y-%m-%d)"
+            git commit -m "Tender data update $(TZ=Asia/Kolkata date +%Y-%m-%d)"
+            git pull --rebase
             git push
           fi

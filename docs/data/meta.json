@@ -1,14 +1,7 @@
 {
-  "last_run_utc": "2026-11-05T06:07:00+00:00",
+  "last_run": null,
+  "today": null,
   "total_active": 0,
   "new_today": 0,
-  "source_counts": {
-    "kerala_etenders": 0,
-    "lsgkerala": 0
-  },
-  "warnings": [
-    "kerala_etenders: 36 total rows parsed, 0 matched panchayat/LSGD keywords",
-    "lsgkerala: could not fetch https://lsgkerala.gov.in/en/tenders",
-    "lsgkerala: parsed 0 tenders -- the page markup likely differs from what this scraper expects, see README"
-  ]
+  "notes": []
 }

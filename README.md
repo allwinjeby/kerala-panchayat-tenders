@@ -1,91 +1,73 @@
 # Kerala Panchayat Tenders
 
-A small daily job that scrapes public-works tenders/bids published by
-Kerala's panchayats and the Local Self Government Department (LSGD), and
-publishes them as a searchable dashboard.
+A daily-updated, searchable list of public works tenders from Kerala's
+panchayats (Grama, Block and District) and other local bodies.
 
-**Dashboard:** `https://<your-github-username>.github.io/kerala-panchayat-tenders/` (after setup below)
+**Dashboard:** https://allwinjeby.github.io/kerala-panchayat-tenders/
 
-## How it works
+## Where the data comes from
 
-- `scraper/kerala_etenders.py` — scrapes the public "Latest Active Tenders"
-  listing on the state's official e-Tenders portal
-  ([etenders.kerala.gov.in](https://etenders.kerala.gov.in/), built on
-  NIC's GePNIC e-Procurement platform), keeping only rows whose
-  organisation looks like a panchayat / LSGD body.
-- `scraper/lsgkerala.py` — scrapes LSGD's own tenders listing
-  ([lsgkerala.gov.in/en/tenders](https://lsgkerala.gov.in/en/tenders)),
-  which sometimes carries smaller works that don't go through the
-  e-Tenders portal.
-- `scraper/run.py` — runs both, merges results with the previous day's
-  data (tracking `first_seen`/`last_seen` per tender so the dashboard can
-  flag what's new), drops expired tenders, and writes everything into
-  `docs/data/` for the static dashboard (`docs/index.html`) to read.
-- `.github/workflows/daily-scrape.yml` — runs the scraper once a day
-  (03:00 UTC / 08:30 IST) on GitHub's own servers and commits the updated
-  data. GitHub Pages serves `docs/` as the live site.
+The [Kerala e-Tenders portal](https://etenders.kerala.gov.in/nicgep/app)
+(NIC GePNIC). Every morning the job:
 
-Both scrapers check `robots.txt` before fetching, rate-limit themselves,
-and are written so that one source failing (site down, markup changed)
-never crashes the run — it just shows up as a warning banner on the
-dashboard and in `docs/data/meta.json`, while the other source keeps
-working.
+1. Opens the public **Tenders by Organisation** page and picks the
+   organisations that cover local bodies: *Local Self Government
+   Department* (about 5,000 open tenders) plus any organisation with
+   "Panchayat" in its name (Directorate of Panchayat, district panchayats).
+2. Downloads each one's full tender list: title, reference, Tender ID,
+   published, closing and opening dates, and the organisation chain. The
+   chain gives the district and the issuing panchayat or municipality.
+3. Opens each new tender's detail page for its **value (₹), EMD, work
+   category, location and pincode**. It fetches up to 600 a day, so the
+   first few days fill in the backlog and after that it keeps up easily.
 
-## One-time setup (do this after the code is pushed)
+Pages that need a CAPTCHA ("Active Tenders", search) are deliberately not
+used. The job reads robots.txt and waits between requests.
 
-1. **Enable GitHub Pages**: repo *Settings → Pages → Build and deployment
-   → Source: "Deploy from a branch"* → branch `main`, folder `/docs`.
-   The dashboard will be live at
-   `https://<username>.github.io/kerala-panchayat-tenders/` a minute or two later.
-2. **Run it once by hand** to seed real data instead of waiting for the
-   schedule: repo *Actions → Daily tender scrape → Run workflow*.
-3. Everything after that is automatic — the workflow fires daily and
-   pushes fresh data.
+Not used:
+- `tender.lsgkerala.gov.in`: its robots.txt forbids automated access to
+  the tender pages.
+- `lsgkerala.gov.in`'s DDP and Other Institutions pages: these are office
+  quotations such as vehicle hire, not public works.
 
-## Verifying / fixing the scraper against the live site
+Tender detail links on the portal only work inside the browsing session
+that produced them. That's why the dashboard shows each **Tender ID** with
+a copy button and links to the portal's search page, where you paste it.
 
-This project was built and tested with **synthetic fixture HTML**
-(`tests/fixtures/`) because the sandbox it was written in could not reach
-`*.kerala.gov.in`. The parsing logic (`tests/test_parsers.py`) is verified
-against those fixtures, but the real page markup has not been confirmed.
+## Files
 
-After the first real run (step 2 above), check:
+| Path | What it is |
+|---|---|
+| `scraper/kerala_etenders.py` | Portal scraper and parsers |
+| `scraper/common.py` | HTTP and robots.txt handling, date/₹ parsing, district and body-type detection |
+| `scraper/run.py` | Daily job: merge with yesterday, mark new tenders, drop expired ones, write `docs/data/` |
+| `docs/index.html` | The dashboard (static, served by GitHub Pages) |
+| `docs/data/tenders.json` | All open tenders |
+| `docs/data/new_today.json` | Tenders first seen today |
+| `docs/data/meta.json` | Last run time, counts, scraper notes |
+| `.github/workflows/daily-scrape.yml` | Runs everything daily at 06:30 IST |
+| `.github/workflows/debug-fetch.yml` | Manual tool: saves live pages to the `debug-html` branch for inspection |
+| `tests/` | Parser tests against trimmed copies of real portal pages |
 
-- `docs/data/meta.json` → `warnings`. A line like `"...parsed 0 rows..."`
-  means a selector needs adjusting for the real page.
-- The Action's log (*Actions → the run → scrape job*) prints the same
-  warnings plus any HTTP errors.
+## If it stops working
 
-If a source needs fixing:
+The portal's page layout can change. If the dashboard shows 0 tenders, or
+the "Scraper notes" say something failed:
 
-1. Open the live page in a browser, "View Source" (or save the page),
-   and compare against the assumptions in that source's module —
-   `kerala_etenders.py` expects a `<table>` whose header row mentions
-   "closing" and "title"/"organisation"; `lsgkerala.py` expects a Drupal
-   `.view-content .views-row` listing.
-2. Adjust the selector/column-mapping logic to match what's actually
-   there, drop the saved HTML into `tests/fixtures/` (replacing the
-   synthetic one), update `tests/test_parsers.py` expectations, and run:
-   ```
-   python3 tests/test_parsers.py
-   ```
-3. Commit and push; the next scheduled run picks up the fix.
+1. Open *Actions → Daily tender scrape* and read the latest run's log.
+2. Run *Actions → Debug - fetch pages → Run workflow* with the portal URL
+   to capture the live HTML on the `debug-html` branch.
+3. Update the parser in `scraper/kerala_etenders.py`, refresh the
+   matching file in `tests/fixtures/`, and run `python3 tests/test_parsers.py`.
 
-## Running locally
+## Run locally
 
 ```bash
 pip install -r requirements.txt
-python3 -m scraper.run
 python3 tests/test_parsers.py
+python3 -m scraper.run
+python3 -m http.server -d docs 8000
 ```
 
-`python3 -m http.server -d docs 8000` and open `http://localhost:8000/`
-to preview the dashboard against whatever is in `docs/data/`.
-
-## Scope / etiquette
-
-This reads only public tender-notice listings meant for contractors to
-browse, at a slow rate (one request every couple of seconds), and honors
-each site's `robots.txt`. It's an unofficial personal aggregator, not
-affiliated with the Government of Kerala — always confirm details on the
-official portal before acting on anything shown here.
+Unofficial tool, not affiliated with the Government of Kerala. Always
+check the official notice before bidding.

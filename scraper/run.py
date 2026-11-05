@@ -1,138 +1,86 @@
-"""Daily orchestrator: run every source scraper, merge results with what
-was already known, and write the data files the dashboard reads. Designed
-to never crash the whole pipeline because one source failed -- each source
-error becomes a warning in meta.json instead.
-"""
+"""Daily job: scrape, merge with yesterday's data, write docs/data/*.json."""
 from __future__ import annotations
 
 import datetime as dt
 import json
 from pathlib import Path
 
-from . import kerala_etenders, lsgkerala
-from .common import TenderRecord
+from . import kerala_etenders
+from .common import IST, today_ist
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "docs" / "data"
-HISTORY_DIR = DATA_DIR / "history"
 TENDERS_FILE = DATA_DIR / "tenders.json"
 NEW_TODAY_FILE = DATA_DIR / "new_today.json"
 META_FILE = DATA_DIR / "meta.json"
 
-GRACE_DAYS = 3  # tolerate a source being briefly unreachable before dropping its listings
-HISTORY_RETENTION_DAYS = 60  # keep history/ from growing forever
-
-SOURCES = {
-    "kerala_etenders": kerala_etenders.scrape,
-    "lsgkerala": lsgkerala.scrape,
-}
+DETAIL_BUDGET = 600  # detail pages per run; ~15 min at the polite delay
+GRACE_DAYS = 3  # keep a tender this many days if the portal is briefly unreachable
 
 
-def _load_existing() -> dict[str, dict]:
-    if not TENDERS_FILE.exists():
-        return {}
+def load_existing() -> dict[str, dict]:
     try:
-        data = json.loads(TENDERS_FILE.read_text())
-        return {rec["id"]: rec for rec in data}
-    except (json.JSONDecodeError, KeyError):
+        return {r["id"]: r for r in json.loads(TENDERS_FILE.read_text())}
+    except (FileNotFoundError, json.JSONDecodeError, KeyError, TypeError):
         return {}
 
 
-def _is_expired(closing_date: str | None, today: dt.date) -> bool:
-    if not closing_date:
-        return False
-    try:
-        return dt.date.fromisoformat(closing_date) < today
-    except ValueError:
-        return False
-
-
-def _is_stale(last_seen: str, today: dt.date) -> bool:
-    try:
-        last = dt.date.fromisoformat(last_seen)
-    except ValueError:
-        return True
-    return (today - last).days > GRACE_DAYS
+def merge(existing: dict[str, dict], fresh: list[dict], today: dt.date) -> tuple[list[dict], set[str]]:
+    today_iso = today.isoformat()
+    merged: dict[str, dict] = {}
+    new_ids: set[str] = set()
+    for rec in fresh:
+        prior = existing.get(rec["id"])
+        rec["first_seen"] = prior["first_seen"] if prior else today_iso
+        rec["last_seen"] = today_iso
+        if not prior:
+            new_ids.add(rec["id"])
+        merged[rec["id"]] = rec
+    for tid, rec in existing.items():
+        if tid in merged:
+            continue
+        closing = rec.get("closing_date")
+        if closing and closing < today_iso:
+            continue
+        last_seen = rec.get("last_seen") or today_iso
+        if (today - dt.date.fromisoformat(last_seen)).days > GRACE_DAYS:
+            continue
+        merged[tid] = rec
+    records = [r for r in merged.values() if not (r.get("closing_date") and r["closing_date"] < today_iso)]
+    records.sort(key=lambda r: (r.get("closing_date") or "9999", r.get("title") or ""))
+    return records, new_ids
 
 
 def main() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    HISTORY_DIR.mkdir(parents=True, exist_ok=True)
+    today = today_ist()
+    existing = load_existing()
 
-    today = dt.datetime.now(dt.timezone.utc).date()
-    today_iso = today.isoformat()
+    try:
+        fresh, notes = kerala_etenders.scrape(existing, DETAIL_BUDGET)
+    except Exception as exc:  # noqa: BLE001 - keep yesterday's data if the scraper breaks
+        fresh, notes = [], [f"kerala_etenders: unhandled error: {exc!r}"]
 
-    existing = _load_existing()
-    all_warnings: list[str] = []
-    source_counts: dict[str, int] = {}
-    fresh_records: list[TenderRecord] = []
+    first_run = not existing
+    records, new_ids = merge(existing, fresh, today)
+    new_today = [] if first_run else [r for r in records if r["id"] in new_ids]
 
-    for name, scrape_fn in SOURCES.items():
-        try:
-            records, warnings = scrape_fn()
-        except Exception as exc:  # noqa: BLE001 - a source must never take down the run
-            records, warnings = [], [f"{name}: unhandled exception: {exc!r}"]
-        fresh_records.extend(records)
-        source_counts[name] = len(records)
-        all_warnings.extend(warnings)
+    def dump(path: Path, obj) -> None:
+        path.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
 
-    merged: dict[str, dict] = {}
-    new_today_ids: set[str] = set()
-
-    for rec in fresh_records:
-        d = rec.to_dict()
-        prior = existing.get(d["id"])
-        d["first_seen"] = prior["first_seen"] if prior else today_iso
-        d["last_seen"] = today_iso
-        if not prior:
-            new_today_ids.add(d["id"])
-        merged[d["id"]] = d
-
-    # Carry forward anything not seen in today's fresh scrape, unless it's
-    # expired or has been missing for too many days in a row.
-    for tid, d in existing.items():
-        if tid in merged:
-            continue
-        if _is_expired(d.get("closing_date"), today):
-            continue
-        if _is_stale(d.get("last_seen", today_iso), today):
-            continue
-        merged[tid] = d
-
-    def sort_key(d: dict):
-        return (d.get("closing_date") is None, d.get("closing_date") or "", d.get("title") or "")
-
-    all_records = sorted(merged.values(), key=sort_key)
-    new_today = [d for d in all_records if d["id"] in new_today_ids]
-
-    TENDERS_FILE.write_text(json.dumps(all_records, indent=2, ensure_ascii=False))
-    NEW_TODAY_FILE.write_text(json.dumps(new_today, indent=2, ensure_ascii=False))
-    (HISTORY_DIR / f"{today_iso}.json").write_text(json.dumps(all_records, indent=2, ensure_ascii=False))
-
-    meta = {
-        "last_run_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-        "total_active": len(all_records),
+    dump(TENDERS_FILE, records)
+    dump(NEW_TODAY_FILE, new_today)
+    META_FILE.write_text(json.dumps({
+        "last_run": dt.datetime.now(IST).isoformat(timespec="seconds"),
+        "today": today.isoformat(),
+        "total_active": len(records),
         "new_today": len(new_today),
-        "source_counts": source_counts,
-        "warnings": all_warnings,
-    }
-    META_FILE.write_text(json.dumps(meta, indent=2, ensure_ascii=False))
+        "scraped_this_run": len(fresh),
+        "notes": notes,
+    }, ensure_ascii=False, indent=2))
 
-    _prune_history(today)
-
-    print(f"Done. {len(all_records)} active tenders ({len(new_today)} new today).")
-    for w in all_warnings:
-        print(f"  - {w}")
-
-
-def _prune_history(today: dt.date) -> None:
-    cutoff = today - dt.timedelta(days=HISTORY_RETENTION_DAYS)
-    for f in HISTORY_DIR.glob("*.json"):
-        try:
-            file_date = dt.date.fromisoformat(f.stem)
-        except ValueError:
-            continue
-        if file_date < cutoff:
-            f.unlink()
+    print(f"Done: {len(records)} active tenders, {len(new_today)} new today.")
+    for n in notes:
+        print("  -", n)
 
 
 if __name__ == "__main__":

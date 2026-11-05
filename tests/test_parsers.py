@@ -1,84 +1,83 @@
-"""Sanity checks for the parsing logic against synthetic fixture HTML.
-
-These confirm the *code* behaves correctly (header mapping, panchayat
-filtering, date parsing, dedupe id stability) -- they do not guarantee the
-live site's real markup matches the fixtures, since this environment
-cannot reach etenders.kerala.gov.in / lsgkerala.gov.in to capture real
-HTML. See README for how the first live GitHub Actions run verifies that.
-"""
+"""Parser tests against trimmed copies of real etenders.kerala.gov.in pages
+(captured Nov 2026). Run: python3 tests/test_parsers.py"""
+import datetime as dt
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from scraper import kerala_etenders, lsgkerala
-from scraper.common import looks_like_panchayat, make_id, parse_date
+from scraper.common import classify_body, find_district, parse_date, parse_rupees
+from scraper.kerala_etenders import parse_detail, parse_org_list, parse_tender_list, split_title_cell, wanted_org
+from scraper.run import merge
 
-FIXTURES = Path(__file__).parent / "fixtures"
+FIX = Path(__file__).parent / "fixtures"
 
 
-def test_parse_date_formats():
-    assert parse_date("01-Nov-2026") == "2026-11-01"
-    assert parse_date("20-Nov-2026 05:00 PM") == "2026-11-20"
+def test_org_list():
+    orgs = parse_org_list((FIX / "org_list.html").read_text())
+    names = {n: c for n, c, _ in orgs}
+    assert names["Local Self Government Department"] == 5314
+    wanted = sorted(n for n, _, _ in orgs if wanted_org(n))
+    assert wanted == ["Directorate of Panchayat", "Local Self Government Department", "Secretary Kannur District Panchayat"]
+
+
+def test_tender_list():
+    rows = parse_tender_list((FIX / "lsgd_tenders.html").read_text())
+    assert len(rows) == 5
+    first = rows[0]
+    assert first["tender_id"] == "2026_LSGD_885678_1"
+    assert first["title"].startswith("Annual Plan-Kuzhalmannam GP")
+    assert first["tender_ref"] == "03/ET/RETEN/26-27/AE/LIDEW/KZM"
+    assert first["closing_date"] == "2026-11-17"
+    assert first["district"] == "Palakkad"
+    assert first["body_type"] == "Grama Panchayat"
+    assert first["_detail_href"].startswith("/nicgep/app?")
+
+
+def test_detail():
+    d = parse_detail((FIX / "tender_detail.html").read_text())
+    assert d["value"] == 83971
+    assert d["emd"] == 2099
+    assert d["category"] == "Civil Works - Roads"
+    assert d["pincode"] == "678702"
+
+
+def test_helpers():
+    assert parse_date("17-Nov-2026 05:00 PM") == "2026-11-17"
     assert parse_date("") is None
-    assert parse_date(None) is None
-    assert parse_date("not a date") is None
+    assert parse_rupees("1,23,456") == 123456
+    assert parse_rupees("NA") is None
+    assert split_title_cell("[A road] [REF/1][2026_LSGD_1_1]") == ("A road", "REF/1", "2026_LSGD_1_1")
+    assert find_district("Grama Panchayath Section Office PKD") == "Palakkad"
+    assert find_district("Thiruvananthapuram") == "Thiruvananthapuram"
+    assert classify_body("LSGD||Kozhikode||Koduvally Block Panchayat") == "Block Panchayat"
+    assert classify_body("LSGD||Palakkad||Municipal Engineers office PKD||Municipal Engineer Pattambi Municipality") == "Municipality"
+    assert classify_body("LSGD||Kannur||Secretary Kannur District Panchayath") == "District Panchayat"
 
 
-def test_looks_like_panchayat():
-    assert looks_like_panchayat("Nedumangad Grama Panchayat")
-    assert looks_like_panchayat("Koduvally Block Panchayat")
-    assert looks_like_panchayat("Local Self Government Department||LSGD")
-    assert not looks_like_panchayat("Directorate of Collegiate Education")
-
-
-def test_make_id_is_stable_and_order_sensitive_to_content_not_call():
-    a = make_id("src", "Title", "Org", "2026-11-01")
-    b = make_id("src", "Title", "Org", "2026-11-01")
-    c = make_id("src", "Different Title", "Org", "2026-11-01")
-    assert a == b
-    assert a != c
-
-
-def test_etenders_listing_filters_to_panchayat_only():
-    html = (FIXTURES / "etenders_listing.html").read_text()
-    records, next_target = kerala_etenders._parse_listing_page(html)
-    assert len(records) == 3, "parser should find all 3 rows before filtering"
-
-    panchayat_only = [r for r in records if looks_like_panchayat(r.organisation)]
-    assert len(panchayat_only) == 2
-    titles = {r.title for r in panchayat_only}
-    assert "Construction of road at Ward 5" in titles
-    assert "Renovation of anganwadi building" in titles
-
-    road = next(r for r in panchayat_only if "road" in r.title)
-    assert road.closing_date == "2026-11-20"
-    assert road.published_date == "2026-11-01"
-    assert road.url == "https://etenders.kerala.gov.in/nicgep/app?page=FrontEndViewTender&service=direct&tenderId=111"
-
-    assert next_target is None  # no pager links in the fixture
-
-
-def test_lsgkerala_listing_parses_rows():
-    html = (FIXTURES / "lsgkerala_listing.html").read_text()
-    records = lsgkerala._parse_listing_page(html, "https://lsgkerala.gov.in/en/tenders")
-    assert len(records) == 2
-    assert records[0].title == "Tender for road repair work, Ward 3"
-    assert records[0].url == "https://lsgkerala.gov.in/en/tenders/road-repair-ward-3"
-    assert records[1].closing_date == "2026-11-18"
+def test_merge_tracks_new_and_drops_expired():
+    today = dt.date(2026, 11, 5)
+    existing = {
+        "a": {"id": "a", "first_seen": "2026-11-01", "last_seen": "2026-11-04", "closing_date": "2026-11-20"},
+        "old": {"id": "old", "first_seen": "2026-10-01", "last_seen": "2026-11-04", "closing_date": "2026-11-01"},
+        "gone": {"id": "gone", "first_seen": "2026-10-01", "last_seen": "2026-10-20", "closing_date": "2026-12-01"},
+    }
+    fresh = [{"id": "a", "closing_date": "2026-11-20"}, {"id": "b", "closing_date": "2026-11-10"}]
+    records, new_ids = merge(existing, fresh, today)
+    ids = [r["id"] for r in records]
+    assert ids == ["b", "a"]
+    assert new_ids == {"b"}
+    assert records[1]["first_seen"] == "2026-11-01"
 
 
 if __name__ == "__main__":
-    failures = 0
+    failed = 0
     for name, fn in list(globals().items()):
-        if name.startswith("test_") and callable(fn):
+        if name.startswith("test_"):
             try:
                 fn()
-                print(f"PASS {name}")
-            except AssertionError as e:
-                failures += 1
-                print(f"FAIL {name}: {e}")
-    if failures:
-        print(f"\n{failures} test(s) failed")
-        sys.exit(1)
-    print("\nAll tests passed")
+                print("PASS", name)
+            except Exception as e:  # noqa: BLE001
+                failed += 1
+                print("FAIL", name, repr(e))
+    sys.exit(1 if failed else 0)
