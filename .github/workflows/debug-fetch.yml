@@ -1,0 +1,37 @@
+name: Debug - fetch pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "Space-separated URLs to save to the debug-html branch"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch pages
+        env:
+          URLS: ${{ github.event.inputs.urls }}
+        run: |
+          mkdir out && cd out
+          i=0
+          for u in $URLS; do
+            i=$((i+1))
+            curl -sSL -A "KeralaPanchayatTenderWatch/1.0 (debug)" -c cookies.txt -b cookies.txt \
+              -o "page_$i.html" -w "$i %{http_code} %{url_effective}\n" "$u" >> index.txt || echo "$i FAILED $u" >> index.txt
+          done
+          rm -f cookies.txt
+          cat index.txt
+      - name: Push to debug-html branch
+        run: |
+          cd out
+          git init -q -b debug-html
+          git config user.name "tender-bot"
+          git config user.email "tender-bot@users.noreply.github.com"
+          git add -A && git commit -qm "debug fetch"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" debug-html
