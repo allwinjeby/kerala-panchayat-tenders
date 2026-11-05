@@ -11,6 +11,7 @@ from .common import IST, body_name, today_ist
 DATA_DIR = Path(__file__).resolve().parent.parent / "docs" / "data"
 TENDERS_FILE = DATA_DIR / "tenders.json"
 NEW_TODAY_FILE = DATA_DIR / "new_today.json"
+BODIES_FILE = DATA_DIR / "bodies.json"
 META_FILE = DATA_DIR / "meta.json"
 
 DETAIL_BUDGET = 1200  # detail pages per run; ~35 min at the polite delay
@@ -50,6 +51,34 @@ def merge(existing: dict[str, dict], fresh: list[dict], today: dt.date) -> tuple
     return records, new_ids
 
 
+def update_bodies(records: list[dict], today: dt.date) -> dict[str, dict]:
+    """Permanent register of every local body ever seen, so a panchayat with
+    no open tender today is still searchable. `seen_ids` counts unique tenders."""
+    try:
+        bodies = json.loads(BODIES_FILE.read_text())
+    except (FileNotFoundError, json.JSONDecodeError):
+        bodies = {}
+    today_iso = today.isoformat()
+    open_now: dict[str, int] = {}
+    for r in records:
+        name = r.get("body_name")
+        if not name:
+            continue
+        open_now[name] = open_now.get(name, 0) + 1
+        b = bodies.setdefault(name, {"type": r.get("body_type"), "district": r.get("district"), "first_seen": today_iso, "tenders_seen": 0, "seen_ids": []})
+        tid = r.get("tender_id") or r["id"]
+        if tid not in b["seen_ids"]:
+            b["seen_ids"].append(tid)
+            b["tenders_seen"] = len(b["seen_ids"])
+        b["last_seen"] = today_iso
+        if not b.get("district") and r.get("district"):
+            b["district"] = r["district"]
+    for name, b in bodies.items():
+        b["open"] = open_now.get(name, 0)
+        b["seen_ids"] = b["seen_ids"][-500:]
+    return dict(sorted(bodies.items()))
+
+
 def main() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     today = today_ist()
@@ -70,6 +99,7 @@ def main() -> None:
         path.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
 
     dump(TENDERS_FILE, records)
+    dump(BODIES_FILE, update_bodies(records, today))
     dump(NEW_TODAY_FILE, new_today)
     META_FILE.write_text(json.dumps({
         "last_run": dt.datetime.now(IST).isoformat(timespec="seconds"),

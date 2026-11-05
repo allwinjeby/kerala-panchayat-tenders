@@ -86,6 +86,19 @@ def test_merge_tracks_new_and_drops_expired():
     assert records[1]["first_seen"] == "2026-11-01"
 
 
+def test_update_bodies_keeps_bodies_with_nothing_open():
+    import json
+    import tempfile
+    import scraper.run as run
+    with tempfile.TemporaryDirectory() as d:
+        run.BODIES_FILE = Path(d) / "bodies.json"
+        day1 = [{"id": "x:1", "tender_id": "1", "body_name": "Valakom Grama Panchayat", "body_type": "Grama Panchayat", "district": "Ernakulam"}]
+        run.BODIES_FILE.write_text(json.dumps(run.update_bodies(day1, dt.date(2026, 11, 5))))
+        b = run.update_bodies([], dt.date(2026, 11, 6))
+        v = b["Valakom Grama Panchayat"]
+        assert v["open"] == 0 and v["tenders_seen"] == 1 and v["last_seen"] == "2026-11-05"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in list(globals().items()):

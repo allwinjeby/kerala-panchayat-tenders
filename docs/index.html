@@ -414,7 +414,7 @@
     <div class="gate-top">
       <button class="icon-btn close" id="gateClose" type="button" aria-label="Close" hidden>✕</button>
       <h2 id="gateTitle">Log in to continue</h2>
-      <p id="gateMsg">Your 5-minute free trial has ended. Log in to keep using Kerala Panchayat Tenders.</p>
+      <p id="gateMsg">Your 3-minute free trial has ended. Log in to keep using Kerala Panchayat Tenders.</p>
     </div>
     <form id="loginForm" autocomplete="on">
       <label>Username<input id="lgUser" name="username" autocomplete="username" required></label>
@@ -660,7 +660,11 @@
     box.hidden = false;
     box.innerHTML = '<div class="avatar">' + esc(initials(S.pb)) + "</div>" +
       "<div><h2>" + esc(S.pb) + '</h2><div class="pmeta">' + esc([b.type, b.district].filter(Boolean).join(" · ")) + "</div>" +
-      '<div class="pstats"><div><b>' + num(list.length) + "</b>open tenders</div><div><b>" + num(soon) + "</b>closing this week</div><div><b>" + num(nNew) + "</b>new today</div>" +
+      (list.length ? "" : '<div class="pmeta" style="margin-top:6px">No open e-tenders right now' + (b.lastSeen ? " · last tender seen " + esc(fmtDate(b.lastSeen)) : "") +
+        ". Follow it to get a “new” alert when it publishes one.</div>") +
+      '<div class="pstats"><div><b>' + num(list.length) + "</b>open tenders</div>" +
+      (b.seen ? "<div><b>" + num(b.seen) + "</b>tracked since " + esc(fmtDate(b.firstSeen, {day:"numeric", month:"short"})) + "</div>" : "") +
+      "<div><b>" + num(soon) + "</b>closing this week</div><div><b>" + num(nNew) + "</b>new today</div>" +
       "<div><b>" + (known ? inr(total) : "–") + "</b>value" + (known < list.length ? " (" + known + " known)" : "") + "</div>" +
       (topCat ? "<div><b style=\"font-size:14px\">" + esc(topCat) + "</b>most common work</div>" : "") + "</div></div>" +
       '<div class="pacts"><button class="chipbtn" type="button" id="pFollow" aria-pressed="' + isF + '">' + (isF ? "♥ Following" : "♡ Follow") + '</button>' +
@@ -698,7 +702,7 @@
     }).sort(function(a, b){
       var al = a.toLowerCase().indexOf(words[0] || ""), bl = b.toLowerCase().indexOf(words[0] || "");
       if(words.length && (al === 0) !== (bl === 0)) return al === 0 ? -1 : 1;
-      return bodies[b].count - bodies[a].count;
+      return bodies[b].count - bodies[a].count || a.localeCompare(b);
     }).slice(0, 40);
   }
   function highlight(name, text){
@@ -707,14 +711,37 @@
     var i = name.toLowerCase().indexOf(w.toLowerCase());
     return i < 0 ? esc(name) : esc(name.slice(0, i)) + "<mark>" + esc(name.slice(i, i + w.length)) + "</mark>" + esc(name.slice(i + w.length));
   }
+  function mentionCount(text){
+    var words = text.toLowerCase().split(/\s+/).filter(Boolean);
+    if(!words.length || text.trim().length < 3) return 0;
+    var n = 0;
+    all.forEach(function(t){
+      if(t._close && t._close < NOW) return;
+      if(words.every(function(w){ return t._place.indexOf(w) >= 0; })) n++;
+    });
+    return n;
+  }
   function openCombo(){
-    var text = pbInput.value === S.pb ? "" : pbInput.value;
-    pbItems = pbMatches(text); pbActive = pbItems.length ? 0 : -1;
-    pbList.innerHTML = pbItems.length ? pbItems.map(function(n, i){
+    var text = pbInput.value === S.pb ? "" : pbInput.value.trim();
+    pbItems = pbMatches(text);
+    var mentions = mentionCount(text);
+    if(mentions) pbItems = pbItems.slice(0, 39).concat([{mention: text, n: mentions}]);
+    pbActive = pbItems.length ? 0 : -1;
+    var html = pbItems.map(function(n, i){
+      var head = '<li role="option" id="pbo' + i + '" data-i="' + i + '" aria-selected="' + (i === pbActive) + '">';
+      if(typeof n !== "string") return head + '<span class="nm">🔎 Tenders mentioning “' + esc(n.mention) + '”</span><span class="ds">in title or location</span><span class="ct">' + n.n + "</span></li>";
       var b = bodies[n];
-      return '<li role="option" id="pbo' + i + '" data-i="' + i + '" aria-selected="' + (i === pbActive) + '"><span class="nm">' + highlight(n, text) + '</span><span class="ds">' + esc(b.district || "") + '</span><span class="ct">' + b.count + "</span></li>";
-    }).join("") : '<li class="none">No panchayat matches “' + esc(text) + "”" + (S.district ? " in " + esc(S.district) : "") + "</li>";
+      var ct = b.count ? b.count + " open" : "0 open";
+      return head + '<span class="nm">' + highlight(n, text) + '</span><span class="ds">' + esc(b.district || "") + '</span><span class="ct"' + (b.count ? "" : ' style="opacity:.6"') + ">" + ct + "</span></li>";
+    }).join("");
+    if(!pbItems.length) html = '<li class="none">No panchayat or tender mentions “' + esc(text) + "”" + (S.district ? " in " + esc(S.district) : "") +
+      ". It may have no tender on the e-Tenders portal yet; panchayats appear here once they publish one.</li>";
+    pbList.innerHTML = html;
     pbList.hidden = false; pbInput.setAttribute("aria-expanded", "true");
+  }
+  function pickItem(item){
+    if(typeof item === "string") selectBody(item);
+    else { S.pb = ""; S.q = item.mention; pbInput.value = ""; update(); }
   }
   function closeCombo(){ pbList.hidden = true; pbInput.setAttribute("aria-expanded", "false"); }
   function moveActive(d){
@@ -729,12 +756,12 @@
   pbInput.addEventListener("keydown", function(e){
     if(e.key === "ArrowDown"){ e.preventDefault(); if(pbList.hidden) openCombo(); else moveActive(1); }
     else if(e.key === "ArrowUp"){ e.preventDefault(); moveActive(-1); }
-    else if(e.key === "Enter"){ e.preventDefault(); if(pbActive >= 0){ selectBody(pbItems[pbActive]); closeCombo(); pbInput.blur(); } }
+    else if(e.key === "Enter"){ e.preventDefault(); if(pbActive >= 0){ pickItem(pbItems[pbActive]); closeCombo(); pbInput.blur(); } }
     else if(e.key === "Escape"){ closeCombo(); pbInput.value = S.pb; pbInput.blur(); }
   });
   pbList.addEventListener("mousedown", function(e){
     var li = e.target.closest("li[data-i]"); if(!li) return;
-    e.preventDefault(); selectBody(pbItems[+li.dataset.i]); closeCombo(); pbInput.blur();
+    e.preventDefault(); pickItem(pbItems[+li.dataset.i]); closeCombo(); pbInput.blur();
   });
   pbInput.addEventListener("blur", function(){ setTimeout(function(){ closeCombo(); pbInput.value = S.pb; }, 120); });
   $("pbClear").onclick = function(){ selectBody(""); };
@@ -1172,7 +1199,7 @@
   }
 
   // ---------- free trial + login (demo gate: client-side only) ----------
-  var TRIAL_SECONDS = 300;
+  var TRIAL_SECONDS = 180;
   var AUTH_HASH = "135f33f7ae7639f880ec63e5741e7836def68a873a0d7fcec86f986f7c561027";
   var gate = $("gate"), acct = $("acct");
   var authed = lsGet("auth", "") === AUTH_HASH;
@@ -1198,7 +1225,7 @@
     gate.hidden = false;
     $("gateClose").hidden = forced;
     $("gateTitle").textContent = forced ? "Free trial ended" : "Log in";
-    $("gateMsg").textContent = forced ? "Your 5-minute free trial has ended. Log in to keep using Kerala Panchayat Tenders." : "Log in for unlimited access.";
+    $("gateMsg").textContent = forced ? "Your 3-minute free trial has ended. Log in to keep using Kerala Panchayat Tenders." : "Log in for unlimited access.";
     $("lgErr").textContent = "";
     setTimeout(function(){ $("lgUser").focus(); }, 50);
   }
@@ -1245,7 +1272,8 @@
   function getJson(p){ return fetch(p, {cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
   Promise.all([getJson("data/tenders.json").catch(function(){ return []; }),
                getJson("data/meta.json").catch(function(){ return {}; }),
-               getJson("data/new_today.json").catch(function(){ return []; })]).then(function(res){
+               getJson("data/new_today.json").catch(function(){ return []; }),
+               getJson("data/bodies.json").catch(function(){ return {}; })]).then(function(res){
     all = res[0] || []; meta = res[1] || {}; newIds = new Set((res[2] || []).map(function(t){ return t.id; }));
     if(!meta.today) meta.today = new Date().toISOString().slice(0, 10);
     all.forEach(function(t){
@@ -1253,8 +1281,15 @@
       t._close = closingMs(t);
       byId[t.id] = t;
       var b = bodies[t.body_name] || (bodies[t.body_name] = {count: 0, value: 0, district: t.district, type: t.body_type});
-      b.count++; b.value += t.value || 0;
+      if(!(t._close && t._close < NOW)){ b.count++; b.value += t.value || 0; }
       t._hay = [t.title, t.body_name, t.organisation, t.tender_id, t.tender_ref, t.district, t.location, t.category, t.pincode].join(" ").toLowerCase();
+      t._place = [t.title, t.location].join(" ").toLowerCase();
+    });
+    var reg = res[3] || {};
+    Object.keys(reg).forEach(function(name){
+      var r = reg[name], b = bodies[name] || (bodies[name] = {count: 0, value: 0, district: r.district, type: r.type});
+      b.firstSeen = r.first_seen; b.lastSeen = r.last_seen; b.seen = r.tenders_seen;
+      if(!b.district) b.district = r.district;
     });
     var v = lsGet("visit", null);
     if(!v) lsSet("visit", {today: meta.today, base: null});

@@ -45,7 +45,7 @@ a copy button and links to the portal's search page, where you paste it.
 - **Follow panchayats**: get a "new since your last visit" alert and quick chips for the panchayats you follow
 - **Tender detail**: value, EMD, live countdown, private notes, other tenders from the same panchayat, calendar reminder (.ics), WhatsApp share
 - Saved tenders, card/table views, shareable filter links, CSV export, dark mode, `/` and `p` keyboard shortcuts
-- **5-minute free trial**, then a login screen with premium-membership contact details
+- **3-minute free trial**, then a login screen with premium-membership contact details
 
 ### About the login
 
