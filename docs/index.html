@@ -262,6 +262,64 @@
   kbd{font-size:11px;border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--surface)}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
+  /* ---------- AI + calculator ---------- */
+  .pill.ai{background:var(--series-soft);border-color:transparent;color:var(--text)}
+  .pill.ai.p-high{background:var(--accent-soft);border-color:var(--accent)}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin:0 0 12px;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{border:0;background:none;padding:9px 12px;font-size:13.5px;font-weight:600;color:var(--text-2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+  .tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+  .muted{color:var(--text-2);font-size:13.5px}
+  .muted.small{font-size:12.5px;margin:6px 0 0}
+  .aisum{font-size:14.5px;margin:0 0 12px;line-height:1.5}
+  .meters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:480px){.meters{grid-template-columns:1fr}}
+  .meter{background:var(--surface-2);border-radius:10px;padding:9px 11px}
+  .mtop{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2)}
+  .mtop b{color:var(--text)}
+  .mbar{height:8px;background:var(--border);border-radius:999px;margin-top:6px;overflow:hidden}
+  .mfill{height:100%;border-radius:999px}
+  .mfill.good{background:#1f9d63} .mfill.mid{background:#d99a1c} .mfill.bad{background:#c8503a}
+  .aikpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+  .aikpis div{border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+  .aikpis b{display:block;font-size:15px}
+  .aikpis span{font-size:11.5px;color:var(--text-2)}
+  .aibox h4{font-size:13px;margin:14px 0 4px}
+  .aibox ul{margin:0;padding-left:18px;font-size:13.5px}
+  .aibox li{margin:2px 0}
+  .disclaimer{font-size:11.5px;color:var(--muted);margin:12px 0 8px;line-height:1.5}
+  .assume{font-size:13px;margin-bottom:8px}
+  .assume summary{cursor:pointer;color:var(--text-2)}
+  .calcwrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+  table.calc{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+  .calc th{text-align:left;font-size:11.5px;color:var(--text-2);padding:7px 6px;background:var(--surface-2);font-weight:600}
+  .calc th.r,.calc td.amt{text-align:right}
+  .calc td{padding:4px 6px;border-top:1px solid var(--grid);vertical-align:middle}
+  .calc input,.calc select{width:100%;border:1px solid var(--border);border-radius:7px;background:var(--surface);padding:6px 7px;font-size:13px}
+  .calc td:first-child{min-width:170px}
+  .calc td:first-child select{margin-top:4px;font-size:11.5px;color:var(--text-2)}
+  .calc td:nth-child(2){min-width:110px}
+  .calc .unit{margin-top:4px;font-size:11.5px}
+  .calc td.amt{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+  .calc .rm{border:0;background:none;color:var(--muted);font-size:14px;padding:6px}
+  .calcacts{display:flex;gap:8px;margin:8px 0}
+  .calcin{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+  .calcin label{font-size:12px;color:var(--text-2);font-weight:600}
+  .calcin input{display:block;width:100%;margin-top:4px;border:1px solid var(--border);border-radius:9px;background:var(--surface);padding:9px 10px;font-size:15px}
+  .cats{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+  .cats span{background:var(--surface-2);border-radius:999px;padding:3px 9px}
+  .cats b{color:var(--text)}
+  .sumgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  @media (max-width:520px){.sumgrid{grid-template-columns:1fr 1fr}}
+  .sumgrid div{background:var(--surface-2);border-radius:10px;padding:8px 10px}
+  .sumgrid span{display:block;font-size:11.5px;color:var(--text-2)}
+  .sumgrid b{font-variant-numeric:tabular-nums;font-size:14px}
+  .pbar{height:10px;border-radius:999px;background:#1f9d63;margin:12px 0 6px;overflow:hidden}
+  .pcost{height:100%;background:var(--series)}
+  .profit{display:flex;justify-content:space-between;align-items:center;border-radius:12px;padding:10px 12px;font-size:14px}
+  .profit b{font-size:18px;font-variant-numeric:tabular-nums}
+  .profit.pos{background:var(--accent-soft)} .profit.neg{background:var(--warn-bg);color:var(--warn)}
+
   /* ---------- trial + login ---------- */
   .acct{display:flex;gap:8px;align-items:center}
   .trial{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:5px 6px 5px 12px;font-size:12.5px;white-space:nowrap}
@@ -311,7 +369,7 @@
       <button class="stat" id="sNewBtn" type="button" aria-pressed="false" title="Show tenders first published on the portal today"><div class="n" id="sNew">–</div><div class="l">New today</div></button>
       <button class="stat" id="sSoonBtn" type="button" aria-pressed="false" title="Show tenders closing within 3 days"><div class="n" id="sSoon">–</div><div class="l">Closing in 3 days</div></button>
       <div class="stat"><div class="n" id="sBodies">–</div><div class="l">Panchayats / bodies</div></div>
-      <div class="stat"><div class="n" id="sValue">–</div><div class="l" id="sValueL">Total value</div></div>
+      <button class="stat" id="sProfitBtn" type="button" aria-pressed="false" title="Show tenders the AI rates as high profit chance"><div class="n" id="sProfit">–</div><div class="l">High profit (AI)</div></button>
     </div>
     <div class="visit" id="visit" hidden></div>
   </header>
@@ -337,12 +395,20 @@
         <option value="closing">Closing soonest</option>
         <option value="newest">Newest first</option>
         <option value="value">Highest value</option>
+        <option value="profit">Best profit chance (AI)</option>
       </select>
     </div>
     <div class="frow">
       <div class="seg" id="bodySeg" role="group" aria-label="Type of local body"></div>
       <select id="band" aria-label="Contract value"><option value="">Any value</option></select>
       <select id="category" aria-label="Work type"><option value="">All work types</option></select>
+      <select id="ai" aria-label="AI rating">
+        <option value="">🤖 Any AI rating</option>
+        <option value="high">🤖 High profit chance</option>
+        <option value="good">🤖 Medium or high profit</option>
+        <option value="easy">🤖 Easy or moderate work</option>
+        <option value="rated">🤖 Analysed by AI</option>
+      </select>
       <button class="chipbtn" id="followBtn" type="button" aria-pressed="false" title="Only panchayats you follow">♥ Following <span id="followCount"></span></button>
       <button class="chipbtn" id="savedBtn" type="button" aria-pressed="false">★ Saved <span id="savedCount"></span></button>
     </div>
@@ -446,10 +512,10 @@
   var PANCHAYAT = {"Grama Panchayat":1,"Block Panchayat":1,"District Panchayat":1,"Panchayat (other)":1};
   var BODY_OPTS = [["panchayat","All panchayats"],["Grama Panchayat","Grama"],["Block Panchayat","Block"],["District Panchayat","District"],["Municipality","Municipality"],["Corporation","Corporation"],["","All"]];
   var BANDS = [[0,1e5,"Under ₹1 L"],[1e5,5e5,"₹1 – 5 L"],[5e5,1e6,"₹5 – 10 L"],[1e6,2.5e6,"₹10 – 25 L"],[2.5e6,1e7,"₹25 L – 1 Cr"],[1e7,Infinity,"₹1 Cr +"]];
-  var DEFAULTS = {q:"", pb:"", body:"panchayat", district:"", category:"", band:"", sort:"closing", closeDate:"", soon:false, onlyNew:false, sinceVisit:false, saved:false, following:false, view:"cards"};
+  var DEFAULTS = {q:"", pb:"", body:"panchayat", district:"", category:"", band:"", ai:"", sort:"closing", closeDate:"", soon:false, onlyNew:false, sinceVisit:false, saved:false, following:false, view:"cards"};
   var S = Object.assign({}, DEFAULTS);
   var all = [], meta = {}, newIds = new Set(), saved = new Set(), follows = new Set(), notes = {}, bodies = {}, byId = {};
-  var shown = PAGE, current = [], visitBase = null, lbMetric = "count", firstPaint = true;
+  var aiCount = 0, shown = PAGE, current = [], visitBase = null, lbMetric = "count", firstPaint = true;
   var $ = function(id){ return document.getElementById(id); };
   var SVGNS = "http://www.w3.org/2000/svg";
 
@@ -530,6 +596,12 @@
     if(S.onlyNew && !newIds.has(t.id)) return false;
     if(S.sinceVisit && !isNewForYou(t)) return false;
     if(S.saved && !saved.has(t.id)) return false;
+    if(S.ai){
+      var a = t._ai; if(!a) return false;
+      if(S.ai === "high" && a.pc !== "High") return false;
+      if(S.ai === "good" && a.pc === "Low") return false;
+      if(S.ai === "easy" && !(a.dl === "Easy" || a.dl === "Moderate")) return false;
+    }
     if(S.following && !follows.has(t.body_name)) return false;
     if(S.q){
       var words = S.q.toLowerCase().split(/\s+/);
@@ -545,6 +617,7 @@
     current.sort(function(a, b){
       if(S.sort === "newest") return (b.published_date || "").localeCompare(a.published_date || "") || (a.closing_date || "").localeCompare(b.closing_date || "");
       if(S.sort === "value") return (b.value == null ? -1 : b.value) - (a.value == null ? -1 : a.value);
+      if(S.sort === "profit") return (b._ai ? b._ai.p : -1) - (a._ai ? a._ai.p : -1) || (a._ai ? a._ai.d : 99) - (b._ai ? b._ai.d : 99) || (b.value || 0) - (a.value || 0);
       return (a.closing_date || "9").localeCompare(b.closing_date || "9") || (closingMs(a) || 0) - (closingMs(b) || 0);
     });
     if(!keepPage) shown = PAGE;
@@ -564,11 +637,11 @@
     } else el.textContent = fmt(to);
   }
   function renderStats(){
-    var soon = 0, total = 0, known = 0, nNew = 0, bset = new Set();
+    var soon = 0, nNew = 0, high = 0, bset = new Set();
     current.forEach(function(t){
       var d = daysLeft(t.closing_date); if(d !== null && d >= 0 && d <= 3) soon++;
-      if(t.value != null){ total += t.value; known++; }
       if(newIds.has(t.id)) nNew++;
+      if(t._ai && t._ai.pc === "High") high++;
       bset.add(t.body_name);
     });
     var intFmt = function(x){ return num(Math.round(x)); };
@@ -576,8 +649,7 @@
     animate($("sNew"), nNew, intFmt);
     animate($("sSoon"), soon, intFmt);
     animate($("sBodies"), bset.size, intFmt);
-    animate($("sValue"), total, function(x){ return known ? inr(x) : "–"; });
-    $("sValueL").textContent = known === current.length ? "Total value" : "Value of " + num(known) + " known";
+    animate($("sProfit"), high, intFmt);
     $("count").textContent = num(current.length) + " match" + (current.length === 1 ? "" : "es");
     $("resTitle").textContent = S.pb ? "Tenders from " + S.pb : S.following ? "Tenders from panchayats you follow" : S.saved ? "Saved tenders" : "Tenders";
   }
@@ -621,6 +693,7 @@
     if(S.district) chips.push(["district", S.district]);
     if(S.category) chips.push(["category", S.category]);
     if(S.band !== "") chips.push(["band", BANDS[+S.band][2]]);
+    if(S.ai) chips.push(["ai", $("ai").selectedOptions[0] ? $("ai").selectedOptions[0].textContent : "AI"]);
     if(S.closeDate) chips.push(["closeDate", "Closing " + fmtDate(S.closeDate, {day:"numeric", month:"short"})]);
     if(S.soon) chips.push(["soon", "Closing in 3 days"]);
     if(S.onlyNew) chips.push(["onlyNew", "New today"]);
@@ -969,13 +1042,17 @@
     var pct = Math.max(3, Math.min(100, left / total * 100));
     return '<div class="bar-time' + (left <= 3 ? " urgent" : "") + '" style="width:' + pct.toFixed(0) + '%" title="Time left to bid"></div>';
   }
+  function aiPill(t){
+    var a = t._ai; if(!a) return "";
+    return '<span class="pill ai p-' + a.pc.toLowerCase() + '" title="AI: profit chance ' + a.pc + " (" + a.p + "/10), difficulty " + a.dl + " (" + a.d + '/10)">🤖 Profit ' + a.pc + " · Diff " + a.d + "/10</span>";
+  }
   function cardHtml(t){
     var val = inr(t.value), isSaved = saved.has(t.id);
     return '<article class="card' + (newIds.has(t.id) || isNewForYou(t) ? " is-new" : "") + '" data-id="' + esc(t.id) + '" tabindex="0">' +
       '<div class="row1"><h3>' + esc(t.title) + '</h3><button class="star" type="button" data-star="' + esc(t.id) + '" aria-pressed="' + isSaved + '" aria-label="' + (isSaved ? "Unsave" : "Save") + ' tender" title="Save">' + (isSaved ? "★" : "☆") + "</button></div>" +
       '<div class="org"><a href="#" data-body="' + esc(t.body_name) + '" title="See all tenders from this panchayat">' + (follows.has(t.body_name) ? "♥ " : "") + esc(t.body_name) + "</a>" + (t.district ? "<span>· " + esc(t.district) + "</span>" : "") + "</div>" +
       '<div class="foot">' + (val ? '<span class="value">' + val + "</span>" : '<span class="value na">Value pending</span>') +
-        (t.category ? '<span class="pill">' + esc(t.category) + "</span>" : "") + pills(t) +
+        (t.category ? '<span class="pill">' + esc(t.category) + "</span>" : "") + pills(t) + aiPill(t) +
         '<span class="closes">' + esc(closesLabel(t)) + "</span></div>" + timeBar(t) + "</article>";
   }
   function tableHtml(list){
@@ -1050,7 +1127,11 @@
       '<div class="kpi"><b>' + (t.emd != null ? inr(t.emd) : "—") + "</b><span>EMD</span></div>" +
       '<div class="kpi"><b id="cd">' + esc(countdown(t)) + "</b><span>Time left to bid</span></div></div></div>" +
       '<div class="dbody">' + (pills(t) ? '<div style="display:flex;gap:6px;margin-bottom:10px">' + pills(t) + "</div>" : "") +
-      "<dl>" + rows.map(function(r){ return "<dt>" + r[0] + "</dt><dd>" + r[1] + "</dd>"; }).join("") + "</dl>" +
+      '<div class="tabs" role="tablist"><button type="button" role="tab" data-tab="ai" aria-selected="true">🤖 AI analysis</button><button type="button" role="tab" data-tab="calc" aria-selected="false">💰 Cost calculator</button><button type="button" role="tab" data-tab="info" aria-selected="false">📄 Details</button></div>' +
+      '<section class="tabpane" data-pane="ai"><div id="aiBox" class="aibox"><div class="muted">Loading AI analysis…</div></div></section>' +
+      '<section class="tabpane" data-pane="calc" hidden><div id="calcBox"></div></section>' +
+      '<section class="tabpane" data-pane="info" hidden>' +
+      "<dl>" + rows.map(function(r){ return "<dt>" + r[0] + "</dt><dd>" + r[1] + "</dd>"; }).join("") + "</dl></section>" +
       '<div class="acts">' +
         '<button type="button" class="primary" data-act="copy">Copy Tender ID</button>' +
         '<a href="' + SEARCH_URL + '" target="_blank" rel="noopener">Open portal search ↗</a>' +
@@ -1074,11 +1155,128 @@
     cdTimer = setInterval(function(){ var c = $("cd"); if(c) c.textContent = countdown(t); }, 30000);
     if(!dlg.open){ if(dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", ""); }
     dlg.scrollTop = 0;
+    loadAI(t);
+  }
+
+  // ---------- AI analysis + cost calculator ----------
+  var aiCache = {};
+  function loadAI(t){
+    var done = function(a){ if(dlg._t !== t) return; renderAI(t, a); renderCalc(t, a); };
+    if(aiCache[t.tender_id] !== undefined){ done(aiCache[t.tender_id]); return; }
+    if(!t._ai){ aiCache[t.tender_id] = null; done(null); return; }
+    getJson("data/ai/" + encodeURIComponent(t.tender_id) + ".json")
+      .then(function(a){ aiCache[t.tender_id] = a; done(a); })
+      .catch(function(){ aiCache[t.tender_id] = null; done(null); });
+  }
+  function meter(label, score, level, invert){
+    var pct = Math.max(0, Math.min(10, score)) * 10;
+    var tone = invert ? (score >= 7 ? "bad" : score >= 4 ? "mid" : "good") : (score >= 7 ? "good" : score >= 4 ? "mid" : "bad");
+    return '<div class="meter"><div class="mtop"><span>' + label + "</span><b>" + esc(level) + " · " + score + '/10</b></div><div class="mbar"><div class="mfill ' + tone + '" style="width:' + pct + '%"></div></div></div>';
+  }
+  function list(title, items){
+    return items && items.length ? "<h4>" + title + "</h4><ul>" + items.map(function(i){ return "<li>" + esc(i) + "</li>"; }).join("") + "</ul>" : "";
+  }
+  function renderAI(t, a){
+    var box = $("aiBox"); if(!box) return;
+    if(!a){
+      box.innerHTML = '<div class="muted">AI analysis for this tender isn’t ready yet. New tenders are analysed every morning (panchayat works with a known value first). ' +
+        'You can still estimate costs yourself in the <button type="button" class="linkbtn" data-goto="calc">Cost calculator</button>.</div>';
+      return;
+    }
+    box.innerHTML =
+      '<p class="aisum">' + esc(a.summary) + "</p>" +
+      '<div class="meters">' + meter("Profit chance", a.profit.score, a.profit.chance, false) + meter("Difficulty", a.difficulty.score, a.difficulty.level, true) + "</div>" +
+      '<div class="aikpis"><div><b>' + esc(a.profit.margin_pct_low) + "–" + esc(a.profit.margin_pct_high) + "%</b><span>Likely net margin</span></div>" +
+      "<div><b>" + esc(a.competition.level) + "</b><span>Competition</span></div>" +
+      "<div><b>" + esc(a.confidence) + "</b><span>AI confidence</span></div></div>" +
+      '<p class="muted small">' + esc(a.competition.reason) + "</p>" +
+      list("Why this profit rating", a.profit.reasons) + list("What makes it easy or hard", a.difficulty.reasons) +
+      list("You will need", a.requirements) + list("Risks", a.risks) + list("Tips", a.tips) +
+      '<p class="disclaimer">AI estimate from the public tender listing only (title, value, EMD, period, location). The tender documents and BOQ were not read. Check the official documents before bidding. ' +
+      (a.model ? "Model: " + esc(a.model) + ". " : "") + (a.generated ? "Generated " + esc(fmtDate(String(a.generated).slice(0, 10))) + "." : "") + "</p>" +
+      '<button type="button" class="chipbtn" data-goto="calc">💰 Open cost calculator →</button>';
+  }
+
+  var CATS = ["Material", "Labour", "Machinery", "Transport", "Overheads"];
+  function calcKey(t){ return "calc:" + t.tender_id; }
+  function calcFromAI(a){
+    var ce = a && a.cost_estimate;
+    return {
+      items: ce ? ce.items.map(function(i){ return {item: i.item, cat: i.category, qty: i.quantity, unit: i.unit, rate: i.rate_inr}; }) : [],
+      cont: ce ? ce.contingency_pct : 5, quotePct: 0, quoteAmt: null, fromAI: !!ce
+    };
+  }
+  function renderCalc(t, a){
+    var box = $("calcBox"); if(!box) return;
+    var st = lsGet(calcKey(t), null) || calcFromAI(a);
+    var save = function(){ lsSet(calcKey(t), st); };
+    function rowHtml(r, i){
+      return '<tr data-i="' + i + '"><td><input data-f="item" value="' + esc(r.item) + '" aria-label="Item"><select data-f="cat" aria-label="Category">' +
+        CATS.map(function(c){ return '<option' + (c === r.cat ? " selected" : "") + ">" + c + "</option>"; }).join("") + "</select></td>" +
+        '<td><input data-f="qty" type="number" inputmode="decimal" step="any" value="' + esc(r.qty) + '" aria-label="Quantity"><input data-f="unit" value="' + esc(r.unit) + '" aria-label="Unit" class="unit"></td>' +
+        '<td><input data-f="rate" type="number" inputmode="decimal" step="any" value="' + esc(r.rate) + '" aria-label="Rate in rupees"></td>' +
+        '<td class="amt" data-amt="' + i + '"></td><td><button type="button" class="rm" data-rm="' + i + '" aria-label="Remove item">✕</button></td></tr>';
+    }
+    box.innerHTML =
+      (a && a.cost_estimate && a.cost_estimate.assumptions.length ? '<details class="assume"><summary>AI assumptions behind these quantities</summary><ul>' +
+        a.cost_estimate.assumptions.map(function(x){ return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></details>" : "") +
+      (!st.items.length ? '<p class="muted">No AI estimate yet. Add your own items below: materials, labour, machinery, transport, overheads.</p>' : "") +
+      '<div class="calcwrap"><table class="calc"><thead><tr><th>Item</th><th>Qty / unit</th><th>Rate ₹</th><th class="r">Amount</th><th></th></tr></thead><tbody id="calcRows">' +
+      st.items.map(rowHtml).join("") + "</tbody></table></div>" +
+      '<div class="calcacts"><button type="button" class="chipbtn" data-calc="add">+ Add item</button>' +
+      (a && a.cost_estimate ? '<button type="button" class="chipbtn" data-calc="reset">↺ Reset to AI estimate</button>' : "") + "</div>" +
+      '<div class="calcin"><label>Contingency %<input id="cCont" type="number" inputmode="decimal" step="any" value="' + esc(st.cont) + '"></label>' +
+      (t.value != null
+        ? '<label>Your quote vs estimate (%)<input id="cQuote" type="number" inputmode="decimal" step="any" value="' + esc(st.quotePct) + '" title="Negative = below estimate, e.g. -5"></label>'
+        : '<label>Your quote amount ₹<input id="cQuoteAmt" type="number" inputmode="decimal" step="any" value="' + esc(st.quoteAmt == null ? "" : st.quoteAmt) + '"></label>') +
+      "</div>" +
+      '<div class="calcsum" id="calcSum"></div>';
+    function recalc(){
+      var direct = 0, byCat = {};
+      st.items.forEach(function(r, i){
+        var amt = (+r.qty || 0) * (+r.rate || 0); direct += amt;
+        byCat[r.cat] = (byCat[r.cat] || 0) + amt;
+        var c = box.querySelector('[data-amt="' + i + '"]'); if(c) c.textContent = inrFull(Math.round(amt));
+      });
+      var cont = direct * (+st.cont || 0) / 100, cost = direct + cont;
+      var quote = t.value != null ? t.value * (1 + (+st.quotePct || 0) / 100) : (+st.quoteAmt || 0);
+      var profit = quote - cost, margin = quote ? profit / quote * 100 : 0;
+      var costPct = quote ? Math.min(100, cost / quote * 100) : 100;
+      $("calcSum").innerHTML =
+        '<div class="cats">' + CATS.filter(function(c){ return byCat[c]; }).map(function(c){ return "<span>" + c + " <b>" + inr(Math.round(byCat[c])) + "</b></span>"; }).join("") + "</div>" +
+        '<div class="sumgrid"><div><span>Direct cost</span><b>' + inrFull(Math.round(direct)) + "</b></div>" +
+        "<div><span>Contingency</span><b>" + inrFull(Math.round(cont)) + "</b></div>" +
+        "<div><span>Total cost</span><b>" + inrFull(Math.round(cost)) + "</b></div>" +
+        "<div><span>Your quote</span><b>" + (quote ? inrFull(Math.round(quote)) : "—") + "</b></div></div>" +
+        (quote ? '<div class="pbar" title="Cost vs quote"><div class="pcost" style="width:' + costPct.toFixed(1) + '%"></div></div>' +
+          '<div class="profit ' + (profit >= 0 ? "pos" : "neg") + '"><span>' + (profit >= 0 ? "Estimated profit" : "Estimated loss") + "</span><b>" + inrFull(Math.round(Math.abs(profit))) + " (" + margin.toFixed(1) + "%)</b></div>" : "") +
+        '<p class="disclaimer">Edit any quantity or rate to match your own suppliers and site. Your changes are saved in this browser. Taxes (GST), royalty and statutory deductions depend on the tender conditions and are not included unless you add them as items.</p>';
+    }
+    box.oninput = function(e){
+      var tr = e.target.closest("tr[data-i]"), f = e.target.getAttribute("data-f");
+      if(tr && f){ var r = st.items[+tr.dataset.i]; r[f] = (f === "qty" || f === "rate") ? (e.target.value === "" ? "" : +e.target.value) : e.target.value; }
+      if(e.target.id === "cCont") st.cont = +e.target.value;
+      if(e.target.id === "cQuote") st.quotePct = +e.target.value;
+      if(e.target.id === "cQuoteAmt") st.quoteAmt = +e.target.value;
+      save(); recalc();
+    };
+    box.onclick = function(e){
+      var rm = e.target.closest("[data-rm]"), act = e.target.closest("[data-calc]");
+      if(rm){ st.items.splice(+rm.dataset.rm, 1); save(); renderCalc(t, a); }
+      else if(act && act.dataset.calc === "add"){ st.items.push({item: "", cat: "Material", qty: 1, unit: "nos", rate: 0}); save(); renderCalc(t, a); var ins = box.querySelectorAll('[data-f="item"]'); if(ins.length) ins[ins.length - 1].focus(); }
+      else if(act && act.dataset.calc === "reset"){ try{ localStorage.removeItem(calcKey(t)); }catch(err){} renderCalc(t, a); toast("Reset to AI estimate"); }
+    };
+    recalc();
+  }
+  function showTab(name){
+    Array.prototype.forEach.call(document.querySelectorAll("#dlgBody [data-tab]"), function(b){ b.setAttribute("aria-selected", b.dataset.tab === name); });
+    Array.prototype.forEach.call(document.querySelectorAll("#dlgBody [data-pane]"), function(p){ p.hidden = p.dataset.pane !== name; });
   }
   dlg.addEventListener("close", function(){ clearInterval(cdTimer); });
   dlg.addEventListener("click", function(e){
     if(e.target === dlg){ dlg.close(); return; }
     var rel = e.target.closest("[data-rel]"); if(rel){ openDetail(byId[rel.dataset.rel]); return; }
+    var tab = e.target.closest("[data-tab],[data-goto]"); if(tab){ showTab(tab.dataset.tab || tab.dataset.goto); return; }
     var b = e.target.closest("[data-act]"); if(!b) return;
     var t = dlg._t, act = b.getAttribute("data-act");
     if(act === "close") dlg.close();
@@ -1139,7 +1337,7 @@
   BANDS.forEach(function(b, i){ var o = document.createElement("option"); o.value = String(i); o.textContent = b[2]; $("band").appendChild(o); });
   var qTimer;
   $("q").addEventListener("input", function(){ clearTimeout(qTimer); qTimer = setTimeout(function(){ S.q = $("q").value.trim(); update(); }, 160); });
-  ["district","category","band","sort"].forEach(function(id){ $(id).addEventListener("change", function(){
+  ["district","category","band","ai","sort"].forEach(function(id){ $(id).addEventListener("change", function(){
     S[id] = $(id).value;
     if(id === "district" && S.pb && bodies[S.pb] && S.district && bodies[S.pb].district !== S.district) S.pb = "";
     update();
@@ -1151,6 +1349,10 @@
   };
   $("sNewBtn").onclick = function(){ S.onlyNew = !S.onlyNew; update(); };
   $("sSoonBtn").onclick = function(){ S.soon = !S.soon; if(S.soon) S.closeDate = ""; update(); };
+  $("sProfitBtn").onclick = function(){
+    if(!aiCount){ toast("AI analysis is not available yet"); return; }
+    S.ai = S.ai === "high" ? "" : "high"; update();
+  };
   $("vCards").onclick = function(){ S.view = "cards"; update(true); };
   $("vTable").onclick = function(){ S.view = "table"; update(true); };
   document.addEventListener("keydown", function(e){
@@ -1170,12 +1372,13 @@
     $("pbClear").hidden = !S.pb;
     $("pbField").classList.toggle("pb", !!S.pb);
     ensureOption($("category"), S.category);
-    ["district","category","band","sort"].forEach(function(id){ $(id).value = S[id]; });
+    ["district","category","band","ai","sort"].forEach(function(id){ $(id).value = S[id]; });
     Array.prototype.forEach.call(bodySeg.children, function(b){ b.setAttribute("aria-pressed", b.dataset.v === S.body); });
     $("savedBtn").setAttribute("aria-pressed", S.saved);
     $("followBtn").setAttribute("aria-pressed", S.following);
     $("sNewBtn").setAttribute("aria-pressed", S.onlyNew);
     $("sSoonBtn").setAttribute("aria-pressed", S.soon);
+    $("sProfitBtn").setAttribute("aria-pressed", S.ai === "high");
     $("vCards").setAttribute("aria-pressed", S.view === "cards");
     $("vTable").setAttribute("aria-pressed", S.view === "table");
     $("savedCount").textContent = saved.size ? "(" + saved.size + ")" : "";
@@ -1273,7 +1476,8 @@
   Promise.all([getJson("data/tenders.json").catch(function(){ return []; }),
                getJson("data/meta.json").catch(function(){ return {}; }),
                getJson("data/new_today.json").catch(function(){ return []; }),
-               getJson("data/bodies.json").catch(function(){ return {}; })]).then(function(res){
+               getJson("data/bodies.json").catch(function(){ return {}; }),
+               getJson("data/ai_index.json").catch(function(){ return {}; })]).then(function(res){
     all = res[0] || []; meta = res[1] || {}; newIds = new Set((res[2] || []).map(function(t){ return t.id; }));
     if(!meta.today) meta.today = new Date().toISOString().slice(0, 10);
     all.forEach(function(t){
@@ -1284,6 +1488,8 @@
       if(!(t._close && t._close < NOW)){ b.count++; b.value += t.value || 0; }
       t._hay = [t.title, t.body_name, t.organisation, t.tender_id, t.tender_ref, t.district, t.location, t.category, t.pincode].join(" ").toLowerCase();
       t._place = [t.title, t.location].join(" ").toLowerCase();
+      t._ai = (res[4] || {})[t.tender_id] || null;
+      if(t._ai) aiCount++;
     });
     var reg = res[3] || {};
     Object.keys(reg).forEach(function(name){
