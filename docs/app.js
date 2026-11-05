@@ -20,14 +20,17 @@
     {key: "agri", name: "Agriculture & Environment", icon: "sprout", c: "#4d7c0f", blurb: "Farming, nurseries, fencing"},
     {key: "other", name: "Other works", icon: "layers", c: "#db2777", blurb: "Colony development and other works"}
   ];
+  var SORT_DISTANCE = ["distance", "Nearest first"];
   var G = {}; GROUPS.forEach(function(g){ G[g.key] = g; });
   var PANCHAYAT = {"Grama Panchayat": 1, "Block Panchayat": 1, "District Panchayat": 1, "Panchayat (other)": 1};
   var BANDS = [[0, 1e5, "Under ₹1 L"], [1e5, 5e5, "₹1 – 5 L"], [5e5, 1e6, "₹5 – 10 L"], [1e6, 2.5e6, "₹10 – 25 L"], [2.5e6, 1e7, "₹25 L – 1 Cr"], [1e7, Infinity, "₹1 Cr +"]];
   var CLOSE_OPTS = [["0", "Closing today"], ["3", "Within 3 days"], ["7", "Within a week"], ["14", "Within 2 weeks"], ["30", "Within a month"]];
   var AI_OPTS = [["high", "High profit chance"], ["good", "Medium or high profit"], ["easy", "Easy or moderate work"], ["rated", "Analysed by AI"]];
   var SORTS = [["closing", "Closing soonest"], ["newest", "Newest first"], ["value-desc", "Value: high to low"], ["value-asc", "Value: low to high"], ["profit", "Best profit chance (AI)"]];
-  var FACET_KEYS = ["district", "body", "job", "band", "pbs", "close", "ai"];
-  var ARR_KEYS = ["district", "body", "job", "band", "pbs"];
+  var FACET_KEYS = ["grp", "district", "body", "job", "band", "pbs", "close", "ai"];
+  var ARR_KEYS = ["grp", "district", "body", "job", "band", "pbs"];
+  var RADII = [5, 10, 25, 50, 100];
+  var DISTRICT_HQ = {"Thiruvananthapuram": [8.5241, 76.9366], "Kollam": [8.8932, 76.6141], "Pathanamthitta": [9.2648, 76.787], "Alappuzha": [9.4981, 76.3388], "Kottayam": [9.5916, 76.5222], "Idukki": [9.8494, 76.972], "Ernakulam": [10.0159, 76.3419], "Thrissur": [10.5276, 76.2144], "Palakkad": [10.7867, 76.6548], "Malappuram": [11.051, 76.0711], "Kozhikode": [11.2588, 75.7804], "Wayanad": [11.6854, 76.132], "Kannur": [11.8745, 75.3704], "Kasaragod": [12.4996, 74.9869]};
   var TYPE_COLOR = {"Grama Panchayat": "#0e7a55", "Block Panchayat": "#0284c7", "District Panchayat": "#7c3aed", "Municipality": "#ea580c", "Corporation": "#db2777"};
 
   // ===================================================================
@@ -35,6 +38,8 @@
   // ===================================================================
   var IC = {
     search: '<circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.2-4.2"/>',
+    locate: '<circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/>',
+    nav: '<path d="M3 11 21 3l-8 18-2-8Z"/>',
     home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>',
     grid: '<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>',
     heart: '<path d="M19.5 13.6 12 21l-7.5-7.4A5 5 0 1 1 12 7.1a5 5 0 1 1 7.5 6.5Z"/>',
@@ -160,7 +165,7 @@
   // Routing: #/path?filters
   // ===================================================================
   var R = {}, F = {};
-  function emptyF(){ return {district: [], body: [], job: [], band: [], pbs: [], close: "", ai: "", sort: "closing", q: ""}; }
+  function emptyF(){ return {grp: [], district: [], body: [], job: [], band: [], pbs: [], close: "", ai: "", sort: "closing", q: "", r: ""}; }
   function parseHash(){
     var h = location.hash.replace(/^#/, "") || "/";
     var qi = h.indexOf("?"), path = qi >= 0 ? h.slice(0, qi) : h, query = qi >= 0 ? h.slice(qi + 1) : "";
@@ -175,11 +180,14 @@
     else if(parts[0] === "following"){ r = {view: "browse", following: true}; }
     else if(parts[0] === "categories"){ r = {view: "categories"}; }
     else if(parts[0] === "panchayats"){ r = {view: "panchayats"}; }
+    else if(parts[0] === "near"){ r = {view: "browse", near: true}; }
     else if(parts[0] === "insights"){ r = {view: "insights"}; }
     else if(parts[0] === "t" && parts[1]){ r = {view: "tender", tid: parts[1]}; }
     var f = emptyF(), p = new URLSearchParams(query);
-    ["district", "body", "job", "band"].forEach(function(k){ if(p.get(k)) f[k] = p.get(k).split(",").filter(Boolean); });
+    ["grp", "district", "body", "job", "band"].forEach(function(k){ if(p.get(k)) f[k] = p.get(k).split(",").filter(Boolean); });
     if(p.get("pb")) f.pbs = p.get("pb").split("|").filter(Boolean);
+    if(p.get("r")) f.r = p.get("r");
+    if(r.near && !p.get("sort")) f.sort = "distance";
     ["close", "ai", "sort", "q"].forEach(function(k){ if(p.get(k)) f[k] = p.get(k); });
     return {r: r, f: f};
   }
@@ -190,6 +198,7 @@
       if(r.pb) return "/p/" + encodeURIComponent(r.pb);
       if(r.dist) return "/d/" + encodeURIComponent(r.dist);
       if(r.saved) return "/saved";
+      if(r.near) return "/near";
       if(r.following) return "/following";
       return "/all";
     }
@@ -201,11 +210,12 @@
   }
   function query(f){
     var p = new URLSearchParams();
-    ["district", "body", "job", "band"].forEach(function(k){ if(f[k] && f[k].length) p.set(k, f[k].join(",")); });
+    ["grp", "district", "body", "job", "band"].forEach(function(k){ if(f[k] && f[k].length) p.set(k, f[k].join(",")); });
     if(f.pbs && f.pbs.length) p.set("pb", f.pbs.join("|"));
+    if(f.r) p.set("r", f.r);
     if(f.close) p.set("close", f.close);
     if(f.ai) p.set("ai", f.ai);
-    if(f.sort && f.sort !== "closing") p.set("sort", f.sort);
+    if(f.sort && f.sort !== "closing" && !(R && R.near && f.sort === "distance")) p.set("sort", f.sort);
     if(f.q) p.set("q", f.q);
     var s = p.toString().replace(/%2C/g, ",");
     return s ? "?" + s : "";
@@ -228,8 +238,10 @@
     if(r.dist && t.district !== r.dist) return false;
     if(r.saved && !saved.has(t.id)) return false;
     if(r.following && !follows.has(t.body_name)) return false;
+    if(r.near){ if(!myLoc || t._dist == null || t._dist > radius() || (t._geo[2] === "d" && radius() < 50)) return false; }
     return true;
   }
+  function radius(){ var v = +F.r; return RADII.indexOf(v) >= 0 ? v : 50; }
   function matchQ(t, q){
     if(!q) return true;
     var words = q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -242,6 +254,7 @@
     if(k === "job") return t.job || "Other";
     if(k === "band") return bandOf(t.value);
     if(k === "pbs") return t.body_name || "";
+    if(k === "grp") return grpOf(t);
   }
   function passF(t, f, skip){
     for(var i = 0; i < ARR_KEYS.length; i++){
@@ -263,9 +276,57 @@
       newest: function(a, b){ return (b.published_date || "").localeCompare(a.published_date || "") || (a._close || 0) - (b._close || 0); },
       "value-desc": function(a, b){ return (b.value == null ? -1 : b.value) - (a.value == null ? -1 : a.value); },
       "value-asc": function(a, b){ return (a.value == null ? 9e15 : a.value) - (b.value == null ? 9e15 : b.value); },
+      distance: function(a, b){ var da = a._dist == null ? 9e9 : a._dist + (a._geo[2] === "d" ? 1e4 : 0), db = b._dist == null ? 9e9 : b._dist + (b._geo[2] === "d" ? 1e4 : 0); return da - db || (a._close || 0) - (b._close || 0); },
       profit: function(a, b){ return (b._ai ? b._ai.p : -1) - (a._ai ? a._ai.p : -1) || (a._ai ? a._ai.d : 99) - (b._ai ? b._ai.d : 99) || (b.value || 0) - (a.value || 0); }
     };
     return list.sort(by[sort] || by.closing);
+  }
+
+  // ===================================================================
+  // Location ("Near me")
+  // ===================================================================
+  var myLoc = lsGet("myloc", null), pincodes = {};
+  function haversine(a, b, c, d){
+    var R = 6371, toR = Math.PI / 180, dLat = (c - a) * toR, dLng = (d - b) * toR;
+    var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a * toR) * Math.cos(c * toR) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.sqrt(x));
+  }
+  function nearestDistrict(lat, lng){ var best = null, bd = 1e9; Object.keys(DISTRICT_HQ).forEach(function(d){ var x = haversine(lat, lng, DISTRICT_HQ[d][0], DISTRICT_HQ[d][1]); if(x < bd){ bd = x; best = d; } }); return best; }
+  function computeDistances(){
+    all.forEach(function(t){ t._dist = myLoc && t._geo ? haversine(myLoc.lat, myLoc.lng, t._geo[0], t._geo[1]) : null; });
+  }
+  function setLocation(loc){
+    myLoc = loc; lsSet("myloc", loc); computeDistances();
+    toast("Location set: " + loc.label);
+    if(R.view === "browse") renderBrowse(); else go("#/near");
+    renderNav();
+  }
+  function askLocation(){
+    if(!navigator.geolocation){ toast("This browser can’t share location. Enter your pincode instead."); return; }
+    var btn = document.querySelector("[data-locate]"); if(btn){ btn.disabled = true; btn.innerHTML = icon("locate") + "Finding you…"; }
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat = pos.coords.latitude, lng = pos.coords.longitude, d = nearestDistrict(lat, lng);
+      var inKerala = haversine(lat, lng, DISTRICT_HQ[d][0], DISTRICT_HQ[d][1]) < 120;
+      setLocation({lat: lat, lng: lng, label: inKerala ? "your location (near " + d + ")" : "your location", src: "gps", at: Date.now()});
+      if(!inKerala) toast("You seem to be outside Kerala, so distances may be large");
+    }, function(err){
+      if(btn){ btn.disabled = false; btn.innerHTML = icon("locate") + "Use my location"; }
+      toast(err.code === 1 ? "Location permission was blocked. Allow it in your browser settings, or enter your pincode." : "Couldn’t get your location. Try again or enter your pincode.");
+      var pin = $("pinIn"); if(pin) pin.focus();
+    }, {enableHighAccuracy: false, timeout: 12000, maximumAge: 600000});
+  }
+  function distLabel(t){
+    if(t._dist == null) return "";
+    if(t._geo && t._geo[2] === "d") return '<span class="bdg dist" title="Exact place not known yet; this tender is somewhere in ' + esc(t.district) + ' district">' + icon("pin") + esc(t.district) + " district</span>";
+    var km = t._dist < 10 ? t._dist.toFixed(1).replace(/\.0$/, "") : Math.round(t._dist);
+    return '<span class="bdg dist" title="' + (t._geo && t._geo[2] === "d" ? "Approximate: measured to the district centre" : t._geo && t._geo[2] === "b" ? "Approximate: measured to the panchayat" : "Approximate: measured to the work’s pincode") + '">' + icon("pin") + km + " km</span>";
+  }
+  function locationPanel(){
+    return '<div class="locpanel"><div class="locart">' + icon("locate") + "</div><h2>Find tenders near you</h2>" +
+      "<p>Share your location to see tenders around you, nearest first. Your location stays on this device and is never sent anywhere.</p>" +
+      '<button class="pillbtn primary big" type="button" data-locate>' + icon("locate") + "Use my location</button>" +
+      '<div class="or">or enter your pincode</div><form class="pinform" id="pinForm"><input id="pinIn" inputmode="numeric" maxlength="6" pattern="6[789][0-9]{4}" placeholder="e.g. 678702" aria-label="Pincode"><button class="pillbtn" type="submit">Go</button></form>' +
+      '<div class="or">or pick your district</div><div class="chips" style="justify-content:center">' + Object.keys(DISTRICT_HQ).sort().map(function(d){ return '<button type="button" class="chip" data-hq="' + esc(d) + '">' + esc(d) + "</button>"; }).join("") + "</div></div>";
   }
 
   // ===================================================================
@@ -296,7 +357,7 @@
       "<h3>" + esc(t.title) + "</h3>" +
       '<div class="pc-org">' + icon("landmark") + "<span>" + (follows.has(t.body_name) ? "♥ " : "") + esc(t.body_name) + (t.district ? " · " + esc(t.district) : "") + "</span></div>" +
       '<div class="pc-price">' + (val ? "<b>" + val + "</b>" + (t.emd != null ? "<span>EMD " + inr(t.emd) + "</span>" : "") : t.details_fetched ? '<b class="na" title="The panchayat did not publish a value for this tender">Value not disclosed</b>' : '<b class="na" title="Values are read from each tender page on the portal; this one is next in the queue">Value coming soon</b>') + "</div>" +
-      '<div class="pc-badges">' + badges(t) + "</div>" +
+      '<div class="pc-badges">' + distLabel(t) + badges(t) + "</div>" +
       '<div class="pc-foot">' + icon("clock") + "<span>" + esc(closesLabel(t)) + '</span><span class="cta">View' + icon("right") + "</span></div>" +
       timeBar(t) + "</article>";
   }
@@ -422,6 +483,7 @@
     if(visitBase && lsGet("visitDismissed", "") !== meta.today) open.forEach(function(t){ if(isNewForYou(t)){ nBanner++; if(follows.has(t.body_name)) nFol++; } });
     var topPb = Object.keys(stats.pb).filter(function(n){ return PANCHAYAT[(bodies[n] || {}).type]; }).sort(function(a, b){ return stats.pb[b].n - stats.pb[a].n; }).slice(0, 8);
     var quick = [
+      ["#/near", "locate", "Near me", null],
       ["#/panchayats", "landmark", "Find your panchayat", Object.keys(bodies).length],
       ['#/all?close=0', "flame", "Closing today", open.filter(function(t){ return daysLeft(t.closing_date) === 0; }).length],
       ['#/all?sort=newest', "bell", "New today", stats.nNew],
@@ -435,7 +497,7 @@
         "<h1>Find your next <span>panchayat contract</span> in seconds.</h1>" +
         '<p class="lead">Every open public works tender from Kerala\'s ' + num(stats.bodies.size) + " panchayats and local bodies, sorted into categories, with AI profit analysis and a cost calculator.</p>" +
         '<div class="sbox big" data-suggest>' + icon("search") + '<input type="search" placeholder="Search work or panchayat, e.g. “concrete road” or “Kuzhalmannam”" autocomplete="off" aria-label="Search tenders"><button class="go" type="button">' + icon("search") + '<span class="t">Search</span></button></div>' +
-        '<div class="quick">' + quick.map(function(q){ return '<a href="' + q[0] + '">' + icon(q[1]) + esc(q[2]) + " <b>" + num(q[3]) + "</b></a>"; }).join("") + "</div>" +
+        '<div class="quick">' + quick.map(function(q){ return '<a href="' + q[0] + '"' + (q[1] === "locate" ? ' class="near"' : "") + ">" + icon(q[1]) + esc(q[2]) + (q[3] != null ? " <b>" + num(q[3]) + "</b>" : "") + "</a>"; }).join("") + "</div>" +
         '<div class="stats">' +
           '<div class="stat"><div class="n" data-count="' + stats.total + '">0</div><div class="l">Open tenders</div></div>' +
           '<div class="stat"><div class="n" data-count="' + stats.nNew + '">0</div><div class="l">Added today</div></div>' +
@@ -555,16 +617,25 @@
     if(R.grp){ var g = G[R.grp]; var kname = R.kind ? Object.keys(stats.kinds).filter(function(k){ return slug(k) === R.kind; })[0] : ""; return {t: kname || g.name, sub: kname ? g.name : g.blurb, ic: g.icon, c: g.c, kname: kname}; }
     if(R.pb){ var b = bodies[R.pb] || {}; return {t: R.pb, sub: [b.type, b.district].filter(Boolean).join(" · "), ic: "landmark", c: "#0e7a55"}; }
     if(R.dist) return {t: R.dist + " district", sub: "All panchayat and local body tenders in " + R.dist, ic: "pin", c: "#0284c7"};
+    if(R.near) return {t: "Tenders near you", sub: myLoc ? "Within " + radius() + " km of " + myLoc.label + " · distances are approximate" : "Share your location or enter a pincode", ic: "locate", c: "#0284c7"};
     if(R.saved) return {t: "Saved tenders", sub: "Tenders you saved with ♥ (kept in this browser)", ic: "heart", c: "#e11d48"};
     if(R.following) return {t: "Panchayats you follow", sub: Array.from(follows).join(", ") || "Follow a panchayat to see its tenders here", ic: "star", c: "#ca8a04"};
     if(F.q) return {t: "Results for “" + F.q + "”", sub: "Matching title, panchayat, district, location or Tender ID", ic: "search", c: "#0e7a55"};
     return {t: "All tenders", sub: "Every open panchayat and local body tender in Kerala", ic: "list", c: "#0e7a55"};
   }
   function renderBrowse(){
+    if(R.near && !myLoc){
+      setView('<div class="wrap"><nav class="crumbs"><a href="#/">Home</a>' + icon("right") + "<span>Near me</span></nav>" + locationPanel() + "</div>");
+      return;
+    }
     var T = browseTitle(), crumbs = '<a href="#/">Home</a>';
     if(R.grp){ crumbs += icon("right") + (T.kname ? '<a href="' + href({view: "browse", grp: R.grp}) + '">' + esc(G[R.grp].name) + "</a>" + icon("right") + "<span>" + esc(T.kname) + "</span>" : "<span>" + esc(G[R.grp].name) + "</span>"); }
     else crumbs += icon("right") + "<span>" + esc(T.t) + "</span>";
     var kindChips = "";
+    if(R.near){
+      kindChips = '<div class="kinds radius"><span class="rl">' + icon("locate") + 'Radius</span>' + RADII.map(function(km){ return '<a class="chip' + (radius() === km ? " on" : "") + '" href="' + href(R, Object.assign({}, F, {r: String(km)})) + '">' + km + " km</a>"; }).join("") +
+        '<button type="button" class="chip" data-relocate>' + icon("nav") + "Change location</button></div>";
+    }
     if(R.grp){
       var ks = Object.keys(stats.kinds).filter(function(k){ return stats.kinds[k].grp === R.grp; }).sort(function(a, b){ return stats.kinds[b].n - stats.kinds[a].n; });
       kindChips = '<div class="kinds" style="--c:' + G[R.grp].c + '"><a class="chip' + (R.kind ? "" : " on") + '" href="' + href({view: "browse", grp: R.grp}, F) + '">All <b>' + num(stats.groups[R.grp] || 0) + "</b></a>" +
@@ -585,7 +656,7 @@
       '<div class="browse"><aside class="facets" id="facets" aria-label="Filters"></aside><section>' +
         '<div class="toolbar"><div class="count" id="bCount"></div><span class="sp"></span>' +
         '<button class="pillbtn fbtn" type="button" data-sheet>' + icon("sliders") + 'Filters <span id="fCount"></span></button>' +
-        '<label class="sr" for="sortSel">Sort</label><select id="sortSel">' + SORTS.map(function(s){ return '<option value="' + s[0] + '"' + (F.sort === s[0] ? " selected" : "") + ">" + s[1] + "</option>"; }).join("") + "</select></div>" +
+        '<label class="sr" for="sortSel">Sort</label><select id="sortSel">' + (myLoc ? [SORT_DISTANCE].concat(SORTS) : SORTS).map(function(s){ return '<option value="' + s[0] + '"' + (F.sort === s[0] ? " selected" : "") + ">" + s[1] + "</option>"; }).join("") + "</select></div>" +
         '<div class="active" id="activeChips"></div><div class="grid" id="bGrid"></div><div class="sentinel" id="sentinel"></div><div id="bEmpty"></div>' +
       "</section></div></div>");
     $("sortSel").onchange = function(){ F.sort = this.value; updateBrowse(true); };
@@ -619,7 +690,9 @@
     var uniq = function(fn){ var s = {}; scope.forEach(function(t){ var v = fn(t); if(v) s[v] = (s[v] || 0) + 1; }); return Object.keys(s).sort(function(a, b){ return s[b] - s[a]; }); };
     var districts = R.dist ? [] : uniq(function(t){ return t.district; });
     var bodiesT = R.pb ? [] : uniq(function(t){ return t.body_type; });
+    var grps = R.grp ? [] : uniq(function(t){ return grpOf(t); });
     var html = '<div class="fhead"><b>Filters</b><button class="linkbtn" type="button" data-clear>Clear all</button><button class="pillbtn primary done" type="button" data-done>Show results</button></div>';
+    if(grps.length > 1) html += facetHtml("grp", "Category", grps.map(function(k){ return [k, G[k].name]; }), "checkbox");
     if(districts.length > 1) html += facetHtml("district", "District", districts.map(function(d){ return [d, d]; }), "checkbox");
     if(!R.pb){
       var pbs = uniq(function(t){ return t.body_name; });
@@ -635,6 +708,7 @@
   }
   function activeChips(){
     var out = [];
+    F.grp.forEach(function(v){ out.push(["grp", v, (G[v] || {}).name || v]); });
     ["district", "body", "job"].forEach(function(k){ F[k].forEach(function(v){ out.push([k, v, v]); }); });
     F.band.forEach(function(v){ out.push(["band", v, v === "u" ? "Value not published" : BANDS[+v][2]]); });
     F.pbs.forEach(function(v){ out.push(["pbs", v, v]); });
@@ -980,6 +1054,9 @@
     var fol = e.target.closest("[data-follow]"); if(fol){ e.preventDefault(); e.stopPropagation(); toggleFollow(fol.dataset.follow); return; }
     var railBtn = e.target.closest("[data-rail]"); if(railBtn){ var r = $(railBtn.dataset.rail); r.scrollBy({left: +railBtn.dataset.dir * r.clientWidth * .85, behavior: "smooth"}); return; }
     var c = e.target.closest(".pcard[data-tid]"); if(c && !e.target.closest("a")){ openTender(c.dataset.tid); return; }
+    if(e.target.closest("[data-locate]")){ askLocation(); return; }
+    var hq = e.target.closest("[data-hq]"); if(hq){ var d = hq.dataset.hq; setLocation({lat: DISTRICT_HQ[d][0], lng: DISTRICT_HQ[d][1], label: d + " town", src: "district"}); return; }
+    if(e.target.closest("[data-relocate]")){ myLoc = null; lsSet("myloc", null); computeDistances(); renderBrowse(); return; }
     if(e.target.closest("[data-share]")){ copy(location.href, "Link copied"); return; }
     if(e.target.closest("[data-csv]")){ csv(); return; }
     if(e.target.closest("[data-sheet]")){ document.body.classList.add("sheet-open"); return; }
@@ -1000,6 +1077,14 @@
     if(e.key === "/" && !e.target.closest("input,textarea,select") && !dlg.open && !document.body.classList.contains("locked")){ e.preventDefault(); $("topSearch").focus(); }
   });
   document.addEventListener("change", function(e){ if(e.target.dataset && e.target.dataset.facet) onFacetChange(e.target); });
+  document.addEventListener("submit", function(e){
+    if(e.target.id !== "pinForm") return;
+    e.preventDefault();
+    var pin = ($("pinIn").value || "").trim(), pos = pincodes[pin];
+    if(!/^6[789]\d{4}$/.test(pin)){ toast("Enter a 6-digit Kerala pincode, e.g. 678702"); return; }
+    if(!pos){ toast("That pincode isn’t in our list. Try a nearby one, or pick your district."); return; }
+    setLocation({lat: pos[0], lng: pos[1], label: "pincode " + pin, src: "pincode"});
+  });
   document.addEventListener("input", function(e){
     if(!e.target.hasAttribute || !e.target.hasAttribute("data-fsearch")) return;
     var q = e.target.value.trim().toLowerCase(), det = e.target.closest(".facet"), shown = 0;
@@ -1017,12 +1102,12 @@
   // Navigation chrome
   // ===================================================================
   function renderNav(){
-    var cur = R.view === "browse" ? (R.saved ? "saved" : R.following ? "following" : R.pb ? "panchayats" : "browse") : R.view;
-    var items = [["#/", "home", "Home", "home"], ["#/categories", "grid", "Categories", "categories"], ["#/panchayats", "landmark", "Panchayats", "panchayats"], ["#/insights", "chart", "Insights", "insights"], ["#/saved", "heart", "Saved", "saved"]];
+    var cur = R.view === "browse" ? (R.saved ? "saved" : R.following ? "following" : R.pb ? "panchayats" : R.near ? "near" : "browse") : R.view;
+    var items = [["#/", "home", "Home", "home"], ["#/categories", "grid", "Categories", "categories"], ["#/near", "locate", "Near me", "near"], ["#/panchayats", "landmark", "Panchayats", "panchayats"], ["#/insights", "chart", "Insights", "insights"], ["#/saved", "heart", "Saved", "saved"]];
     $("nav").innerHTML = items.map(function(i){ return '<a href="' + i[0] + '"' + (cur === i[3] || (i[3] === "categories" && cur === "browse") ? ' class="on"' : "") + ">" + icon(i[1]) + i[2] + (i[3] === "saved" && saved.size ? ' <span class="badge">' + saved.size + "</span>" : "") + "</a>"; }).join("");
-    var bitems = [["#/", "home", "Home", "home"], ["#/categories", "grid", "Categories", "categories"], ["#/panchayats", "landmark", "Panchayats", "panchayats"], ["#/search", "search", "Search", "search"], ["#/saved", "heart", "Saved", "saved"]];
+    var bitems = [["#/", "home", "Home", "home"], ["#/categories", "grid", "Categories", "categories"], ["#/near", "locate", "Near me", "near"], ["#/panchayats", "landmark", "Panchayats", "panchayats"], ["#/saved", "heart", "Saved", "saved"]];
     $("bnav").innerHTML = bitems.map(function(i){
-      var on = cur === i[3] || (i[3] === "categories" && cur === "browse" && !R.search) || (i[3] === "search" && R.search);
+      var on = cur === i[3] || (i[3] === "categories" && cur === "browse" && !R.search);
       return '<a href="' + i[0] + '"' + (on ? ' class="on"' : "") + (i[3] === "search" ? " data-focus-search" : "") + ">" + icon(i[1]) + i[2] + (i[3] === "saved" && saved.size ? "<i>" + saved.size + "</i>" : "") + "</a>";
     }).join("");
   }
@@ -1073,7 +1158,7 @@
     var ts = $("topSearch"); if(document.activeElement !== ts) ts.value = R.search ? F.q : "";
   }
   function renderView(sameView){
-    if(R.view === "browse"){ if(sameView && $("bGrid")) updateBrowse(false); else renderBrowse(); }
+    if(R.view === "browse"){ if(sameView && $("bGrid") && !R.near) updateBrowse(false); else renderBrowse(); }
     else if(R.view === "categories") renderCategories();
     else if(R.view === "panchayats") renderPanchayats();
     else if(R.view === "insights") renderInsights();
@@ -1177,8 +1262,12 @@
     getJson("data/meta.json").catch(function(){ return {}; }),
     getJson("data/new_today.json").catch(function(){ return []; }),
     getJson("data/bodies.json").catch(function(){ return {}; }),
-    getJson("data/ai_index.json").catch(function(){ return {}; })
+    getJson("data/ai_index.json").catch(function(){ return {}; }),
+    getJson("data/pincodes.json").catch(function(){ return {}; }),
+    getJson("data/places.json").catch(function(){ return {}; })
   ]).then(function(res){
+    pincodes = res[5] || {};
+    var places = res[6] || {};
     all = res[0] || []; meta = res[1] || {}; newIds = new Set((res[2] || []).map(function(t){ return t.id; })); aiIdx = res[4] || {};
     if(!meta.today) meta.today = new Date().toISOString().slice(0, 10);
     all.forEach(function(t){
@@ -1193,6 +1282,20 @@
     });
     var reg = res[3] || {};
     Object.keys(reg).forEach(function(name){ var r = reg[name], b = bodies[name] || (bodies[name] = {count: 0, district: r.district, type: r.type}); b.firstSeen = r.first_seen; b.lastSeen = r.last_seen; b.seen = r.tenders_seen; if(!b.district) b.district = r.district; });
+    // positions: pipeline value, else this tender's pincode, else its body's most common pincode, else stored body position, else district HQ
+    var bodyPins = {};
+    all.forEach(function(t){ if(pincodes[t.pincode]){ var m = bodyPins[t.body_name] || (bodyPins[t.body_name] = {}); m[t.pincode] = (m[t.pincode] || 0) + 1; } });
+    all.forEach(function(t){
+      if(t.geo){ t._geo = t.geo; return; }
+      if(pincodes[t.pincode]){ t._geo = [pincodes[t.pincode][0], pincodes[t.pincode][1], "p"]; return; }
+      var m = bodyPins[t.body_name];
+      if(m && t.body_type !== "District Panchayat"){ var best = Object.keys(m).sort(function(a, b){ return m[b] - m[a]; })[0]; t._geo = [pincodes[best][0], pincodes[best][1], "b"]; return; }
+      if(places[t.body_name]){ t._geo = [places[t.body_name][0], places[t.body_name][1], "b"]; return; }
+      var reg = (res[3] || {})[t.body_name];
+      if(reg && reg.pos){ t._geo = [reg.pos[0], reg.pos[1], "b"]; return; }
+      t._geo = DISTRICT_HQ[t.district] ? [DISTRICT_HQ[t.district][0], DISTRICT_HQ[t.district][1], "d"] : null;
+    });
+    computeDistances();
     open = all.filter(isOpen);
     var v = lsGet("visit", null);
     if(!v) lsSet("visit", {today: meta.today, base: null});

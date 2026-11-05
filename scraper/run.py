@@ -16,6 +16,7 @@ TENDERS_FILE = DATA_DIR / "tenders.json"
 NEW_TODAY_FILE = DATA_DIR / "new_today.json"
 BODIES_FILE = DATA_DIR / "bodies.json"
 PINCODES_FILE = DATA_DIR / "pincodes.json"
+PLACES_FILE = DATA_DIR / "places.json"
 META_FILE = DATA_DIR / "meta.json"
 
 DETAIL_BUDGET = int(os.environ.get("DETAIL_BUDGET") or 1200)  # detail pages per run; ~35 min per 1,200 at the polite delay
@@ -117,6 +118,7 @@ def main() -> None:
             bodies[name]["pos"] = pos
     dump(BODIES_FILE, bodies)
     dump(PINCODES_FILE, {k: list(v) for k, v in sorted(pincode_positions().items())})
+    dump(PLACES_FILE, {k: v for k, v in sorted(body_pos.items())})
     dump(NEW_TODAY_FILE, new_today)
     META_FILE.write_text(json.dumps({
         "last_run": dt.datetime.now(IST).isoformat(timespec="seconds"),
