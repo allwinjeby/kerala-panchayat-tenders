@@ -8,12 +8,14 @@ from pathlib import Path
 
 from . import kerala_etenders
 from .classify import classify
+from .geo import body_positions, pincode_positions, position
 from .common import IST, body_name, today_ist
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "docs" / "data"
 TENDERS_FILE = DATA_DIR / "tenders.json"
 NEW_TODAY_FILE = DATA_DIR / "new_today.json"
 BODIES_FILE = DATA_DIR / "bodies.json"
+PINCODES_FILE = DATA_DIR / "pincodes.json"
 META_FILE = DATA_DIR / "meta.json"
 
 DETAIL_BUDGET = int(os.environ.get("DETAIL_BUDGET") or 1200)  # detail pages per run; ~35 min per 1,200 at the polite delay
@@ -96,13 +98,25 @@ def main() -> None:
     for r in records:
         r["body_name"] = body_name(r.get("organisation", ""), r.get("body_type"), r.get("district"))
         r["grp"], r["kind"], r["job"] = classify(r.get("title", ""), r.get("category"))
+    try:
+        register = json.loads(BODIES_FILE.read_text())
+    except (FileNotFoundError, json.JSONDecodeError):
+        register = {}
+    body_pos = body_positions(records, {k: v.get("pos") for k, v in register.items()})
+    for r in records:
+        r["geo"] = position(r, body_pos)
     new_today = [] if first_run else [r for r in records if r["id"] in new_ids]
 
     def dump(path: Path, obj) -> None:
         path.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
 
     dump(TENDERS_FILE, records)
-    dump(BODIES_FILE, update_bodies(records, today))
+    bodies = update_bodies(records, today)
+    for name, pos in body_pos.items():
+        if name in bodies:
+            bodies[name]["pos"] = pos
+    dump(BODIES_FILE, bodies)
+    dump(PINCODES_FILE, {k: list(v) for k, v in sorted(pincode_positions().items())})
     dump(NEW_TODAY_FILE, new_today)
     META_FILE.write_text(json.dumps({
         "last_run": dt.datetime.now(IST).isoformat(timespec="seconds"),

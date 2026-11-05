@@ -110,6 +110,21 @@ def test_classify_work():
         assert got == want, (title, got)
 
 
+def test_geo_positions():
+    from scraper.geo import position, body_positions, squash
+    assert squash("Kuzhalmannam") == squash("Kuzhalmandam") or squash("Nenmara") == squash("Nemmara")
+    recs = [
+        {"body_name": "Kuzhalmannam Grama Panchayat", "body_type": "Grama Panchayat", "district": "Palakkad", "pincode": "678702"},
+        {"body_name": "Kuzhalmannam Grama Panchayat", "body_type": "Grama Panchayat", "district": "Palakkad"},
+        {"body_name": "Thrissur District Panchayat", "body_type": "District Panchayat", "district": "Thrissur"},
+    ]
+    bp = body_positions(recs)
+    a, b, c = (position(r, bp) for r in recs)
+    assert a[2] == "p" and b[2] == "b" and a[:2] == b[:2]
+    assert c[2] == "d" and 10 < c[0] < 11
+    assert 8 < a[0] < 13 and 74 < a[1] < 78
+
+
 def test_update_bodies_keeps_bodies_with_nothing_open():
     import json
     import tempfile

@@ -142,7 +142,7 @@ def classify_body(chain: str) -> str:
 
 _ROLE_WORDS = {
     "office", "ofc", "of", "the", "o/o", "ae", "asst", "assistant", "exec", "exe", "executive", "engg", "engr",
-    "eng", "engineer", "engineers", "secretary", "superintending", "municipal", "corporation", "dy", "deputy", "division", "section",
+    "eng", "engineer", "engineers", "secretary", "superintending", "municipal", "minicipal", "muncipal", "munciple", "corporation", "dy", "deputy", "division", "section",
 }
 _SUFFIXES = (
     (re.compile(r"\s*\bgrama\s*panch\w*$|\s*\bgramapanch\w*$|\s*\bgp$", re.I), "Grama Panchayat"),
