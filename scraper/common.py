@@ -49,14 +49,15 @@ def polite_get(session: requests.Session, url: str) -> requests.Response | None:
     if not robots_allows(url, session):
         print(f"[skip] robots.txt disallows: {url}")
         return None
-    time.sleep(REQUEST_DELAY_SECONDS)
-    try:
-        resp = session.get(url, timeout=REQUEST_TIMEOUT)
-        resp.raise_for_status()
-        return resp
-    except requests.RequestException as exc:
-        print(f"[error] GET {url} failed: {exc}")
-        return None
+    for attempt in (1, 2, 3):
+        time.sleep(REQUEST_DELAY_SECONDS if attempt == 1 else 15 * attempt)
+        try:
+            resp = session.get(url, timeout=REQUEST_TIMEOUT)
+            resp.raise_for_status()
+            return resp
+        except requests.RequestException as exc:
+            print(f"[error] GET {url} failed (attempt {attempt}/3): {exc}")
+    return None
 
 
 def parse_date(text: str | None) -> str | None:

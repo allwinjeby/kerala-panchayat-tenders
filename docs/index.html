@@ -4,263 +4,760 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kerala Panchayat Tenders</title>
-<meta name="description" content="Daily-updated list of public works tenders from Kerala panchayats, from the Kerala e-Tenders portal.">
+<meta name="description" content="Daily-updated, searchable list of public works tenders from Kerala's panchayats and local bodies.">
 <style>
   :root{
-    --bg:#f6f6f3; --surface:#fff; --border:#e2e0da; --text:#1d1c19; --dim:#6a675f;
-    --accent:#0e6a4b; --new-bg:#fff6dc; --new-border:#e6c25c; --warn:#a63d24; --radius:10px;
+    color-scheme: light;
+    --bg:#f5f5f2; --surface:#fcfcfb; --surface-2:#f0efeb; --border:#e1dfd8; --grid:#e8e6e0;
+    --text:#1a1917; --text-2:#55534d; --muted:#7a776f;
+    --accent:#0e6a4b; --accent-ink:#ffffff; --series:#0a7d52;
+    --new-bg:#fff5d6; --new-border:#e3bd52; --warn:#a63d24; --warn-bg:#fbe9e3;
+    --radius:12px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);
   }
   @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#161719; --surface:#1f2023; --border:#34353b; --text:#ebe9e4; --dim:#9b988f;
-      --accent:#4cc994; --new-bg:#352e14; --new-border:#8a7326; --warn:#e48b74;
+    :root:where(:not([data-theme="light"])){
+      color-scheme: dark;
+      --bg:#141513; --surface:#1c1d1b; --surface-2:#252623; --border:#33342f; --grid:#2c2d29;
+      --text:#eeede9; --text-2:#c3c1b8; --muted:#97948b;
+      --accent:#4cc994; --accent-ink:#0b1f16; --series:#22a46f;
+      --new-bg:#342d13; --new-border:#8a7326; --warn:#ec8f77; --warn-bg:#3a201a;
+      --shadow:none;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#161719; --surface:#1f2023; --border:#34353b; --text:#ebe9e4; --dim:#9b988f;
-    --accent:#4cc994; --new-bg:#352e14; --new-border:#8a7326; --warn:#e48b74;
+    color-scheme: dark;
+    --bg:#141513; --surface:#1c1d1b; --surface-2:#252623; --border:#33342f; --grid:#2c2d29;
+    --text:#eeede9; --text-2:#c3c1b8; --muted:#97948b;
+    --accent:#4cc994; --accent-ink:#0b1f16; --series:#22a46f;
+    --new-bg:#342d13; --new-border:#8a7326; --warn:#ec8f77; --warn-bg:#3a201a;
+    --shadow:none;
   }
   *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
   body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  .wrap{max-width:1080px;margin:0 auto;padding:20px 16px 60px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:8px}
-  h1{font-size:20px;margin:0}
-  .sub{color:var(--dim);font-size:13px;margin:4px 0 16px}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
-  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px}
-  .stat .n{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
-  .stat .l{font-size:12px;color:var(--dim)}
-  .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-bottom:10px}
-  input,select,button{font:inherit;font-size:14px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-width:0}
-  .search{grid-column:1/-1}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 72px}
+  button,input,select{font:inherit;color:inherit}
   button{cursor:pointer}
-  .count{font-size:13px;color:var(--dim);margin:6px 0 10px}
-  .cards{display:flex;flex-direction:column;gap:10px}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  header.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  h1{font-size:22px;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--text-2);font-size:13px;margin:4px 0 0}
+  .icon-btn{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:7px 10px;line-height:1}
+
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 14px}
+  @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);text-align:left}
+  button.stat{width:100%}
+  button.stat:hover{border-color:var(--accent)}
+  button.stat[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .stat .n{font-size:24px;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .stat .l{font-size:12.5px;color:var(--text-2)}
+
+  .filters{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;margin:0 -16px;padding-left:16px;padding-right:16px;border-bottom:1px solid transparent}
+  @media (max-width:700px){.filters{position:static}}
+  .filters .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
+  .filters .seg::-webkit-scrollbar{display:none}
+  .icon-btn svg{display:block}
+  .filters.stuck{border-bottom-color:var(--border)}
+  .frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .frow + .frow{margin-top:8px}
+  .search{flex:1 1 260px;min-width:0;position:relative}
+  .search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+  select,.chipbtn{border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:8px 10px;font-size:14px;max-width:100%}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+  .seg button{border:0;background:none;padding:8px 11px;font-size:13.5px;color:var(--text-2);white-space:nowrap}
+  .seg button + button{border-left:1px solid var(--border)}
+  .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+  .chipbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+  .active-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px}
+  .achip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:3px 4px 3px 10px}
+  .achip button{border:0;background:none;padding:0 5px;font-size:15px;line-height:1;color:var(--muted)}
+  .linkbtn{border:0;background:none;color:var(--accent);padding:4px 2px;font-size:13px;font-weight:600}
+  .spacer{flex:1}
+
+  .charts{display:grid;grid-template-columns:1.05fr 1.35fr 1fr;gap:12px;margin:12px 0 18px}
+  @media (max-width:1000px){.charts{grid-template-columns:1fr 1fr}.charts .wide{grid-column:1/-1;order:-1}}
+  @media (max-width:640px){.charts{grid-template-columns:1fr}}
+  .chart{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px 10px;box-shadow:var(--shadow);min-width:0}
+  .chart h2{font-size:14px;margin:0;font-weight:650}
+  .chart .hint{font-size:12px;color:var(--muted);margin:2px 0 8px}
+  .chart svg{display:block;width:100%;height:auto;overflow:visible}
+  .chart .lbl{fill:var(--text-2);font-size:11.5px}
+  .chart .val{fill:var(--text);font-size:11.5px;font-variant-numeric:tabular-nums}
+  .chart .axis{fill:var(--muted);font-size:10.5px;font-variant-numeric:tabular-nums}
+  .chart .gridline{stroke:var(--grid);stroke-width:1}
+  .chart .mark{fill:var(--series);transition:opacity .15s}
+  .chart .dim .mark{opacity:.28}
+  .chart .dim .sel .mark{opacity:1}
+  .chart g.hit{cursor:pointer;outline:none}
+  .chart g.hit:hover .mark,.chart g.hit:focus-visible .mark{opacity:1;filter:brightness(1.12)}
+  .chart g.hit:focus-visible .hitbox{stroke:var(--accent);stroke-width:2}
+  .chart .hitbox{fill:transparent}
+  .chart .today{stroke:var(--warn);stroke-width:1}
+  .chart .empty-note{font-size:12.5px;color:var(--muted);padding:20px 0;text-align:center}
+
+  #tip{position:fixed;z-index:50;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:12.5px;box-shadow:0 6px 20px rgba(0,0,0,.14);opacity:0;transition:opacity .08s;max-width:240px}
+  #tip b{display:block;font-size:14px;font-variant-numeric:tabular-nums}
+  #tip span{color:var(--text-2)}
+
+  .resbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 10px}
+  .resbar .count{font-size:13.5px;color:var(--text-2)}
+  .resbar .count b{color:var(--text)}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
+  @media (max-width:420px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:border-color .12s,transform .12s}
+  .card:hover{border-color:var(--accent)}
   .card.is-new{background:var(--new-bg);border-color:var(--new-border)}
-  .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-  .card h3{margin:0;font-size:15px;font-weight:600;overflow-wrap:anywhere}
-  .badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
-  .badge{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap;color:#fff}
-  .badge.new{background:var(--accent)} .badge.soon{background:var(--warn)}
-  .org{font-size:13px;margin-top:4px}
-  .meta{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:6px;font-size:12.5px;color:var(--dim)}
-  .meta b{color:var(--text);font-weight:600}
-  .value{font-size:14px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
-  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
-  .actions code{font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 6px;overflow-wrap:anywhere}
-  .actions button,.actions a{font-size:12px;padding:4px 9px}
-  .actions a{color:var(--text);border:1px solid var(--border);border-radius:8px;text-decoration:none;background:var(--surface)}
-  .more{display:block;margin:14px auto 0}
-  .notes{font-size:12.5px;color:var(--dim);margin-top:24px}
-  .notes summary{cursor:pointer}
-  footer{margin-top:16px;font-size:12px;color:var(--dim)}
-  footer a{color:var(--dim)}
-  .empty{color:var(--dim);padding:30px 0;text-align:center}
+  .card .row1{display:flex;gap:8px;align-items:flex-start}
+  .card h3{margin:0;font-size:14.5px;font-weight:600;line-height:1.35;flex:1;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .star{border:0;background:none;padding:0 2px;font-size:19px;line-height:1;color:var(--muted)}
+  .star[aria-pressed="true"]{color:#d9a400}
+  .card .org{font-size:12.5px;color:var(--text-2)}
+  .card .foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:2px}
+  .value{font-weight:650;font-variant-numeric:tabular-nums}
+  .value.na{font-weight:400;color:var(--muted);font-size:12.5px}
+  .pill{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;border:1px solid var(--border);color:var(--text-2);background:var(--surface-2)}
+  .pill.new{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .pill.soon{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+  .card .closes{font-size:12.5px;color:var(--text-2);margin-left:auto;white-space:nowrap}
+
+  table.tbl{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-size:13.5px}
+  .tblwrap{overflow-x:auto;border-radius:var(--radius)}
+  .tbl th{text-align:left;font-size:12px;color:var(--text-2);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface-2)}
+  .tbl th button{border:0;background:none;padding:0;font-weight:600;color:inherit}
+  .tbl td{padding:8px 10px;border-bottom:1px solid var(--grid);vertical-align:top}
+  .tbl tr:hover td{background:var(--surface-2);cursor:pointer}
+  .tbl td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tbl td.t{min-width:260px}
+
+  .more{display:block;margin:16px auto 0;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:9px 18px;font-weight:600}
+  .empty{color:var(--text-2);padding:40px 0;text-align:center}
+
+  dialog{border:0;padding:0;border-radius:16px;max-width:560px;width:calc(100% - 24px);background:var(--surface);color:var(--text);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  dialog::backdrop{background:rgba(10,10,8,.45)}
+  .dlg{padding:18px 18px 16px}
+  .dlg h2{font-size:17px;margin:0 30px 6px 0;line-height:1.35}
+  .dlg .close{position:absolute;right:10px;top:10px}
+  .dlg .pills{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+  .dlg dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:0;font-size:13.5px}
+  .dlg dt{color:var(--text-2)}
+  .dlg dd{margin:0;overflow-wrap:anywhere}
+  .dlg .big{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+  .dlg .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+  .dlg .acts > *{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:10px;font-size:13.5px;font-weight:600;text-decoration:none;color:var(--text)}
+  .dlg .acts .primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .dlg .note{font-size:12px;color:var(--muted);margin-top:10px}
+  .dlg code{font-size:13px;background:var(--surface-2);padding:2px 6px;border-radius:6px}
+
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13.5px;opacity:0;transition:.2s;z-index:60;pointer-events:none}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  details.notes{font-size:12.5px;color:var(--text-2);margin-top:28px}
+  details.notes summary{cursor:pointer}
+  footer{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.6}
+  footer a{color:var(--text-2)}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>Kerala Panchayat Tenders</h1>
-    <button id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+  <header class="top">
+    <div>
+      <h1>Kerala Panchayat Tenders</h1>
+      <p class="sub" id="lastRun">Loading tenders…</p>
+    </div>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
   </header>
-  <p class="sub" id="lastRun">Loading…</p>
 
   <div class="stats">
-    <div class="stat"><div class="n" id="sTotal">–</div><div class="l">Open tenders (matching)</div></div>
-    <div class="stat"><div class="n" id="sNew">–</div><div class="l">New today</div></div>
-    <div class="stat"><div class="n" id="sSoon">–</div><div class="l">Closing in 3 days</div></div>
-    <div class="stat"><div class="n" id="sValue">–</div><div class="l">Total value (known)</div></div>
+    <div class="stat"><div class="n" id="sTotal">–</div><div class="l">Open tenders</div></div>
+    <button class="stat" id="sNewBtn" type="button" aria-pressed="false" title="Show only tenders first seen today"><div class="n" id="sNew">–</div><div class="l">New today</div></button>
+    <button class="stat" id="sSoonBtn" type="button" aria-pressed="false" title="Show only tenders closing within 3 days"><div class="n" id="sSoon">–</div><div class="l">Closing in 3 days</div></button>
+    <div class="stat"><div class="n" id="sValue">–</div><div class="l" id="sValueL">Total value</div></div>
   </div>
 
-  <div class="controls">
-    <input class="search" type="search" id="q" placeholder="Search work, panchayat, tender ID… (e.g. road, anganwadi, Kuzhalmannam)">
-    <select id="body"></select>
-    <select id="district"><option value="">All districts</option></select>
-    <select id="category"><option value="">All work categories</option></select>
-    <select id="minValue">
-      <option value="0">Any value</option>
-      <option value="500000">₹5 lakh+</option>
-      <option value="1000000">₹10 lakh+</option>
-      <option value="2500000">₹25 lakh+</option>
-      <option value="10000000">₹1 crore+</option>
-    </select>
-    <select id="sort">
-      <option value="closing">Closing soonest</option>
-      <option value="newest">Newest first</option>
-      <option value="value">Highest value</option>
-    </select>
-    <label style="display:flex;align-items:center;gap:6px;font-size:14px"><input type="checkbox" id="onlyNew"> New today only</label>
+  <div class="filters" id="filters">
+    <div class="frow">
+      <label class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <span class="sr">Search</span>
+        <input type="search" id="q" placeholder="Search work, panchayat, tender ID…" autocomplete="off">
+      </label>
+      <select id="district" aria-label="District"><option value="">All districts</option></select>
+      <select id="sort" aria-label="Sort">
+        <option value="closing">Closing soonest</option>
+        <option value="newest">Newest first</option>
+        <option value="value">Highest value</option>
+      </select>
+    </div>
+    <div class="frow">
+      <div class="seg" id="bodySeg" role="group" aria-label="Type of local body"></div>
+      <select id="minValue" aria-label="Minimum value">
+        <option value="0">Any value</option>
+        <option value="500000">₹5 L+</option>
+        <option value="1000000">₹10 L+</option>
+        <option value="2500000">₹25 L+</option>
+        <option value="10000000">₹1 Cr+</option>
+      </select>
+      <select id="category" aria-label="Work category"><option value="">All work types</option></select>
+      <button class="chipbtn" id="savedBtn" type="button" aria-pressed="false">★ Saved <span id="savedCount"></span></button>
+    </div>
+    <div class="frow active-chips" id="chips" hidden></div>
   </div>
 
-  <div class="count" id="count"></div>
-  <div class="cards" id="cards"></div>
-  <div class="empty" id="empty" hidden>No tenders match these filters.</div>
-  <button class="more" id="more" hidden>Show more</button>
+  <section class="charts" aria-label="Charts (click a bar to filter)">
+    <div class="chart">
+      <h2>Tenders by district</h2>
+      <p class="hint">Click a bar to filter</p>
+      <div id="cDistrict"></div>
+    </div>
+    <div class="chart wide">
+      <h2>Closing dates</h2>
+      <p class="hint">Tenders closing each day · click a day to filter</p>
+      <div id="cClosing"></div>
+    </div>
+    <div class="chart">
+      <h2>Type of work</h2>
+      <p class="hint" id="catHint">Click a bar to filter</p>
+      <div id="cCategory"></div>
+    </div>
+  </section>
 
-  <details class="notes" id="notes" hidden><summary>Scraper notes from the last run</summary><div id="notesBody"></div></details>
+  <div class="resbar">
+    <div class="count" id="count"></div>
+    <div class="spacer"></div>
+    <div class="seg" role="group" aria-label="View">
+      <button type="button" id="vCards" aria-pressed="true">Cards</button>
+      <button type="button" id="vTable" aria-pressed="false">Table</button>
+    </div>
+    <button class="chipbtn" id="shareBtn" type="button" title="Copy a link to this exact view">Share view</button>
+    <button class="chipbtn" id="csvBtn" type="button" title="Download the filtered list as a spreadsheet">Download CSV</button>
+  </div>
 
+  <div id="results"></div>
+  <div class="empty" id="empty" hidden>No tenders match these filters. <button class="linkbtn" id="clearAll2" type="button">Clear filters</button></div>
+  <button class="more" id="more" type="button" hidden>Show more</button>
+
+  <details class="notes" id="notes" hidden><summary>Data notes from the last update</summary><div id="notesBody"></div></details>
   <footer>
     Source: <a href="https://etenders.kerala.gov.in/nicgep/app" target="_blank" rel="noopener">Kerala e-Tenders portal</a>
     (Local Self Government Department and panchayat organisations). Updated automatically every morning.
-    To open a tender, copy its Tender ID and search for it on the portal. Always check the official notice before bidding.
+    To open a tender on the portal, copy its Tender ID and paste it into the portal's search.
+    Contract value and work type are added gradually for older tenders. Always check the official notice before bidding.
     Unofficial tool, not affiliated with the Government of Kerala.
   </footer>
 </div>
 
+<div id="tip" role="tooltip"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="dlg" aria-labelledby="dTitle">
+  <div class="dlg" id="dlgBody"></div>
+</dialog>
+
 <script>
 (function(){
   "use strict";
-  var PAGE = 50;
+  var PAGE = 40;
   var SEARCH_URL = "https://etenders.kerala.gov.in/nicgep/app?page=FrontEndAdvancedSearch&service=page";
-  var PANCHAYAT_TYPES = ["Grama Panchayat","Block Panchayat","District Panchayat","Panchayat (other)"];
-  var all = [], meta = {}, newIds = new Set(), shown = PAGE, filtered = [];
+  var PANCHAYAT = {"Grama Panchayat":1,"Block Panchayat":1,"District Panchayat":1,"Panchayat (other)":1};
+  var BODY_OPTS = [["panchayat","All panchayats"],["Grama Panchayat","Grama"],["Block Panchayat","Block"],["District Panchayat","District"],["","All local bodies"]];
+  var DEFAULTS = {q:"", body:"panchayat", district:"", category:"", minValue:"0", sort:"closing", closeDate:"", soon:false, onlyNew:false, saved:false, view:"cards"};
+  var S = Object.assign({}, DEFAULTS);
+  var all = [], meta = {}, newIds = new Set(), saved = new Set(), shown = PAGE, current = [];
   var $ = function(id){ return document.getElementById(id); };
+  var SVGNS = "http://www.w3.org/2000/svg";
 
-  try{ var t = localStorage.getItem("theme"); if(t) document.documentElement.setAttribute("data-theme", t); }catch(e){}
+  // ---------- storage (best effort) ----------
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+  try{ saved = new Set(JSON.parse(lsGet("saved") || "[]")); }catch(e){ saved = new Set(); }
+  var theme = lsGet("theme"); if(theme) document.documentElement.setAttribute("data-theme", theme);
   $("themeBtn").onclick = function(){
-    var dark = document.documentElement.getAttribute("data-theme") === "dark" ||
-      (!document.documentElement.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     var next = dark ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    try{ localStorage.setItem("theme", next); }catch(e){}
+    document.documentElement.setAttribute("data-theme", next); lsSet("theme", next);
   };
 
+  // ---------- formatting ----------
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
   function inr(n){
     if(n == null) return null;
-    if(n >= 1e7) return "₹" + (n/1e7).toFixed(2).replace(/\.?0+$/,"") + " Cr";
-    if(n >= 1e5) return "₹" + (n/1e5).toFixed(2).replace(/\.?0+$/,"") + " L";
-    return "₹" + n.toLocaleString("en-IN");
+    if(n >= 1e7) return "₹" + trim(n/1e7) + " Cr";
+    if(n >= 1e5) return "₹" + trim(n/1e5) + " L";
+    return "₹" + Math.round(n).toLocaleString("en-IN");
   }
-  function fmtDate(iso){
+  function trim(x){ return x.toFixed(x >= 100 ? 0 : 2).replace(/\.?0+$/, ""); }
+  function inrFull(n){ return n == null ? "—" : "₹" + n.toLocaleString("en-IN"); }
+  function fmtDate(iso, opts){
     if(!iso) return "—";
     var d = new Date(iso + "T00:00:00");
-    return isNaN(d) ? iso : d.toLocaleDateString("en-IN", {day:"numeric", month:"short", year:"numeric"});
+    return isNaN(d) ? iso : d.toLocaleDateString("en-IN", opts || {day:"numeric", month:"short", year:"numeric"});
   }
-  function daysLeft(iso){
-    if(!iso || !meta.today) return null;
-    return Math.round((new Date(iso) - new Date(meta.today)) / 864e5);
+  function addDays(iso, n){ var d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0,10); }
+  function daysLeft(iso){ return iso && meta.today ? Math.round((Date.parse(iso) - Date.parse(meta.today)) / 864e5) : null; }
+  function closesLabel(t){
+    var d = daysLeft(t.closing_date), time = (t.closing_time || "").replace(/^.*?(\d{1,2}:\d{2}\s*[AP]M)$/i, "$1");
+    if(d === 0) return "Closes today" + (time ? " " + time : "");
+    if(d === 1) return "Closes tomorrow";
+    if(d !== null && d < 7) return "Closes in " + d + " days";
+    return "Closes " + fmtDate(t.closing_date, {day:"numeric", month:"short"});
   }
-  function fillSelect(el, values){
-    values.forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = v; el.appendChild(o); });
+  function toast(msg){ var t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("on"); }, 1800); }
+  function copy(text, msg){
+    if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function(){ toast(msg); }, function(){ prompt("Copy:", text); });
+    else prompt("Copy:", text);
   }
 
-  function apply(){
-    var q = $("q").value.trim().toLowerCase(), body = $("body").value, dist = $("district").value,
-        cat = $("category").value, minV = +$("minValue").value, onlyNew = $("onlyNew").checked, sort = $("sort").value;
-    filtered = all.filter(function(t){
-      if(body === "__panchayat"){ if(PANCHAYAT_TYPES.indexOf(t.body_type) < 0) return false; }
-      else if(body && t.body_type !== body) return false;
-      if(dist && t.district !== dist) return false;
-      if(cat && t.category !== cat) return false;
-      if(minV && !(t.value >= minV)) return false;
-      if(onlyNew && !newIds.has(t.id)) return false;
-      if(q && t._hay.indexOf(q) < 0) return false;
-      return true;
+  // ---------- filtering (crossfilter: each chart ignores its own dimension) ----------
+  function pass(t, skip){
+    if(skip !== "body"){
+      if(S.body === "panchayat"){ if(!PANCHAYAT[t.body_type]) return false; }
+      else if(S.body && t.body_type !== S.body) return false;
+    }
+    if(skip !== "district" && S.district && t.district !== S.district) return false;
+    if(skip !== "category" && S.category && (t.category || "Not yet known") !== S.category) return false;
+    if(skip !== "closing"){
+      if(S.closeDate && t.closing_date !== S.closeDate) return false;
+      if(S.soon){ var d = daysLeft(t.closing_date); if(d === null || d < 0 || d > 3) return false; }
+    }
+    if(+S.minValue && !(t.value >= +S.minValue)) return false;
+    if(S.onlyNew && !newIds.has(t.id)) return false;
+    if(S.saved && !saved.has(t.id)) return false;
+    if(S.q){
+      var words = S.q.toLowerCase().split(/\s+/);
+      for(var i = 0; i < words.length; i++) if(words[i] && t._hay.indexOf(words[i]) < 0) return false;
+    }
+    return true;
+  }
+
+  function update(keepPage){
+    current = all.filter(function(t){ return pass(t); });
+    var sort = S.sort;
+    current.sort(function(a, b){
+      if(sort === "newest") return (b.published_date || "").localeCompare(a.published_date || "") || (a.closing_date || "").localeCompare(b.closing_date || "");
+      if(sort === "value") return (b.value || -1) - (a.value || -1);
+      return (a.closing_date || "9").localeCompare(b.closing_date || "9") || (a.closing_time || "").localeCompare(b.closing_time || "");
     });
-    filtered.sort(function(a, b){
-      if(sort === "newest") return (b.published_date || "").localeCompare(a.published_date || "");
-      if(sort === "value") return (b.value || 0) - (a.value || 0);
-      return (a.closing_date || "9").localeCompare(b.closing_date || "9");
-    });
-    var soon = 0, total = 0, newCount = 0;
-    filtered.forEach(function(t){
+    if(!keepPage) shown = PAGE;
+    renderStats(); renderChips(); renderCharts(); renderResults(); syncControls(); persist();
+  }
+
+  // ---------- stats ----------
+  function renderStats(){
+    var soon = 0, total = 0, known = 0, nNew = 0;
+    current.forEach(function(t){
       var d = daysLeft(t.closing_date); if(d !== null && d >= 0 && d <= 3) soon++;
-      if(t.value) total += t.value;
-      if(newIds.has(t.id)) newCount++;
+      if(t.value != null){ total += t.value; known++; }
+      if(newIds.has(t.id)) nNew++;
     });
-    $("sTotal").textContent = filtered.length.toLocaleString("en-IN");
-    $("sNew").textContent = newCount.toLocaleString("en-IN");
+    $("sTotal").textContent = current.length.toLocaleString("en-IN");
+    $("sNew").textContent = nNew.toLocaleString("en-IN");
     $("sSoon").textContent = soon.toLocaleString("en-IN");
-    $("sValue").textContent = inr(total) || "–";
-    shown = PAGE;
-    render();
-    try{ localStorage.setItem("filters", JSON.stringify({body:body, district:dist, category:cat, minValue:$("minValue").value, sort:sort})); }catch(e){}
+    $("sValue").textContent = known ? inr(total) : "–";
+    $("sValueL").textContent = known === current.length ? "Total value" : "Total value (" + known.toLocaleString("en-IN") + " with value known)";
+    $("count").innerHTML = "<b>" + current.length.toLocaleString("en-IN") + "</b> tender" + (current.length === 1 ? "" : "s");
   }
 
-  function card(t){
-    var isNew = newIds.has(t.id), d = daysLeft(t.closing_date);
-    var badges = (isNew ? '<span class="badge new">NEW</span>' : "") +
-      (d !== null && d >= 0 && d <= 3 ? '<span class="badge soon">' + (d === 0 ? "Closes today" : "Closes in " + d + "d") + "</span>" : "");
-    var val = inr(t.value);
-    return '<div class="card' + (isNew ? " is-new" : "") + '">' +
-      '<div class="top"><h3>' + esc(t.title) + '</h3><div class="badges">' + badges + "</div></div>" +
-      '<div class="org">' + esc(t.organisation) + (t.district ? " · " + esc(t.district) : "") + " · " + esc(t.body_type) + "</div>" +
-      '<div class="meta">' +
-        (val ? '<span class="value">' + val + "</span>" : "") +
-        (t.emd != null ? "<span><b>EMD:</b> " + inr(t.emd) + "</span>" : "") +
-        "<span><b>Closes:</b> " + esc(t.closing_time || fmtDate(t.closing_date)) + "</span>" +
-        "<span><b>Published:</b> " + fmtDate(t.published_date) + "</span>" +
-        (t.category ? "<span><b>Category:</b> " + esc(t.category) + "</span>" : "") +
-        (t.work_days ? "<span><b>Period:</b> " + esc(t.work_days) + " days</span>" : "") +
-        (t.location ? "<span><b>Location:</b> " + esc(t.location) + (t.pincode ? " " + esc(t.pincode) : "") + "</span>" : "") +
-      "</div>" +
-      '<div class="actions"><code>' + esc(t.tender_id) + '</code>' +
-        '<button type="button" data-copy="' + esc(t.tender_id) + '">Copy ID</button>' +
-        '<a href="' + SEARCH_URL + '" target="_blank" rel="noopener">Find on portal ↗</a>' +
-        (t.tender_ref && t.tender_ref !== t.title ? '<span style="font-size:12px;color:var(--dim)">Ref: ' + esc(t.tender_ref) + "</span>" : "") +
-      "</div></div>";
+  // ---------- active filter chips ----------
+  function renderChips(){
+    var chips = [];
+    if(S.q) chips.push(["q", "“" + S.q + "”"]);
+    if(S.district) chips.push(["district", S.district]);
+    if(S.category) chips.push(["category", S.category]);
+    if(S.closeDate) chips.push(["closeDate", "Closing " + fmtDate(S.closeDate, {day:"numeric", month:"short"})]);
+    if(S.soon) chips.push(["soon", "Closing in 3 days"]);
+    if(+S.minValue) chips.push(["minValue", $("minValue").selectedOptions[0].textContent]);
+    if(S.onlyNew) chips.push(["onlyNew", "New today"]);
+    if(S.saved) chips.push(["saved", "Saved"]);
+    var box = $("chips");
+    box.hidden = !chips.length;
+    box.innerHTML = "";
+    chips.forEach(function(c){
+      var span = document.createElement("span"); span.className = "achip";
+      span.appendChild(document.createTextNode(c[1]));
+      var x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", "Remove filter " + c[1]);
+      x.onclick = function(){ S[c[0]] = DEFAULTS[c[0]]; update(); };
+      span.appendChild(x); box.appendChild(span);
+    });
+    if(chips.length){
+      var clr = document.createElement("button"); clr.type = "button"; clr.className = "linkbtn"; clr.textContent = "Clear all";
+      clr.onclick = clearAll; box.appendChild(clr);
+    }
+  }
+  function clearAll(){ var v = S.view, b = S.body, s = S.sort; S = Object.assign({}, DEFAULTS, {view:v, body:b, sort:s}); update(); }
+  $("clearAll2").onclick = clearAll;
+
+  // ---------- charts ----------
+  var tip = $("tip");
+  function showTip(ev, strong, label){
+    tip.innerHTML = ""; var b = document.createElement("b"); b.textContent = strong; var s = document.createElement("span"); s.textContent = label;
+    tip.appendChild(b); tip.appendChild(s);
+    var r = ev.target.getBoundingClientRect ? ev.target.getBoundingClientRect() : null;
+    var x = ev.clientX != null && ev.clientX ? ev.clientX : (r ? r.left + r.width / 2 : 0);
+    var y = ev.clientY != null && ev.clientY ? ev.clientY : (r ? r.top : 0);
+    tip.style.opacity = 1;
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x - w / 2)) + "px";
+    tip.style.top = Math.max(8, y - h - 12) + "px";
+  }
+  function hideTip(){ tip.style.opacity = 0; }
+  function el(name, attrs, parent){
+    var n = document.createElementNS(SVGNS, name);
+    for(var k in attrs) n.setAttribute(k, attrs[k]);
+    if(parent) parent.appendChild(n);
+    return n;
+  }
+  // bar with 4px rounded data-end, square at the baseline
+  function hbarPath(x, y, w, h){ var r = Math.min(4, w, h / 2); return "M" + x + "," + y + "h" + (w - r) + "a" + r + "," + r + " 0 0 1 " + r + "," + r + "v" + (h - 2 * r) + "a" + r + "," + r + " 0 0 1 -" + r + "," + r + "h-" + (w - r) + "z"; }
+  function vbarPath(x, y, w, h){ var r = Math.min(4, h, w / 2); return "M" + x + "," + (y + h) + "v-" + (h - r) + "a" + r + "," + r + " 0 0 1 " + r + ",-" + r + "h" + (w - 2 * r) + "a" + r + "," + r + " 0 0 1 " + r + "," + r + "v" + (h - r) + "z"; }
+
+  function makeHit(g, opts){
+    g.setAttribute("class", "hit" + (opts.selected ? " sel" : ""));
+    g.setAttribute("tabindex", "0"); g.setAttribute("role", "button");
+    g.setAttribute("aria-pressed", opts.selected ? "true" : "false");
+    g.setAttribute("aria-label", opts.aria);
+    g.addEventListener("pointermove", function(e){ showTip(e, opts.strong, opts.label); });
+    g.addEventListener("pointerleave", hideTip);
+    g.addEventListener("focus", function(e){ showTip(e, opts.strong, opts.label); });
+    g.addEventListener("blur", hideTip);
+    g.addEventListener("click", function(){ hideTip(); opts.onClick(); });
+    g.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); opts.onClick(); } });
   }
 
-  function render(){
-    $("cards").innerHTML = filtered.slice(0, shown).map(card).join("");
-    $("empty").hidden = filtered.length > 0;
-    $("more").hidden = shown >= filtered.length;
-    $("count").textContent = filtered.length ? "Showing " + Math.min(shown, filtered.length).toLocaleString("en-IN") + " of " + filtered.length.toLocaleString("en-IN") : "";
+  function hbarChart(container, rows, selected, onPick, unit, labelW){
+    container.innerHTML = "";
+    if(!rows.length){ container.innerHTML = '<div class="empty-note">Nothing to show</div>'; return; }
+    labelW = labelW || 118;
+    var W = 360, valW = 44, rowH = 22, barH = 14, plotW = W - labelW - valW, maxChars = Math.floor((labelW - 10) / 6.2);
+    var H = rows.length * rowH;
+    var max = Math.max.apply(null, rows.map(function(r){ return r[1]; })) || 1;
+    var svg = el("svg", {viewBox: "0 0 " + W + " " + H, role: "group"}, container);
+    if(selected) svg.setAttribute("class", "dim");
+    rows.forEach(function(r, i){
+      var y = i * rowH, w = Math.max(r[1] ? 2 : 0, r[1] / max * plotW);
+      var g = el("g", {}, svg);
+      el("rect", {class: "hitbox", x: 0, y: y, width: W, height: rowH}, g);
+      var name = el("text", {class: "lbl", x: labelW - 8, y: y + rowH / 2 + 4, "text-anchor": "end"}, g);
+      name.textContent = r[0].length > maxChars ? r[0].slice(0, maxChars - 1) + "…" : r[0];
+      if(w > 0) el("path", {class: "mark", d: hbarPath(labelW, y + (rowH - barH) / 2, w, barH)}, g);
+      var v = el("text", {class: "val", x: labelW + w + 5, y: y + rowH / 2 + 4}, g);
+      v.textContent = r[1].toLocaleString("en-IN");
+      makeHit(g, {
+        selected: selected === r[0], strong: r[1].toLocaleString("en-IN") + " " + unit, label: r[0] + (r[2] ? " · " + inr(r[2]) + " known value" : ""),
+        aria: r[0] + ": " + r[1] + " " + unit + (selected === r[0] ? " (selected)" : ""),
+        onClick: function(){ onPick(selected === r[0] ? "" : r[0]); }
+      });
+    });
   }
 
-  $("cards").addEventListener("click", function(e){
-    var id = e.target.getAttribute && e.target.getAttribute("data-copy");
-    if(!id) return;
-    var btn = e.target;
-    var done = function(){ btn.textContent = "Copied ✓"; setTimeout(function(){ btn.textContent = "Copy ID"; }, 1500); };
-    if(navigator.clipboard) navigator.clipboard.writeText(id).then(done, function(){ prompt("Tender ID:", id); });
-    else prompt("Tender ID:", id);
+  function closingChart(container, counts){
+    container.innerHTML = "";
+    var start = meta.today, last = start;
+    Object.keys(counts).forEach(function(d){ if(d > last) last = d; });
+    var nDays = Math.max(14, Math.min(45, Math.round((Date.parse(last) - Date.parse(start)) / 864e5) + 1));
+    var days = []; for(var i = 0; i < nDays; i++) days.push(addDays(start, i));
+    var W = 520, H = 300, top = 16, bottom = 22, left = 30, plotW = W - left - 4, plotH = H - top - bottom;
+    var band = plotW / nDays, bw = Math.min(24, Math.max(3, band - 2));
+    var max = 0; days.forEach(function(d){ max = Math.max(max, counts[d] || 0); });
+    var step = niceStep(max), yMax = Math.max(step, Math.ceil(max / step) * step);
+    var svg = el("svg", {viewBox: "0 0 " + W + " " + H, role: "group"}, container);
+    if(S.closeDate) svg.setAttribute("class", "dim");
+    for(var v = 0; v <= yMax; v += step){
+      var y = top + plotH - v / yMax * plotH;
+      el("line", {class: "gridline", x1: left, x2: W, y1: y, y2: y}, svg);
+      var t = el("text", {class: "axis", x: left - 6, y: y + 3.5, "text-anchor": "end"}, svg);
+      t.textContent = v >= 1000 ? (v / 1000) + "K" : v;
+    }
+    days.forEach(function(d, i){
+      var c = counts[d] || 0, x = left + i * band, h = c / yMax * plotH;
+      var g = el("g", {}, svg);
+      el("rect", {class: "hitbox", x: x, y: top, width: band, height: plotH + bottom}, g);
+      if(h > 0) el("path", {class: "mark", d: vbarPath(x + (band - bw) / 2, top + plotH - Math.max(h, 2), bw, Math.max(h, 2))}, g);
+      var dt = new Date(d + "T00:00:00");
+      if(i === 0 || dt.getDay() === 1){
+        var lab = el("text", {class: "axis", x: x + band / 2, y: H - 6, "text-anchor": "middle"}, g);
+        lab.textContent = i === 0 ? "Today" : fmtDate(d, {day:"numeric", month:"short"});
+      }
+      var dl = daysLeft(d);
+      makeHit(g, {
+        selected: S.closeDate === d,
+        strong: c.toLocaleString("en-IN") + " closing",
+        label: fmtDate(d, {weekday:"short", day:"numeric", month:"short"}) + (dl === 0 ? " · today" : dl === 1 ? " · tomorrow" : " · in " + dl + " days"),
+        aria: c + " tenders closing on " + fmtDate(d),
+        onClick: function(){ S.closeDate = S.closeDate === d ? "" : d; S.soon = false; update(); }
+      });
+    });
+  }
+  function niceStep(max){
+    if(max <= 5) return 1;
+    var raw = max / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
+  }
+
+  function renderCharts(){
+    var dc = {}, dv = {}, cc = {}, cv = {}, closing = {}, known = 0, base = 0;
+    all.forEach(function(t){
+      if(pass(t, "district") && t.district){ dc[t.district] = (dc[t.district] || 0) + 1; dv[t.district] = (dv[t.district] || 0) + (t.value || 0); }
+      if(pass(t, "category")){ base++; if(t.category){ known++; cc[t.category] = (cc[t.category] || 0) + 1; cv[t.category] = (cv[t.category] || 0) + (t.value || 0); } }
+      if(pass(t, "closing") && t.closing_date) closing[t.closing_date] = (closing[t.closing_date] || 0) + 1;
+    });
+    var dRows = Object.keys(dc).map(function(k){ return [k, dc[k], dv[k]]; }).sort(function(a, b){ return b[1] - a[1]; });
+    hbarChart($("cDistrict"), dRows, S.district, function(v){ S.district = v; update(); }, "tenders");
+
+    var cRows = Object.keys(cc).map(function(k){ return [k, cc[k], cv[k]]; }).sort(function(a, b){ return b[1] - a[1]; });
+    if(cRows.length > 8){
+      var rest = cRows.slice(7), other = ["Other", 0, 0];
+      rest.forEach(function(r){ other[1] += r[1]; other[2] += r[2]; });
+      cRows = cRows.slice(0, 7);
+      if(S.category && !cRows.some(function(r){ return r[0] === S.category; })){
+        var selRow = rest.filter(function(r){ return r[0] === S.category; })[0];
+        if(selRow){ cRows.push(selRow); other[1] -= selRow[1]; other[2] -= selRow[2]; }
+      }
+      cRows.push(other);
+    }
+    hbarChart($("cCategory"), cRows, S.category, function(v){
+      if(v === "Other"){ toast("“Other” groups smaller work types — use the Work type menu"); return; }
+      S.category = v; update();
+    }, "tenders", 168);
+    $("catHint").textContent = known < base ? "Known for " + known.toLocaleString("en-IN") + " of " + base.toLocaleString("en-IN") + " tenders so far · click to filter" : "Click a bar to filter";
+    closingChart($("cClosing"), closing);
+  }
+
+  // ---------- results ----------
+  function renderResults(){
+    var box = $("results"), list = current.slice(0, shown);
+    $("empty").hidden = current.length > 0;
+    $("more").hidden = shown >= current.length;
+    $("more").textContent = "Show more (" + (current.length - Math.min(shown, current.length)).toLocaleString("en-IN") + " left)";
+    if(S.view === "table") box.innerHTML = tableHtml(list);
+    else box.innerHTML = '<div class="cards">' + list.map(cardHtml).join("") + "</div>";
+  }
+  function pills(t){
+    var d = daysLeft(t.closing_date), out = "";
+    if(newIds.has(t.id)) out += '<span class="pill new">NEW</span>';
+    if(d !== null && d >= 0 && d <= 3) out += '<span class="pill soon">' + (d === 0 ? "Today" : d + "d left") + "</span>";
+    return out;
+  }
+  function cardHtml(t){
+    var val = inr(t.value), isSaved = saved.has(t.id);
+    return '<article class="card' + (newIds.has(t.id) ? " is-new" : "") + '" data-id="' + esc(t.id) + '" tabindex="0">' +
+      '<div class="row1"><h3>' + esc(t.title) + '</h3><button class="star" type="button" data-star="' + esc(t.id) + '" aria-pressed="' + isSaved + '" aria-label="' + (isSaved ? "Unsave" : "Save") + ' tender">' + (isSaved ? "★" : "☆") + "</button></div>" +
+      '<div class="org">' + esc(t.organisation) + (t.district ? " · " + esc(t.district) : "") + "</div>" +
+      '<div class="foot">' + (val ? '<span class="value">' + val + "</span>" : '<span class="value na">Value pending</span>') +
+        (t.category ? '<span class="pill">' + esc(t.category) + "</span>" : "") + pills(t) +
+        '<span class="closes">' + esc(closesLabel(t)) + "</span></div></article>";
+  }
+  function tableHtml(list){
+    var cols = [["title","Work"],["organisation","Issued by"],["district","District"],["value","Value"],["closing","Closes"],["tender_id","Tender ID"]];
+    var head = cols.map(function(c){
+      var sortable = c[0] === "value" || c[0] === "closing";
+      var mark = (c[0] === "value" && S.sort === "value") || (c[0] === "closing" && S.sort === "closing") ? " ↓" : "";
+      return "<th" + (c[0] === "value" ? ' style="text-align:right"' : "") + ">" + (sortable ? '<button type="button" data-sort="' + c[0] + '">' + c[1] + mark + "</button>" : c[1]) + "</th>";
+    }).join("");
+    var rows = list.map(function(t){
+      return '<tr data-id="' + esc(t.id) + '"><td class="t">' + (saved.has(t.id) ? "★ " : "") + esc(t.title) + " " + pills(t) + "</td><td>" + esc(t.organisation) + "</td><td>" + esc(t.district || "") +
+        '</td><td class="num">' + (inr(t.value) || "—") + '</td><td class="num">' + fmtDate(t.closing_date, {day:"numeric", month:"short"}) + "</td><td><code>" + esc(t.tender_id) + "</code></td></tr>";
+    }).join("");
+    return '<div class="tblwrap"><table class="tbl"><thead><tr>' + head + "</tr></thead><tbody>" + rows + "</tbody></table></div>";
+  }
+  var byId = {};
+  $("results").addEventListener("click", function(e){
+    var star = e.target.closest("[data-star]");
+    if(star){ e.stopPropagation(); toggleSave(star.getAttribute("data-star")); return; }
+    var sortBtn = e.target.closest("[data-sort]");
+    if(sortBtn){ S.sort = sortBtn.getAttribute("data-sort"); update(); return; }
+    var item = e.target.closest("[data-id]");
+    if(item) openDetail(byId[item.getAttribute("data-id")]);
   });
-  $("more").onclick = function(){ shown += PAGE; render(); };
+  $("results").addEventListener("keydown", function(e){
+    if(e.key !== "Enter") return;
+    var item = e.target.closest(".card[data-id]");
+    if(item && !e.target.closest("button")) openDetail(byId[item.getAttribute("data-id")]);
+  });
+  $("more").onclick = function(){ shown += PAGE; renderResults(); };
 
+  function toggleSave(id){
+    if(saved.has(id)) saved.delete(id); else saved.add(id);
+    lsSet("saved", JSON.stringify(Array.from(saved)));
+    toast(saved.has(id) ? "Saved ★" : "Removed from saved");
+    $("savedCount").textContent = saved.size ? "(" + saved.size + ")" : "";
+    if(S.saved) update(true); else renderResults();
+  }
+
+  // ---------- detail dialog ----------
+  var dlg = $("dlg");
+  function openDetail(t){
+    if(!t) return;
+    var rows = [
+      ["Tender ID", "<code>" + esc(t.tender_id) + "</code>"],
+      ["Reference", esc(t.tender_ref && t.tender_ref !== t.title ? t.tender_ref : "—")],
+      ["Issued by", esc(t.organisation)],
+      ["District", esc(t.district || "—")],
+      ["Body type", esc(t.body_type)],
+      ["Work type", esc(t.category || "—")],
+      ["Closes", esc(t.closing_time || fmtDate(t.closing_date))],
+      ["Bids open", fmtDate(t.opening_date)],
+      ["Published", fmtDate(t.published_date)],
+      ["EMD", inrFull(t.emd)],
+      ["Tender fee", inrFull(t.tender_fee)],
+      ["Work period", t.work_days ? esc(t.work_days) + " days" : "—"],
+      ["Location", esc([t.location, t.pincode].filter(Boolean).join(" · ") || "—")],
+      ["Department path", esc((t.org_chain || "").split("||").join(" › "))]
+    ];
+    var isSaved = saved.has(t.id);
+    $("dlgBody").innerHTML =
+      '<button class="icon-btn close" type="button" data-act="close" aria-label="Close">✕</button>' +
+      '<h2 id="dTitle">' + esc(t.title) + "</h2>" +
+      '<div class="big">' + (t.value != null ? inrFull(t.value) : '<span class="value na">Contract value not fetched yet</span>') + "</div>" +
+      '<div class="pills">' + pills(t) + '<span class="pill">' + esc(closesLabel(t)) + "</span></div>" +
+      "<dl>" + rows.map(function(r){ return "<dt>" + r[0] + "</dt><dd>" + r[1] + "</dd>"; }).join("") + "</dl>" +
+      '<div class="acts">' +
+        '<button type="button" class="primary" data-act="copy">Copy Tender ID</button>' +
+        '<a href="' + SEARCH_URL + '" target="_blank" rel="noopener">Open portal search ↗</a>' +
+        '<button type="button" data-act="save">' + (isSaved ? "★ Saved" : "☆ Save") + "</button>" +
+        '<button type="button" data-act="cal">Add closing to calendar</button>' +
+        '<a href="' + whatsapp(t) + '" target="_blank" rel="noopener">Share on WhatsApp</a>' +
+        '<button type="button" data-act="share">Copy details</button>' +
+      "</div>" +
+      '<p class="note">The portal only opens tenders from its own search: copy the Tender ID, open portal search, paste it into “Tender ID”, fill the captcha.</p>';
+    dlg._t = t;
+    if(dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+  }
+  dlg.addEventListener("click", function(e){
+    if(e.target === dlg){ dlg.close(); return; }
+    var b = e.target.closest("[data-act]"); if(!b) return;
+    var t = dlg._t, act = b.getAttribute("data-act");
+    if(act === "close") dlg.close();
+    if(act === "copy") copy(t.tender_id, "Tender ID copied");
+    if(act === "share") copy(summary(t), "Details copied");
+    if(act === "cal") downloadIcs(t);
+    if(act === "save"){ toggleSave(t.id); b.textContent = saved.has(t.id) ? "★ Saved" : "☆ Save"; }
+  });
+  function summary(t){
+    return t.title + "\n" + t.organisation + (t.district ? ", " + t.district : "") +
+      (t.value != null ? "\nValue: " + inrFull(t.value) : "") + (t.emd != null ? " · EMD: " + inrFull(t.emd) : "") +
+      "\nCloses: " + (t.closing_time || t.closing_date) + "\nTender ID: " + t.tender_id + "\nKerala e-Tenders: https://etenders.kerala.gov.in";
+  }
+  function whatsapp(t){ return "https://wa.me/?text=" + encodeURIComponent(summary(t)); }
+  function downloadIcs(t){
+    var m = /(\d{1,2})-([A-Za-z]{3})-(\d{4})\s+(\d{1,2}):(\d{2})\s*([AP]M)/i.exec(t.closing_time || "");
+    var mon = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+    var pad = function(n){ return String(n).padStart(2, "0"); };
+    var date, h = 17, mi = 0;
+    if(m){ date = m[3] + pad(mon[m[2].toLowerCase()]) + pad(m[1]); h = +m[4] % 12 + (m[6].toUpperCase() === "PM" ? 12 : 0); mi = +m[5]; }
+    else date = (t.closing_date || "").replace(/-/g, "");
+    var start = date + "T" + pad(h) + pad(mi) + "00";
+    var icsEsc = function(s){ return String(s || "").replace(/[\\,;]/g, "\\$&").replace(/\n/g, "\\n"); };
+    var ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Kerala Panchayat Tenders//EN","BEGIN:VEVENT",
+      "UID:" + t.tender_id + "@kerala-panchayat-tenders","DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0,15) + "Z",
+      "DTSTART;TZID=Asia/Kolkata:" + start, "DURATION:PT30M",
+      "SUMMARY:" + icsEsc("Tender closes: " + t.title.slice(0, 80)),
+      "DESCRIPTION:" + icsEsc(summary(t)),
+      "BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:Tender closes tomorrow","END:VALARM",
+      "END:VEVENT","END:VCALENDAR"].join("\r\n");
+    download("tender-" + t.tender_id + ".ics", ics, "text/calendar");
+  }
+  function download(name, text, type){
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], {type: type + ";charset=utf-8"}));
+    a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  // ---------- CSV + share ----------
+  $("csvBtn").onclick = function(){
+    var cols = ["tender_id","title","organisation","district","body_type","category","value","emd","published_date","closing_time","opening_date","location","pincode","tender_ref"];
+    var q = function(v){ v = v == null ? "" : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var lines = [cols.join(",")].concat(current.map(function(t){ return cols.map(function(c){ return q(t[c]); }).join(","); }));
+    download("kerala-panchayat-tenders-" + (meta.today || "") + ".csv", "﻿" + lines.join("\n"), "text/csv");
+    toast(current.length.toLocaleString("en-IN") + " tenders downloaded");
+  };
+  $("shareBtn").onclick = function(){ copy(location.href, "Link to this view copied"); };
+
+  // ---------- controls <-> state ----------
+  var bodySeg = $("bodySeg");
+  BODY_OPTS.forEach(function(o){
+    var b = document.createElement("button"); b.type = "button"; b.textContent = o[1]; b.dataset.v = o[0];
+    b.onclick = function(){ S.body = o[0]; update(); }; bodySeg.appendChild(b);
+  });
+  var qTimer;
+  $("q").addEventListener("input", function(){ clearTimeout(qTimer); qTimer = setTimeout(function(){ S.q = $("q").value.trim(); update(); }, 160); });
+  ["district","category","minValue","sort"].forEach(function(id){ $(id).addEventListener("change", function(){ S[id] = $(id).value; update(); }); });
+  $("savedBtn").onclick = function(){ S.saved = !S.saved; update(); };
+  $("sNewBtn").onclick = function(){ S.onlyNew = !S.onlyNew; update(); };
+  $("sSoonBtn").onclick = function(){ S.soon = !S.soon; if(S.soon) S.closeDate = ""; update(); };
+  $("vCards").onclick = function(){ S.view = "cards"; update(true); };
+  $("vTable").onclick = function(){ S.view = "table"; update(true); };
+
+  function ensureOption(sel, v){
+    if(v && !Array.prototype.some.call(sel.options, function(o){ return o.value === v; })){
+      var o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o);
+    }
+  }
+  function syncControls(){
+    if(document.activeElement !== $("q")) $("q").value = S.q;
+    ensureOption($("category"), S.category);
+    ["district","category","minValue","sort"].forEach(function(id){ $(id).value = S[id]; });
+    Array.prototype.forEach.call(bodySeg.children, function(b){ b.setAttribute("aria-pressed", b.dataset.v === S.body); });
+    $("savedBtn").setAttribute("aria-pressed", S.saved);
+    $("sNewBtn").setAttribute("aria-pressed", S.onlyNew);
+    $("sSoonBtn").setAttribute("aria-pressed", S.soon);
+    $("vCards").setAttribute("aria-pressed", S.view === "cards");
+    $("vTable").setAttribute("aria-pressed", S.view === "table");
+    $("savedCount").textContent = saved.size ? "(" + saved.size + ")" : "";
+  }
+  function persist(){
+    var p = new URLSearchParams();
+    Object.keys(DEFAULTS).forEach(function(k){ if(S[k] !== DEFAULTS[k]) p.set(k, S[k]); });
+    var h = p.toString();
+    history.replaceState(null, "", h ? "#" + h : location.pathname + location.search);
+    lsSet("view", JSON.stringify({body:S.body, sort:S.sort, view:S.view}));
+  }
+  function restore(){
+    var h = location.hash.slice(1);
+    if(h){
+      var p = new URLSearchParams(h);
+      Object.keys(DEFAULTS).forEach(function(k){
+        if(!p.has(k)) return;
+        S[k] = typeof DEFAULTS[k] === "boolean" ? p.get(k) === "true" : p.get(k);
+      });
+    } else {
+      try{ Object.assign(S, JSON.parse(lsGet("view") || "{}")); }catch(e){}
+    }
+    if(S.closeDate && S.closeDate < (meta.today || "")) S.closeDate = "";
+  }
+
+  var filtersEl = $("filters");
+  new IntersectionObserver(function(es){ filtersEl.classList.toggle("stuck", es[0].intersectionRatio < 1); }, {threshold:[1], rootMargin:"-1px 0px 0px 0px"}).observe(filtersEl);
+
+  // ---------- load ----------
   function getJson(p){ return fetch(p, {cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
-
   Promise.all([getJson("data/tenders.json").catch(function(){ return []; }),
                getJson("data/meta.json").catch(function(){ return {}; }),
                getJson("data/new_today.json").catch(function(){ return []; })]).then(function(res){
-    all = res[0]; meta = res[1] || {}; newIds = new Set(res[2].map(function(t){ return t.id; }));
-    all.forEach(function(t){ t._hay = [t.title, t.organisation, t.tender_id, t.tender_ref, t.district, t.location, t.category].join(" ").toLowerCase(); });
-
-    $("lastRun").textContent = meta.last_run
-      ? "Updated " + new Date(meta.last_run).toLocaleString("en-IN", {dateStyle:"medium", timeStyle:"short"}) + " · " + all.length.toLocaleString("en-IN") + " open LSGD tenders tracked"
-      : "No data yet. The first daily run hasn't finished.";
-
-    var bodyEl = $("body");
-    bodyEl.innerHTML = '<option value="__panchayat">All panchayats</option><option value="">All local bodies (incl. municipalities)</option>';
-    var counts = {};
-    all.forEach(function(t){ counts[t.body_type] = (counts[t.body_type] || 0) + 1; });
-    Object.keys(counts).sort().forEach(function(b){
-      var o = document.createElement("option"); o.value = b; o.textContent = b + " (" + counts[b] + ")"; bodyEl.appendChild(o);
+    all = res[0] || []; meta = res[1] || {}; newIds = new Set((res[2] || []).map(function(t){ return t.id; }));
+    if(!meta.today) meta.today = new Date().toISOString().slice(0, 10);
+    all.forEach(function(t){
+      byId[t.id] = t;
+      t._hay = [t.title, t.organisation, t.tender_id, t.tender_ref, t.district, t.location, t.category, t.pincode].join(" ").toLowerCase();
     });
+    $("lastRun").textContent = meta.last_run
+      ? "Updated " + new Date(meta.last_run).toLocaleString("en-IN", {dateStyle:"medium", timeStyle:"short"}) + " · refreshed every morning from the Kerala e-Tenders portal"
+      : "No data yet. The first daily update hasn't finished.";
     var uniq = function(k){ return Array.from(new Set(all.map(function(t){ return t[k]; }).filter(Boolean))).sort(); };
-    fillSelect($("district"), uniq("district"));
-    fillSelect($("category"), uniq("category"));
-
-    try{
-      var f = JSON.parse(localStorage.getItem("filters") || "{}");
-      ["body","district","category","minValue","sort"].forEach(function(k){
-        if(f[k] != null && Array.prototype.some.call($(k).options, function(o){ return o.value === f[k]; })) $(k).value = f[k];
-      });
-    }catch(e){}
-
-    if(meta.notes && meta.notes.length){
-      $("notes").hidden = false;
-      $("notesBody").innerHTML = meta.notes.map(esc).join("<br>");
-    }
-    apply();
+    uniq("district").forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = v; $("district").appendChild(o); });
+    var catCounts = {}; all.forEach(function(t){ if(t.category) catCounts[t.category] = (catCounts[t.category] || 0) + 1; });
+    Object.keys(catCounts).sort().forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = v + " (" + catCounts[v] + ")"; $("category").appendChild(o); });
+    if(meta.notes && meta.notes.length){ $("notes").hidden = false; $("notesBody").innerHTML = meta.notes.map(esc).join("<br>"); }
+    restore();
+    update();
   });
-
-  var timer;
-  $("q").addEventListener("input", function(){ clearTimeout(timer); timer = setTimeout(apply, 150); });
-  ["body","district","category","minValue","sort","onlyNew"].forEach(function(id){ $(id).addEventListener("change", apply); });
+  window.addEventListener("hashchange", function(){ restore(); update(); });
 })();
 </script>
 </body>

@@ -13,7 +13,7 @@ TENDERS_FILE = DATA_DIR / "tenders.json"
 NEW_TODAY_FILE = DATA_DIR / "new_today.json"
 META_FILE = DATA_DIR / "meta.json"
 
-DETAIL_BUDGET = 600  # detail pages per run; ~15 min at the polite delay
+DETAIL_BUDGET = 1200  # detail pages per run; ~35 min at the polite delay
 GRACE_DAYS = 3  # keep a tender this many days if the portal is briefly unreachable
 
 
