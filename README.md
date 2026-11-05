@@ -39,6 +39,9 @@ a copy button and links to the portal's search page, where you paste it.
 
 ## Dashboard features
 
+- **Storefront home**: search with live suggestions (categories, kinds of work, panchayats, districts), category tiles, *Closing soon* / *AI top picks* / *Just added* rows, popular kinds of work, browse by district
+- **Category pages**: Category → kind of work (e.g. Roads → Concrete roads), breadcrumbs, filter sidebar with live counts (district, local body type, job type, value, closing date, AI rating), sorting, infinite scroll; every page has its own link
+
 - **Panchayat search**: type-ahead over every local body (about 470), with a profile panel showing open tenders, closing this week, value, and the most common work type
 - **Kerala map**: district tiles shaded by number of open tenders. Click to filter.
 - **Charts**: closing dates, contract-value ranges, work types, and the most active panchayats (by count or value). Each one filters everything else.
@@ -139,7 +142,8 @@ Tender ID.
 | `docs/manifest.webmanifest`, `docs/sw.js`, `docs/icons/` | Installable mobile app (PWA) |
 | `docs/data/ai/`, `docs/data/ai_index.json` | Per-tender AI analyses and the compact index for badges and filters |
 | `docs/data/bodies.json` | Register of every local body seen, so ones with nothing open stay searchable |
-| `docs/index.html` | The dashboard (static, served by GitHub Pages) |
+| `docs/index.html`, `docs/app.js`, `docs/app.css` | The storefront app (static, served by GitHub Pages; no build step) |
+| `scraper/classify.py` | Sorts each tender into a category, kind of work and job type from its title |
 | `docs/data/tenders.json` | All open tenders |
 | `docs/data/new_today.json` | Tenders first seen today |
 | `docs/data/meta.json` | Last run time, counts, scraper notes |
