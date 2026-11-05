@@ -26,7 +26,9 @@
   var CLOSE_OPTS = [["0", "Closing today"], ["3", "Within 3 days"], ["7", "Within a week"], ["14", "Within 2 weeks"], ["30", "Within a month"]];
   var AI_OPTS = [["high", "High profit chance"], ["good", "Medium or high profit"], ["easy", "Easy or moderate work"], ["rated", "Analysed by AI"]];
   var SORTS = [["closing", "Closing soonest"], ["newest", "Newest first"], ["value-desc", "Value: high to low"], ["value-asc", "Value: low to high"], ["profit", "Best profit chance (AI)"]];
-  var FACET_KEYS = ["district", "body", "job", "band", "close", "ai"];
+  var FACET_KEYS = ["district", "body", "job", "band", "pbs", "close", "ai"];
+  var ARR_KEYS = ["district", "body", "job", "band", "pbs"];
+  var TYPE_COLOR = {"Grama Panchayat": "#0e7a55", "Block Panchayat": "#0284c7", "District Panchayat": "#7c3aed", "Municipality": "#ea580c", "Corporation": "#db2777"};
 
   // ===================================================================
   // Icons (24px line icons, consistent 2px stroke)
@@ -158,7 +160,7 @@
   // Routing: #/path?filters
   // ===================================================================
   var R = {}, F = {};
-  function emptyF(){ return {district: [], body: [], job: [], band: [], close: "", ai: "", sort: "closing", q: ""}; }
+  function emptyF(){ return {district: [], body: [], job: [], band: [], pbs: [], close: "", ai: "", sort: "closing", q: ""}; }
   function parseHash(){
     var h = location.hash.replace(/^#/, "") || "/";
     var qi = h.indexOf("?"), path = qi >= 0 ? h.slice(0, qi) : h, query = qi >= 0 ? h.slice(qi + 1) : "";
@@ -172,10 +174,12 @@
     else if(parts[0] === "saved"){ r = {view: "browse", saved: true}; }
     else if(parts[0] === "following"){ r = {view: "browse", following: true}; }
     else if(parts[0] === "categories"){ r = {view: "categories"}; }
+    else if(parts[0] === "panchayats"){ r = {view: "panchayats"}; }
     else if(parts[0] === "insights"){ r = {view: "insights"}; }
     else if(parts[0] === "t" && parts[1]){ r = {view: "tender", tid: parts[1]}; }
     var f = emptyF(), p = new URLSearchParams(query);
     ["district", "body", "job", "band"].forEach(function(k){ if(p.get(k)) f[k] = p.get(k).split(",").filter(Boolean); });
+    if(p.get("pb")) f.pbs = p.get("pb").split("|").filter(Boolean);
     ["close", "ai", "sort", "q"].forEach(function(k){ if(p.get(k)) f[k] = p.get(k); });
     return {r: r, f: f};
   }
@@ -190,6 +194,7 @@
       return "/all";
     }
     if(r.view === "categories") return "/categories";
+    if(r.view === "panchayats") return "/panchayats";
     if(r.view === "insights") return "/insights";
     if(r.view === "tender") return "/t/" + encodeURIComponent(r.tid);
     return "/";
@@ -197,6 +202,7 @@
   function query(f){
     var p = new URLSearchParams();
     ["district", "body", "job", "band"].forEach(function(k){ if(f[k] && f[k].length) p.set(k, f[k].join(",")); });
+    if(f.pbs && f.pbs.length) p.set("pb", f.pbs.join("|"));
     if(f.close) p.set("close", f.close);
     if(f.ai) p.set("ai", f.ai);
     if(f.sort && f.sort !== "closing") p.set("sort", f.sort);
@@ -235,10 +241,11 @@
     if(k === "body") return t.body_type || "";
     if(k === "job") return t.job || "Other";
     if(k === "band") return bandOf(t.value);
+    if(k === "pbs") return t.body_name || "";
   }
   function passF(t, f, skip){
-    for(var i = 0; i < 4; i++){
-      var k = FACET_KEYS[i];
+    for(var i = 0; i < ARR_KEYS.length; i++){
+      var k = ARR_KEYS[i];
       if(k !== skip && f[k].length && f[k].indexOf(facetVal(t, k)) < 0) return false;
     }
     if(skip !== "close" && f.close !== ""){ var d = daysLeft(t.closing_date); if(d === null || d < 0 || d > +f.close) return false; }
@@ -316,12 +323,16 @@
   function suggestions(q){
     q = q.trim(); var ql = q.toLowerCase(), out = [];
     if(!q){
+      out.push({sec: "Find a panchayat", h: "#/panchayats", ic: "landmark", t: "Browse all panchayats & local bodies", m: num(Object.keys(bodies).length)});
       GROUPS.slice(0, 6).forEach(function(g){ out.push({sec: "Popular categories", h: href({view: "browse", grp: g.key}), ic: g.icon, c: g.c, t: g.name, m: num(stats.groups[g.key] || 0) + " open"}); });
       return out;
     }
     var words = ql.split(/\s+/);
     var n = 0; open.forEach(function(t){ if(matchQ(t, q)) n++; });
     out.push({sec: "Search", h: href({view: "browse", search: true}, Object.assign(emptyF(), {q: q})), ic: "search", t: "Tenders matching “" + q + "”", m: num(n)});
+    Object.keys(bodies).filter(function(b){ var h = (b + " " + (bodies[b].district || "")).toLowerCase(); return words.every(function(w){ return h.indexOf(w) >= 0; }); })
+      .sort(function(a, b){ var ap = a.toLowerCase().indexOf(ql) === 0, bp = b.toLowerCase().indexOf(ql) === 0; return ap !== bp ? (ap ? -1 : 1) : bodies[b].count - bodies[a].count; })
+      .slice(0, 7).forEach(function(b){ out.push({sec: "Panchayats & local bodies", h: href({view: "browse", pb: b}), ic: "landmark", t: b, m: (bodies[b].count || 0) + " open" + (bodies[b].district ? " · " + bodies[b].district : "")}); });
     GROUPS.forEach(function(g){ if(g.name.toLowerCase().indexOf(ql) >= 0) out.push({sec: "Categories", h: href({view: "browse", grp: g.key}), ic: g.icon, c: g.c, t: g.name, m: num(stats.groups[g.key] || 0)}); });
     Object.keys(stats.kinds).filter(function(k){ return k.toLowerCase().indexOf(ql) >= 0; }).slice(0, 5).forEach(function(k){
       var info = stats.kinds[k], g = G[info.grp];
@@ -330,9 +341,6 @@
     Object.keys(stats.districts).filter(function(d){ return d.toLowerCase().indexOf(ql) >= 0; }).forEach(function(d){
       out.push({sec: "Districts", h: href({view: "browse", dist: d}), ic: "pin", t: d, m: num(stats.districts[d])});
     });
-    Object.keys(bodies).filter(function(b){ var h = (b + " " + (bodies[b].district || "")).toLowerCase(); return words.every(function(w){ return h.indexOf(w) >= 0; }); })
-      .sort(function(a, b){ var ap = a.toLowerCase().indexOf(ql) === 0, bp = b.toLowerCase().indexOf(ql) === 0; return ap !== bp ? (ap ? -1 : 1) : bodies[b].count - bodies[a].count; })
-      .slice(0, 7).forEach(function(b){ out.push({sec: "Panchayats & local bodies", h: href({view: "browse", pb: b}), ic: "landmark", t: b, m: (bodies[b].count || 0) + " open" + (bodies[b].district ? " · " + bodies[b].district : "")}); });
     return out;
   }
   function attachSuggest(box){
@@ -375,7 +383,7 @@
   // ===================================================================
   var stats = {groups: {}, kinds: {}, districts: {}};
   function computeStats(){
-    stats = {groups: {}, kinds: {}, districts: {}, groupNew: {}, groupSoon: {}, groupMax: {}, total: open.length, nNew: 0, soon: 0, high: 0, bodies: new Set()};
+    stats = {pb: {}, groups: {}, kinds: {}, districts: {}, groupNew: {}, groupSoon: {}, groupMax: {}, total: open.length, nNew: 0, soon: 0, high: 0, bodies: new Set()};
     open.forEach(function(t){
       var g = grpOf(t), d = daysLeft(t.closing_date);
       stats.groups[g] = (stats.groups[g] || 0) + 1;
@@ -385,6 +393,8 @@
       if(d !== null && d >= 0 && d <= 3){ stats.soon++; stats.groupSoon[g] = (stats.groupSoon[g] || 0) + 1; }
       if(t._ai && t._ai.pc === "High") stats.high++;
       if(t.value) stats.groupMax[g] = Math.max(stats.groupMax[g] || 0, t.value);
+      var pb = stats.pb[t.body_name] || (stats.pb[t.body_name] = {n: 0, soon: 0, nw: 0});
+      pb.n++; if(d !== null && d >= 0 && d <= 7) pb.soon++; if(newIds.has(t.id)) pb.nw++;
       stats.bodies.add(t.body_name);
     });
   }
@@ -410,7 +420,9 @@
     var ticker = fresh.slice(0, 10).map(function(t){ return '<a href="#/t/' + encodeURIComponent(t.tender_id) + '"><b>' + esc(inr(t.value) || "New") + "</b>" + esc(t.title.slice(0, 80)) + " · " + esc(t.body_name) + "</a>"; }).join("");
     var nBanner = 0, nFol = 0;
     if(visitBase && lsGet("visitDismissed", "") !== meta.today) open.forEach(function(t){ if(isNewForYou(t)){ nBanner++; if(follows.has(t.body_name)) nFol++; } });
+    var topPb = Object.keys(stats.pb).filter(function(n){ return PANCHAYAT[(bodies[n] || {}).type]; }).sort(function(a, b){ return stats.pb[b].n - stats.pb[a].n; }).slice(0, 8);
     var quick = [
+      ["#/panchayats", "landmark", "Find your panchayat", Object.keys(bodies).length],
       ['#/all?close=0', "flame", "Closing today", open.filter(function(t){ return daysLeft(t.closing_date) === 0; }).length],
       ['#/all?sort=newest', "bell", "New today", stats.nNew],
       aiCount ? ['#/all?ai=high&sort=profit', "sparkle", "High profit (AI)", stats.high] : null,
@@ -422,7 +434,7 @@
         '<span class="eyebrow"><span class="dot"></span>Live · updated ' + esc(meta.last_run ? new Date(meta.last_run).toLocaleString("en-IN", {day: "numeric", month: "short", hour: "numeric", minute: "2-digit"}) : "daily") + "</span>" +
         "<h1>Find your next <span>panchayat contract</span> in seconds.</h1>" +
         '<p class="lead">Every open public works tender from Kerala\'s ' + num(stats.bodies.size) + " panchayats and local bodies, sorted into categories, with AI profit analysis and a cost calculator.</p>" +
-        '<div class="sbox big" data-suggest>' + icon("search") + '<input type="search" placeholder="Try “concrete road Palakkad” or a panchayat name" autocomplete="off" aria-label="Search tenders"><button class="go" type="button">' + icon("search") + '<span class="t">Search</span></button></div>' +
+        '<div class="sbox big" data-suggest>' + icon("search") + '<input type="search" placeholder="Search work or panchayat, e.g. “concrete road” or “Kuzhalmannam”" autocomplete="off" aria-label="Search tenders"><button class="go" type="button">' + icon("search") + '<span class="t">Search</span></button></div>' +
         '<div class="quick">' + quick.map(function(q){ return '<a href="' + q[0] + '">' + icon(q[1]) + esc(q[2]) + " <b>" + num(q[3]) + "</b></a>"; }).join("") + "</div>" +
         '<div class="stats">' +
           '<div class="stat"><div class="n" data-count="' + stats.total + '">0</div><div class="l">Open tenders</div></div>' +
@@ -445,14 +457,86 @@
         (soon.length ? sectionHead("flame", "Closing soon", "Bid before these close in the next 3 days", "#/all?close=3", "See all " + num(stats.soon)) + rail(soon, "rSoon") : "") +
         (picks.length ? sectionHead("sparkle", "AI top picks", "Tenders our AI rates as a high profit chance", "#/all?ai=high&sort=profit") + rail(picks, "rPicks") : "") +
         sectionHead("bell", "Just added", "The newest tenders on the portal", "#/all?sort=newest") + rail(fresh, "rFresh") +
+        sectionHead("landmark", "Search by panchayat", "Open any panchayat to see all its tenders, or follow it to get alerts", "#/panchayats", "All panchayats") +
+        '<div class="sbox pbhome"><span class="ic">' + icon("landmark") + '</span><input id="homePb" type="search" placeholder="Type your panchayat name…" autocomplete="off" aria-label="Find a panchayat"></div>' +
+        '<div class="pbgrid" style="margin-top:12px">' + topPb.map(pbCard).join("") + "</div>" +
         sectionHead("trend", "Popular kinds of work", "", "#/categories", "Browse all") +
         '<div class="chips">' + kinds.map(function(k){ var g = G[stats.kinds[k].grp]; return '<a class="chip" style="--c:' + g.c + '" href="' + href({view: "browse", grp: g.key, kind: slug(k)}) + '"><span class="dot"></span>' + esc(k) + " <b>" + num(stats.kinds[k].n) + "</b></a>"; }).join("") + "</div>" +
         sectionHead("pin", "Browse by district", "", "#/insights", "See the map") +
         '<div class="dgrid">' + dists.map(function(d, i){ return '<a class="dtile anim" style="--i:' + i + '" href="' + href({view: "browse", dist: d}) + '"><span class="pin">' + icon("pin") + "</span><div><b>" + esc(d) + "</b><span>" + num(stats.districts[d]) + ' open</span></div><span class="bar" style="width:' + (stats.districts[d] / dmax * 100).toFixed(0) + '%"></span></a>'; }).join("") + "</div>" +
       "</div>"
     );
+    var hp = $("homePb");
+    if(hp) hp.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); go("#/panchayats?q=" + encodeURIComponent(hp.value.trim())); } });
+    if(hp) hp.addEventListener("input", function(){ var v = hp.value.trim(); clearTimeout(hp._t); if(v.length >= 3) hp._t = setTimeout(function(){ go("#/panchayats?q=" + encodeURIComponent(v)); setTimeout(function(){ var q = $("pbQ"); if(q){ q.focus(); q.setSelectionRange(q.value.length, q.value.length); } }, 60); }, 500); });
     var dismiss = view.querySelector("[data-dismiss]");
     if(dismiss) dismiss.onclick = function(){ lsSet("visitDismissed", meta.today); dismiss.parentNode.remove(); };
+  }
+
+  function initials(name){
+    return name.replace(/ (Grama|Block|District) Panchayat$| Municipality$| Corporation$/, "").split(/\s+/).slice(0, 2).map(function(w){ return w[0] || ""; }).join("").toUpperCase() || "P";
+  }
+  function pbCard(name, i){
+    var b = bodies[name] || {}, st = stats.pb[name] || {n: 0, soon: 0, nw: 0}, c = TYPE_COLOR[b.type] || "#475569", f = follows.has(name);
+    return '<a class="pbcard anim' + (st.n ? "" : " empty") + '" style="--c:' + c + ";--i:" + Math.min(i || 0, 14) + '" href="' + href({view: "browse", pb: name}) + '">' +
+      '<span class="av">' + esc(initials(name)) + '</span><div class="pbm"><b>' + esc(name) + "</b><span>" + icon("pin") + esc(b.district || "Kerala") + " · " + esc((b.type || "Local body").replace(" Panchayat", "")) + "</span>" +
+      '<div class="pbs">' + (st.n ? "<em><b>" + num(st.n) + "</b> open</em>" : "<em>No open tenders</em>") + (st.soon ? "<em>" + st.soon + " closing this week</em>" : "") + (st.nw ? '<em class="nw">' + st.nw + " new</em>" : "") + "</div></div>" +
+      '<button class="fav" type="button" data-follow="' + esc(name) + '" aria-pressed="' + f + '" aria-label="' + (f ? "Unfollow " : "Follow ") + esc(name) + '">' + icon("heart") + "</button></a>";
+  }
+  var PB = {list: [], shown: 0, io: null};
+  var PTYPES = [["", "All local bodies"], ["panchayats", "All panchayats"], ["Grama Panchayat", "Grama"], ["Block Panchayat", "Block"], ["District Panchayat", "District"], ["Municipality", "Municipalities"], ["Corporation", "Corporations"]];
+  function renderPanchayats(){
+    var type = F.body.length === 3 ? "panchayats" : (F.body[0] || ""), dist = F.district[0] || "";
+    var dists = Object.keys(stats.districts).sort();
+    setView('<div class="wrap"><nav class="crumbs"><a href="#/">Home</a>' + icon("right") + "<span>Panchayats</span></nav>" +
+      '<div class="bhead" style="--c:#0e7a55"><span class="bubble" style="--c:#0e7a55">' + icon("landmark") + "</span><div><h1>Find a panchayat</h1><p>" + num(Object.keys(bodies).length) + " panchayats and local bodies. Open one to see all its tenders, or tap ♥ to follow it.</p></div></div>" +
+      '<div class="pbtools"><div class="sbox">' + icon("search") + '<input id="pbQ" type="search" placeholder="Type a panchayat name, e.g. Kuzhalmannam, Valakom…" autocomplete="off" value="' + esc(F.q) + '" aria-label="Search panchayats"></div>' +
+      '<select id="pbSort" aria-label="Sort"><option value="count">Most open tenders</option><option value="az">A to Z</option><option value="soon">Most closing this week</option></select></div>' +
+      '<div class="kinds" id="pbTypes">' + PTYPES.map(function(t){ return '<button type="button" class="chip' + (t[0] === type ? " on" : "") + '" data-ptype="' + t[0] + '">' + esc(t[1]) + "</button>"; }).join("") + "</div>" +
+      '<div class="kinds" id="pbDists"><button type="button" class="chip' + (dist ? "" : " on") + '" data-pdist="">All districts</button>' + dists.map(function(d){ return '<button type="button" class="chip' + (d === dist ? " on" : "") + '" data-pdist="' + esc(d) + '">' + esc(d) + "</button>"; }).join("") + "</div>" +
+      '<div class="toolbar"><div class="count" id="pbCount"></div></div><div class="pbgrid" id="pbGrid"></div><div class="sentinel" id="pbSentinel"></div></div>');
+    $("pbSort").value = ["az", "soon"].indexOf(F.sort) >= 0 ? F.sort : "count";
+    var qt; $("pbQ").addEventListener("input", function(){ clearTimeout(qt); var v = this.value; qt = setTimeout(function(){ F.q = v.trim(); updatePanchayats(); }, 120); });
+    $("pbSort").onchange = function(){ F.sort = this.value; updatePanchayats(); };
+    $("pbTypes").onclick = function(e){ var b = e.target.closest("[data-ptype]"); if(!b) return; var v = b.dataset.ptype;
+      F.body = v === "panchayats" ? ["Grama Panchayat", "Block Panchayat", "District Panchayat"] : v ? [v] : [];
+      this.querySelectorAll(".chip").forEach(function(c){ c.classList.toggle("on", c === b); }); updatePanchayats(); };
+    $("pbDists").onclick = function(e){ var b = e.target.closest("[data-pdist]"); if(!b) return; F.district = b.dataset.pdist ? [b.dataset.pdist] : [];
+      this.querySelectorAll(".chip").forEach(function(c){ c.classList.toggle("on", c === b); }); updatePanchayats(); };
+    updatePanchayats();
+  }
+  function updatePanchayats(){
+    var words = (F.q || "").toLowerCase().split(/\s+/).filter(Boolean);
+    PB.list = Object.keys(bodies).filter(function(n){
+      var b = bodies[n];
+      if(F.body.length && F.body.indexOf(b.type) < 0) return false;
+      if(F.district.length && F.district.indexOf(b.district) < 0) return false;
+      var h = (n + " " + (b.district || "")).toLowerCase();
+      return words.every(function(w){ return h.indexOf(w) >= 0; });
+    });
+    var st = function(n){ return stats.pb[n] || {n: 0, soon: 0}; }, q0 = words[0] || "";
+    PB.list.sort(function(a, b){
+      if(q0){ var ap = a.toLowerCase().indexOf(q0) === 0, bp = b.toLowerCase().indexOf(q0) === 0; if(ap !== bp) return ap ? -1 : 1; }
+      if(F.sort === "az") return a.localeCompare(b);
+      if(F.sort === "soon") return st(b).soon - st(a).soon || st(b).n - st(a).n;
+      return st(b).n - st(a).n || a.localeCompare(b);
+    });
+    PB.shown = 0; $("pbGrid").innerHTML = "";
+    var withOpen = PB.list.filter(function(n){ return st(n).n; }).length;
+    $("pbCount").innerHTML = "<b>" + num(PB.list.length) + "</b> panchayats & local bodies · " + num(withOpen) + " with open tenders" +
+      (!PB.list.length ? '<div class="empty"><div class="art">' + icon("landmark") + "</div><h3>No panchayat matches “" + esc(F.q) + "”</h3><p>It may not have published an e-tender yet. Panchayats appear here once they publish one. You can also <a href=\"" + href({view: "browse", search: true}, Object.assign(emptyF(), {q: F.q})) + "\">search tenders mentioning “" + esc(F.q) + "”</a>.</p></div>" : "");
+    morePanchayats();
+    var p = new URLSearchParams(); if(F.q) p.set("q", F.q); if(F.district.length) p.set("district", F.district.join(",")); if(F.body.length) p.set("body", F.body.join(",")); if(F.sort && F.sort !== "count" && F.sort !== "closing") p.set("sort", F.sort);
+    var h = "#/panchayats" + (p.toString() ? "?" + p.toString().replace(/%2C/g, ",") : ""); if(location.hash !== h) history.replaceState(null, "", h); cur = location.hash;
+    if(PB.io) PB.io.disconnect();
+    PB.io = new IntersectionObserver(function(es){ if(es[0].isIntersecting) morePanchayats(); }, {rootMargin: "600px"});
+    PB.io.observe($("pbSentinel"));
+  }
+  function morePanchayats(){
+    var g = $("pbGrid"); if(!g || PB.shown >= PB.list.length) return;
+    var next = PB.list.slice(PB.shown, PB.shown + 48);
+    g.insertAdjacentHTML("beforeend", next.map(pbCard).join(""));
+    PB.shown += next.length;
   }
 
   function renderCategories(){
@@ -519,14 +603,15 @@
     return counts;
   }
   var facetOpenState = lsGet("facetOpen", {}) || {};
-  function facetHtml(key, title, opts, type){
+  function facetHtml(key, title, opts, type, searchable){
     var counts = facetCounts(key), isOpen = facetOpenState[key] !== false;
     var limit = 7, rows = opts.map(function(o, i){
       var val = o[0], n = counts[val] || 0, checked = type === "radio" ? F[key] === val : F[key].indexOf(val) >= 0;
       return '<label class="opt' + (n ? "" : " zero") + '"' + (i >= limit && !checked ? ' data-extra hidden' : "") + '><input type="' + type + '" name="f-' + key + '" value="' + esc(val) + '"' + (checked ? " checked" : "") + ' data-facet="' + key + '"><span>' + esc(o[1]) + "</span><em>" + num(n) + "</em></label>";
     }).join("");
     if(type === "radio" && F[key]) rows = '<label class="opt"><input type="radio" name="f-' + key + '" value="" data-facet="' + key + '"><span>Any</span><em></em></label>' + rows;
-    return '<details class="facet" data-key="' + key + '"' + (isOpen ? " open" : "") + "><summary>" + esc(title) + icon("right") + "</summary>" + rows +
+    return '<details class="facet" data-key="' + key + '"' + (isOpen ? " open" : "") + "><summary>" + esc(title) + icon("right") + "</summary>" +
+      (searchable ? '<div class="fsearch">' + icon("search") + '<input type="search" placeholder="' + esc(searchable) + '" data-fsearch aria-label="' + esc(searchable) + '"></div>' : "") + rows +
       (opts.length > limit ? '<button class="more-opts" type="button" data-more>Show all ' + opts.length + "</button>" : "") + "</details>";
   }
   function renderFacets(){
@@ -536,6 +621,11 @@
     var bodiesT = R.pb ? [] : uniq(function(t){ return t.body_type; });
     var html = '<div class="fhead"><b>Filters</b><button class="linkbtn" type="button" data-clear>Clear all</button><button class="pillbtn primary done" type="button" data-done>Show results</button></div>';
     if(districts.length > 1) html += facetHtml("district", "District", districts.map(function(d){ return [d, d]; }), "checkbox");
+    if(!R.pb){
+      var pbs = uniq(function(t){ return t.body_name; });
+      pbs.sort(function(a, b){ return (F.pbs.indexOf(b) >= 0) - (F.pbs.indexOf(a) >= 0); });
+      if(pbs.length > 1) html += facetHtml("pbs", "Panchayat / local body", pbs.map(function(b){ return [b, b]; }), "checkbox", "Find a panchayat…");
+    }
     if(bodiesT.length > 1) html += facetHtml("body", "Type of local body", bodiesT.map(function(b){ return [b, b]; }), "checkbox");
     html += facetHtml("job", "Type of job", ["Repair & maintenance", "New construction", "Supply & installation", "Other"].map(function(j){ return [j, j]; }), "checkbox");
     html += facetHtml("band", "Contract value", BANDS.map(function(b, i){ return [String(i), b[2]]; }).concat([["u", "Value not published yet"]]), "checkbox");
@@ -547,6 +637,7 @@
     var out = [];
     ["district", "body", "job"].forEach(function(k){ F[k].forEach(function(v){ out.push([k, v, v]); }); });
     F.band.forEach(function(v){ out.push(["band", v, v === "u" ? "Value not published" : BANDS[+v][2]]); });
+    F.pbs.forEach(function(v){ out.push(["pbs", v, v]); });
     if(F.close !== "") out.push(["close", F.close, CLOSE_OPTS.filter(function(o){ return o[0] === F.close; })[0][1]]);
     if(F.ai) out.push(["ai", F.ai, "AI: " + AI_OPTS.filter(function(o){ return o[0] === F.ai; })[0][1]]);
     if(F.q && !R.search) out.push(["q", F.q, "“" + F.q + "”"]);
@@ -577,7 +668,7 @@
     FACET_KEYS.forEach(function(key){
       var det = $("facets").querySelector('[data-key="' + key + '"]'); if(!det) return;
       var counts = facetCounts(key);
-      det.querySelectorAll("input").forEach(function(inp){
+      det.querySelectorAll("input[data-facet]").forEach(function(inp){
         if(!inp.value) return;
         var n = counts[inp.value] || 0, lab = inp.closest(".opt");
         lab.querySelector("em").textContent = num(n);
@@ -867,8 +958,11 @@
     if(follows.has(name)) follows.delete(name); else follows.add(name);
     lsSet("follows", Array.from(follows));
     toast(follows.has(name) ? "Following " + name : "Unfollowed " + name);
-    var b = view.querySelector('[data-follow="' + CSS.escape(name) + '"]');
-    if(b){ var f = follows.has(name); b.className = "pillbtn" + (f ? " primary" : ""); b.innerHTML = icon("heart") + (f ? "Following" : "Follow"); }
+    var f = follows.has(name);
+    view.querySelectorAll('[data-follow="' + CSS.escape(name) + '"]').forEach(function(b){
+      if(b.classList.contains("fav")){ b.setAttribute("aria-pressed", f); b.classList.remove("popping"); void b.offsetWidth; b.classList.add("popping"); }
+      else { b.className = "pillbtn" + (f ? " primary" : ""); b.innerHTML = icon("heart") + (f ? "Following" : "Follow"); }
+    });
   }
   function csv(){
     var cols = ["tender_id", "title", "grp", "kind", "body_name", "district", "body_type", "category", "value", "emd", "tender_fee", "published_date", "closing_time", "opening_date", "location", "pincode", "tender_ref", "organisation"];
@@ -883,7 +977,7 @@
   // ===================================================================
   document.addEventListener("click", function(e){
     var fav = e.target.closest("[data-fav]"); if(fav){ e.preventDefault(); e.stopPropagation(); toggleSave(fav.dataset.fav); return; }
-    var fol = e.target.closest("[data-follow]"); if(fol){ toggleFollow(fol.dataset.follow); return; }
+    var fol = e.target.closest("[data-follow]"); if(fol){ e.preventDefault(); e.stopPropagation(); toggleFollow(fol.dataset.follow); return; }
     var railBtn = e.target.closest("[data-rail]"); if(railBtn){ var r = $(railBtn.dataset.rail); r.scrollBy({left: +railBtn.dataset.dir * r.clientWidth * .85, behavior: "smooth"}); return; }
     var c = e.target.closest(".pcard[data-tid]"); if(c && !e.target.closest("a")){ openTender(c.dataset.tid); return; }
     if(e.target.closest("[data-share]")){ copy(location.href, "Link copied"); return; }
@@ -897,7 +991,7 @@
       if(Array.isArray(F[k])) F[k] = F[k].filter(function(x){ return x !== v; }); else F[k] = "";
       updateBrowse(true); return;
     }
-    var more = e.target.closest("[data-more]"); if(more){ more.parentNode.querySelectorAll("[data-extra]").forEach(function(x){ x.hidden = false; }); more.remove(); }
+    var more = e.target.closest("[data-more]"); if(more){ more.parentNode.dataset.all = "1"; more.parentNode.querySelectorAll("[data-extra]").forEach(function(x){ x.hidden = false; }); more.remove(); }
   });
   document.addEventListener("keydown", function(e){
     var c = e.target.closest && e.target.closest(".pcard[data-tid]");
@@ -906,6 +1000,16 @@
     if(e.key === "/" && !e.target.closest("input,textarea,select") && !dlg.open && !document.body.classList.contains("locked")){ e.preventDefault(); $("topSearch").focus(); }
   });
   document.addEventListener("change", function(e){ if(e.target.dataset && e.target.dataset.facet) onFacetChange(e.target); });
+  document.addEventListener("input", function(e){
+    if(!e.target.hasAttribute || !e.target.hasAttribute("data-fsearch")) return;
+    var q = e.target.value.trim().toLowerCase(), det = e.target.closest(".facet"), shown = 0;
+    det.querySelectorAll(".opt").forEach(function(o){
+      var match = !q || o.textContent.toLowerCase().indexOf(q) >= 0, checked = o.querySelector("input").checked;
+      o.hidden = q ? !(match && shown < 60) : (o.hasAttribute("data-extra") && !checked && !det.dataset.all);
+      if(q && match) shown++;
+    });
+    var more = det.querySelector("[data-more]"); if(more) more.hidden = !!q;
+  });
   document.addEventListener("toggle", function(e){ var d = e.target; if(d.classList && d.classList.contains("facet")){ facetOpenState[d.dataset.key] = d.open; lsSet("facetOpen", facetOpenState); } }, true);
   function openTender(tid){ location.hash = "#/t/" + encodeURIComponent(tid); }
 
@@ -913,10 +1017,10 @@
   // Navigation chrome
   // ===================================================================
   function renderNav(){
-    var cur = R.view === "browse" ? (R.saved ? "saved" : R.following ? "following" : "browse") : R.view;
-    var items = [["#/", "home", "Home", "home"], ["#/categories", "grid", "Categories", "categories"], ["#/insights", "chart", "Insights", "insights"], ["#/saved", "heart", "Saved", "saved"]];
+    var cur = R.view === "browse" ? (R.saved ? "saved" : R.following ? "following" : R.pb ? "panchayats" : "browse") : R.view;
+    var items = [["#/", "home", "Home", "home"], ["#/categories", "grid", "Categories", "categories"], ["#/panchayats", "landmark", "Panchayats", "panchayats"], ["#/insights", "chart", "Insights", "insights"], ["#/saved", "heart", "Saved", "saved"]];
     $("nav").innerHTML = items.map(function(i){ return '<a href="' + i[0] + '"' + (cur === i[3] || (i[3] === "categories" && cur === "browse") ? ' class="on"' : "") + ">" + icon(i[1]) + i[2] + (i[3] === "saved" && saved.size ? ' <span class="badge">' + saved.size + "</span>" : "") + "</a>"; }).join("");
-    var bitems = [["#/", "home", "Home", "home"], ["#/categories", "grid", "Categories", "categories"], ["#/search", "search", "Search", "search"], ["#/saved", "heart", "Saved", "saved"], ["#/insights", "chart", "Insights", "insights"]];
+    var bitems = [["#/", "home", "Home", "home"], ["#/categories", "grid", "Categories", "categories"], ["#/panchayats", "landmark", "Panchayats", "panchayats"], ["#/search", "search", "Search", "search"], ["#/saved", "heart", "Saved", "saved"]];
     $("bnav").innerHTML = bitems.map(function(i){
       var on = cur === i[3] || (i[3] === "categories" && cur === "browse" && !R.search) || (i[3] === "search" && R.search);
       return '<a href="' + i[0] + '"' + (on ? ' class="on"' : "") + (i[3] === "search" ? " data-focus-search" : "") + ">" + icon(i[1]) + i[2] + (i[3] === "saved" && saved.size ? "<i>" + saved.size + "</i>" : "") + "</a>";
@@ -971,9 +1075,10 @@
   function renderView(sameView){
     if(R.view === "browse"){ if(sameView && $("bGrid")) updateBrowse(false); else renderBrowse(); }
     else if(R.view === "categories") renderCategories();
+    else if(R.view === "panchayats") renderPanchayats();
     else if(R.view === "insights") renderInsights();
     else renderHome();
-    var titles = {home: "Kerala Panchayat Tenders", categories: "All categories", insights: "Insights", browse: browseTitle().t};
+    var titles = {home: "Kerala Panchayat Tenders", categories: "All categories", panchayats: "Panchayats", insights: "Insights", browse: browseTitle().t};
     document.title = (R.view === "home" ? "" : (titles[R.view] || "") + " · ") + "Kerala Panchayat Tenders";
   }
   window.addEventListener("hashchange", render);

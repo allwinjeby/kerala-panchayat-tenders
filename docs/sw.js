@@ -1,6 +1,6 @@
 // App shell cached for offline use; tender data is always fetched fresh when
 // online and falls back to the last copy when offline.
-const VERSION = "kpt-v2";
+const VERSION = "kpt-v3";
 const SHELL = ["./", "index.html", "app.css", "app.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/favicon-32.png"];
 
 self.addEventListener("install", (e) => {
