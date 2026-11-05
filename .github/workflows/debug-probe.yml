@@ -1,0 +1,34 @@
+name: Debug - run probe script
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: "Script under tools/ to run"
+        required: true
+        default: "probe_docs.py"
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Run probe
+        env:
+          SCRIPT: ${{ github.event.inputs.script }}
+        run: python "tools/$SCRIPT"
+      - name: Push to debug-html branch
+        run: |
+          cd out
+          git init -q -b debug-html
+          git config user.name "tender-bot"
+          git config user.email "tender-bot@users.noreply.github.com"
+          git add -A && git commit -qm "debug probe"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" debug-html
