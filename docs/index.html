@@ -4,129 +4,216 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kerala Panchayat Tenders</title>
-<meta name="description" content="Daily-updated, searchable list of public works tenders from Kerala's panchayats and local bodies.">
+<meta name="description" content="Daily-updated, searchable dashboard of public works tenders from Kerala's panchayats and local bodies.">
 <style>
   :root{
     color-scheme: light;
-    --bg:#f5f5f2; --surface:#fcfcfb; --surface-2:#f0efeb; --border:#e1dfd8; --grid:#e8e6e0;
-    --text:#1a1917; --text-2:#55534d; --muted:#7a776f;
-    --accent:#0e6a4b; --accent-ink:#ffffff; --series:#0a7d52;
-    --new-bg:#fff5d6; --new-border:#e3bd52; --warn:#a63d24; --warn-bg:#fbe9e3;
-    --radius:12px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);
+    --bg:#f4f4f1; --surface:#fcfcfb; --surface-2:#efeee9; --border:#e0ded7; --grid:#e8e6e0;
+    --text:#161613; --text-2:#52504a; --muted:#77746c;
+    --accent:#0e6a4b; --accent-ink:#ffffff; --accent-soft:#e3f1ea;
+    --series:#2a78d6; --series-soft:#cde2fb;
+    --seq-1:#b7d3f6; --seq-2:#86b6ef; --seq-3:#5598e7; --seq-4:#2a78d6; --seq-5:#1c5cab; --seq-6:#104281;
+    --ink-1:#0b0b0b; --ink-2:#0b0b0b; --ink-3:#0b0b0b; --ink-4:#ffffff; --ink-5:#ffffff; --ink-6:#ffffff;
+    --new-bg:#fff5d6; --new-border:#e3bd52; --warn:#a63d24; --warn-bg:#fbe9e3; --gold:#c99700;
+    --hero-a:#0d5f44; --hero-b:#13775f; --hero-c:#1d5f7e;
+    --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.05);
   }
   @media (prefers-color-scheme: dark){
     :root:where(:not([data-theme="light"])){
       color-scheme: dark;
-      --bg:#141513; --surface:#1c1d1b; --surface-2:#252623; --border:#33342f; --grid:#2c2d29;
-      --text:#eeede9; --text-2:#c3c1b8; --muted:#97948b;
-      --accent:#4cc994; --accent-ink:#0b1f16; --series:#22a46f;
-      --new-bg:#342d13; --new-border:#8a7326; --warn:#ec8f77; --warn-bg:#3a201a;
+      --bg:#121311; --surface:#1b1c1a; --surface-2:#242522; --border:#32332e; --grid:#2a2b27;
+      --text:#efeee9; --text-2:#c3c1b8; --muted:#95928a;
+      --accent:#4cc994; --accent-ink:#0b1f16; --accent-soft:#163a2b;
+      --series:#3987e5; --series-soft:#1c3657;
+      --seq-1:#104281; --seq-2:#1c5cab; --seq-3:#2a78d6; --seq-4:#5598e7; --seq-5:#86b6ef; --seq-6:#b7d3f6;
+      --ink-1:#ffffff; --ink-2:#ffffff; --ink-3:#ffffff; --ink-4:#0b0b0b; --ink-5:#0b0b0b; --ink-6:#0b0b0b;
+      --new-bg:#342d13; --new-border:#8a7326; --warn:#ec8f77; --warn-bg:#3a201a; --gold:#f0c43c;
+      --hero-a:#0a3a2b; --hero-b:#0f4a3d; --hero-c:#123b50;
       --shadow:none;
     }
   }
   :root[data-theme="dark"]{
     color-scheme: dark;
-    --bg:#141513; --surface:#1c1d1b; --surface-2:#252623; --border:#33342f; --grid:#2c2d29;
-    --text:#eeede9; --text-2:#c3c1b8; --muted:#97948b;
-    --accent:#4cc994; --accent-ink:#0b1f16; --series:#22a46f;
-    --new-bg:#342d13; --new-border:#8a7326; --warn:#ec8f77; --warn-bg:#3a201a;
+    --bg:#121311; --surface:#1b1c1a; --surface-2:#242522; --border:#32332e; --grid:#2a2b27;
+    --text:#efeee9; --text-2:#c3c1b8; --muted:#95928a;
+    --accent:#4cc994; --accent-ink:#0b1f16; --accent-soft:#163a2b;
+    --series:#3987e5; --series-soft:#1c3657;
+    --seq-1:#104281; --seq-2:#1c5cab; --seq-3:#2a78d6; --seq-4:#5598e7; --seq-5:#86b6ef; --seq-6:#b7d3f6;
+    --ink-1:#ffffff; --ink-2:#ffffff; --ink-3:#ffffff; --ink-4:#0b0b0b; --ink-5:#0b0b0b; --ink-6:#0b0b0b;
+    --new-bg:#342d13; --new-border:#8a7326; --warn:#ec8f77; --warn-bg:#3a201a; --gold:#f0c43c;
+    --hero-a:#0a3a2b; --hero-b:#0f4a3d; --hero-c:#123b50;
     --shadow:none;
   }
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   html{-webkit-text-size-adjust:100%}
   body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 72px}
-  button,input,select{font:inherit;color:inherit}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 16px 72px}
+  button,input,select,textarea{font:inherit;color:inherit}
   button{cursor:pointer}
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 
-  header.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-  h1{font-size:22px;margin:0;letter-spacing:-.01em}
-  .sub{color:var(--text-2);font-size:13px;margin:4px 0 0}
-  .icon-btn{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:7px 10px;line-height:1}
-
-  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 14px}
-  @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);text-align:left}
+  /* ---------- hero ---------- */
+  .hero{background:radial-gradient(1200px 400px at 85% -10%,rgba(255,255,255,.14),transparent 60%),linear-gradient(130deg,var(--hero-a),var(--hero-b) 55%,var(--hero-c));color:#fff;margin:0 -16px;padding:22px 16px 18px;position:relative;overflow:hidden}
+  @media (min-width:1272px){.hero{border-radius:0 0 22px 22px}}
+  .hero::after{content:"";position:absolute;right:-60px;bottom:-90px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);pointer-events:none}
+  .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:relative;z-index:1}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none}
+  h1{font-size:23px;margin:0;letter-spacing:-.015em;line-height:1.2}
+  .hero .sub{color:rgba(255,255,255,.82);font-size:13px;margin:3px 0 0}
+  .hero .icon-btn{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#fff}
+  .icon-btn{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:8px 10px;line-height:0}
+  .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:18px;position:relative;z-index:1}
+  @media (max-width:900px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:11px 13px;text-align:left;color:#fff;min-width:0;backdrop-filter:blur(4px)}
   button.stat{width:100%}
-  button.stat:hover{border-color:var(--accent)}
-  button.stat[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
-  .stat .n{font-size:24px;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-  .stat .l{font-size:12.5px;color:var(--text-2)}
+  button.stat:hover{background:rgba(255,255,255,.2)}
+  button.stat[aria-pressed="true"]{background:#fff;color:#0d5f44;border-color:#fff}
+  button.stat[aria-pressed="true"] .l{color:#0d5f44}
+  .stat .n{font-size:25px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat .l{font-size:12px;color:rgba(255,255,255,.85)}
+  .visit{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,.95);color:#173d2f;border-radius:12px;padding:9px 12px;font-size:13.5px;position:relative;z-index:1}
+  .visit b{font-variant-numeric:tabular-nums}
+  .visit button{border:0;background:#0d5f44;color:#fff;border-radius:8px;padding:5px 11px;font-size:13px;font-weight:600}
+  .visit .x{background:none;color:#173d2f;padding:2px 6px;font-size:16px;margin-left:auto}
 
-  .filters{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;margin:0 -16px;padding-left:16px;padding-right:16px;border-bottom:1px solid transparent}
-  @media (max-width:700px){.filters{position:static}}
-  .filters .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
-  .filters .seg::-webkit-scrollbar{display:none}
-  .icon-btn svg{display:block}
-  .filters.stuck{border-bottom-color:var(--border)}
+  .mine{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0 0;font-size:13px}
+  .mine .lbl{color:var(--text-2);font-weight:600}
+  .mchip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:13px}
+  .mchip .c{font-variant-numeric:tabular-nums;color:var(--text-2)}
+  .mchip .nn{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:0 6px;font-size:11.5px;font-weight:700}
+  .mchip[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+
+  /* ---------- filters ---------- */
+  .filters{position:sticky;top:0;z-index:30;background:var(--bg);margin:0 -16px;padding:12px 16px 8px;border-bottom:1px solid transparent;transition:border-color .15s}
+  @media (max-width:760px){.filters{position:static}}
+  .filters.stuck{border-bottom-color:var(--border);box-shadow:0 6px 16px rgba(0,0,0,.05)}
   .frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .frow + .frow{margin-top:8px}
-  .search{flex:1 1 260px;min-width:0;position:relative}
-  .search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
-  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .field{position:relative;flex:1 1 230px;min-width:0}
+  .field input{width:100%;padding:9px 32px 9px 34px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+  .field > svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+  .field .clr{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--muted);font-size:17px;padding:2px 6px;line-height:1}
+  .field.pb input{border-color:var(--accent);background:var(--accent-soft)}
+  .field.pb input::placeholder{color:var(--text-2)}
   select,.chipbtn{border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:8px 10px;font-size:14px;max-width:100%}
-  .seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);max-width:100%;overflow-x:auto;scrollbar-width:none}
+  .seg::-webkit-scrollbar{display:none}
   .seg button{border:0;background:none;padding:8px 11px;font-size:13.5px;color:var(--text-2);white-space:nowrap}
   .seg button + button{border-left:1px solid var(--border)}
   .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
   .chipbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
   .active-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px}
-  .achip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:3px 4px 3px 10px}
+  .achip{display:inline-flex;align-items:center;gap:2px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:3px 4px 3px 10px}
   .achip button{border:0;background:none;padding:0 5px;font-size:15px;line-height:1;color:var(--muted)}
   .linkbtn{border:0;background:none;color:var(--accent);padding:4px 2px;font-size:13px;font-weight:600}
   .spacer{flex:1}
 
-  .charts{display:grid;grid-template-columns:1.05fr 1.35fr 1fr;gap:12px;margin:12px 0 18px}
-  @media (max-width:1000px){.charts{grid-template-columns:1fr 1fr}.charts .wide{grid-column:1/-1;order:-1}}
-  @media (max-width:640px){.charts{grid-template-columns:1fr}}
-  .chart{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px 10px;box-shadow:var(--shadow);min-width:0}
-  .chart h2{font-size:14px;margin:0;font-weight:650}
-  .chart .hint{font-size:12px;color:var(--muted);margin:2px 0 8px}
-  .chart svg{display:block;width:100%;height:auto;overflow:visible}
-  .chart .lbl{fill:var(--text-2);font-size:11.5px}
-  .chart .val{fill:var(--text);font-size:11.5px;font-variant-numeric:tabular-nums}
-  .chart .axis{fill:var(--muted);font-size:10.5px;font-variant-numeric:tabular-nums}
-  .chart .gridline{stroke:var(--grid);stroke-width:1}
-  .chart .mark{fill:var(--series);transition:opacity .15s}
-  .chart .dim .mark{opacity:.28}
-  .chart .dim .sel .mark{opacity:1}
-  .chart g.hit{cursor:pointer;outline:none}
-  .chart g.hit:hover .mark,.chart g.hit:focus-visible .mark{opacity:1;filter:brightness(1.12)}
-  .chart g.hit:focus-visible .hitbox{stroke:var(--accent);stroke-width:2}
-  .chart .hitbox{fill:transparent}
-  .chart .today{stroke:var(--warn);stroke-width:1}
-  .chart .empty-note{font-size:12.5px;color:var(--muted);padding:20px 0;text-align:center}
+  .combo{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.18);max-height:340px;overflow:auto;z-index:40;padding:4px;margin:0;list-style:none}
+  .combo li{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:14px}
+  .combo li[aria-selected="true"]{background:var(--accent-soft)}
+  .combo .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .combo .nm mark{background:none;color:var(--accent);font-weight:700}
+  .combo .ds{font-size:12px;color:var(--muted);white-space:nowrap}
+  .combo .ct{font-size:12px;font-weight:700;background:var(--surface-2);border-radius:999px;padding:1px 8px;font-variant-numeric:tabular-nums}
+  .combo .none{color:var(--muted);cursor:default}
 
-  #tip{position:fixed;z-index:50;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:12.5px;box-shadow:0 6px 20px rgba(0,0,0,.14);opacity:0;transition:opacity .08s;max-width:240px}
-  #tip b{display:block;font-size:14px;font-variant-numeric:tabular-nums}
-  #tip span{color:var(--text-2)}
+  /* ---------- panchayat profile ---------- */
+  .profile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin:12px 0 4px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+  @media (max-width:640px){.profile{grid-template-columns:auto 1fr}.profile .pacts{grid-column:1/-1}}
+  .avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--hero-b),var(--hero-c));color:#fff;display:grid;place-items:center;font-weight:700;font-size:19px}
+  .profile h2{margin:0;font-size:18px}
+  .profile .pmeta{font-size:13px;color:var(--text-2)}
+  .pstats{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px}
+  .pstats div{font-size:12px;color:var(--text-2)}
+  .pstats b{display:block;font-size:17px;color:var(--text);font-variant-numeric:tabular-nums}
+  .pacts{display:flex;gap:8px;flex-wrap:wrap}
 
-  .resbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 10px}
+  /* ---------- dashboard ---------- */
+  .dash{display:grid;grid-template-columns:300px minmax(0,1fr);gap:12px;margin:14px 0 18px}
+  .dash-right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-content:start}
+  .dash-right .wide{grid-column:1/-1}
+  @media (max-width:980px){.dash{grid-template-columns:1fr}.mapcard svg{max-height:560px}}
+  @media (max-width:640px){.dash-right{grid-template-columns:1fr}}
+  .card-c{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px 11px;box-shadow:var(--shadow);min-width:0}
+  .card-c h2{font-size:14.5px;margin:0;font-weight:650;display:flex;align-items:center;gap:8px}
+  .card-c .hint{font-size:12px;color:var(--muted);margin:2px 0 10px}
+  .card-c svg{display:block;width:100%;height:auto;overflow:visible}
+  .lbl{fill:var(--text-2);font-size:11.5px}
+  .val{fill:var(--text);font-size:11.5px;font-variant-numeric:tabular-nums}
+  .axis{fill:var(--muted);font-size:10.5px;font-variant-numeric:tabular-nums}
+  .gridline{stroke:var(--grid);stroke-width:1}
+  .mark{fill:var(--series);transition:opacity .15s}
+  .dim .mark{opacity:.3}
+  .dim .sel .mark{opacity:1}
+  g.hit{cursor:pointer;outline:none}
+  g.hit:hover .mark,g.hit:focus-visible .mark{opacity:1;filter:brightness(1.1)}
+  g.hit:focus-visible .hitbox{stroke:var(--accent);stroke-width:2}
+  .hitbox{fill:transparent}
+  .empty-note{font-size:12.5px;color:var(--muted);padding:24px 0;text-align:center}
+  .tg{margin-left:auto;display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .tg button{border:0;background:none;font-size:11.5px;padding:3px 8px;color:var(--text-2)}
+  .tg button[aria-pressed="true"]{background:var(--surface-2);color:var(--text);font-weight:600}
+
+  .mapcard svg{max-height:660px;margin:0 auto}
+  .tile{transition:opacity .15s}
+  .tile rect.t{stroke:var(--surface);stroke-width:2}
+  .tile.sel rect.t{stroke:var(--text);stroke-width:4}
+  .mapdim .tile:not(.sel){opacity:.4}
+  .tile:hover{opacity:1!important}
+  .tile:hover rect.t{filter:brightness(1.08)}
+  .tname{font-size:14px;font-weight:600}
+  .tcount{font-size:21px;font-weight:750;font-variant-numeric:tabular-nums}
+  .legend{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);margin-top:10px}
+  .legend .ramp{flex:1;height:8px;border-radius:999px;background:linear-gradient(90deg,var(--seq-1),var(--seq-2),var(--seq-3),var(--seq-4),var(--seq-5),var(--seq-6))}
+
+  .lb{list-style:none;margin:0;padding:0}
+  .lb li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 6px;border-radius:8px;cursor:pointer}
+  .lb li:hover,.lb li:focus-visible{background:var(--surface-2)}
+  .lb .rk{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+  .lb .nm{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lb .ds{font-size:11.5px;color:var(--muted);font-weight:400}
+  .lb .bar{height:6px;border-radius:0 3px 3px 0;background:var(--series);margin-top:4px}
+  .lb .v{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+  .lb .v small{display:block;font-size:11px;color:var(--muted);font-weight:400}
+
+  #tip{position:fixed;z-index:60;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-size:12.5px;box-shadow:0 8px 24px rgba(0,0,0,.16);opacity:0;transition:opacity .08s;max-width:250px}
+  #tip b{display:block;font-size:14.5px;font-variant-numeric:tabular-nums}
+  #tip span{color:var(--text-2);display:block}
+
+  /* ---------- results ---------- */
+  .resbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
+  .resbar h2{font-size:17px;margin:0}
   .resbar .count{font-size:13.5px;color:var(--text-2)}
-  .resbar .count b{color:var(--text)}
-
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
   @media (max-width:420px){.cards{grid-template-columns:1fr}}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:border-color .12s,transform .12s}
-  .card:hover{border-color:var(--accent)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px 12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:border-color .12s,transform .12s,box-shadow .12s;position:relative;overflow:hidden}
+  .card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.07)}
   .card.is-new{background:var(--new-bg);border-color:var(--new-border)}
   .card .row1{display:flex;gap:8px;align-items:flex-start}
   .card h3{margin:0;font-size:14.5px;font-weight:600;line-height:1.35;flex:1;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-  .star{border:0;background:none;padding:0 2px;font-size:19px;line-height:1;color:var(--muted)}
-  .star[aria-pressed="true"]{color:#d9a400}
-  .card .org{font-size:12.5px;color:var(--text-2)}
-  .card .foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:2px}
-  .value{font-weight:650;font-variant-numeric:tabular-nums}
+  .star{border:0;background:none;padding:0 2px;font-size:20px;line-height:1;color:var(--muted)}
+  .star[aria-pressed="true"]{color:var(--gold)}
+  .card .org{font-size:12.5px;color:var(--text-2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .card .org a{color:inherit;text-decoration:none;font-weight:600}
+  .card .org a:hover{text-decoration:underline}
+  .card .foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+  .value{font-weight:700;font-variant-numeric:tabular-nums;font-size:15px}
   .value.na{font-weight:400;color:var(--muted);font-size:12.5px}
   .pill{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;border:1px solid var(--border);color:var(--text-2);background:var(--surface-2)}
   .pill.new{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
   .pill.soon{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+  .pill.fol{border-color:var(--gold);color:var(--text)}
   .card .closes{font-size:12.5px;color:var(--text-2);margin-left:auto;white-space:nowrap}
+  .card .bar-time{position:absolute;left:0;bottom:0;height:3px;background:var(--accent);opacity:.55}
+  .card .bar-time.urgent{background:var(--warn);opacity:.8}
 
-  table.tbl{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-size:13.5px}
-  .tblwrap{overflow-x:auto;border-radius:var(--radius)}
-  .tbl th{text-align:left;font-size:12px;color:var(--text-2);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface-2)}
+  table.tbl{width:100%;border-collapse:collapse;background:var(--surface);font-size:13.5px}
+  .tblwrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+  .tbl th{text-align:left;font-size:12px;color:var(--text-2);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface-2);position:sticky;top:0}
   .tbl th button{border:0;background:none;padding:0;font-weight:600;color:inherit}
   .tbl td{padding:8px 10px;border-bottom:1px solid var(--grid);vertical-align:top}
   .tbl tr:hover td{background:var(--surface-2);cursor:pointer}
@@ -136,56 +223,115 @@
   .more{display:block;margin:16px auto 0;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:9px 18px;font-weight:600}
   .empty{color:var(--text-2);padding:40px 0;text-align:center}
 
-  dialog{border:0;padding:0;border-radius:16px;max-width:560px;width:calc(100% - 24px);background:var(--surface);color:var(--text);box-shadow:0 20px 60px rgba(0,0,0,.3)}
-  dialog::backdrop{background:rgba(10,10,8,.45)}
-  .dlg{padding:18px 18px 16px}
-  .dlg h2{font-size:17px;margin:0 30px 6px 0;line-height:1.35}
-  .dlg .close{position:absolute;right:10px;top:10px}
-  .dlg .pills{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
-  .dlg dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:0;font-size:13.5px}
-  .dlg dt{color:var(--text-2)}
-  .dlg dd{margin:0;overflow-wrap:anywhere}
-  .dlg .big{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
-  .dlg .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
-  .dlg .acts > *{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:10px;font-size:13.5px;font-weight:600;text-decoration:none;color:var(--text)}
-  .dlg .acts .primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-  .dlg .note{font-size:12px;color:var(--muted);margin-top:10px}
-  .dlg code{font-size:13px;background:var(--surface-2);padding:2px 6px;border-radius:6px}
+  /* ---------- dialog ---------- */
+  dialog{border:0;padding:0;border-radius:18px;max-width:600px;width:calc(100% - 24px);max-height:calc(100% - 24px);background:var(--surface);color:var(--text);box-shadow:0 24px 70px rgba(0,0,0,.35)}
+  dialog::backdrop{background:rgba(10,10,8,.5);backdrop-filter:blur(2px)}
+  .dhead{background:linear-gradient(130deg,var(--hero-a),var(--hero-b) 55%,var(--hero-c));color:#fff;padding:18px 18px 16px;position:relative}
+  .dhead h2{font-size:17px;margin:0 36px 8px 0;line-height:1.35}
+  .dhead .org{font-size:13px;color:rgba(255,255,255,.85)}
+  .dhead .org button{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:2px 9px;font-size:12.5px;font-weight:600}
+  .dhead .close{position:absolute;right:12px;top:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);color:#fff}
+  .dhead .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+  .dhead .kpi{background:rgba(255,255,255,.13);border-radius:10px;padding:8px 10px}
+  .dhead .kpi b{display:block;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dhead .kpi span{font-size:11.5px;color:rgba(255,255,255,.82)}
+  .dbody{padding:16px 18px 18px}
+  .dbody dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:0;font-size:13.5px}
+  .dbody dt{color:var(--text-2)}
+  .dbody dd{margin:0;overflow-wrap:anywhere}
+  .dbody code{font-size:13px;background:var(--surface-2);padding:2px 6px;border-radius:6px}
+  .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+  .acts > *{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:10px;font-size:13.5px;font-weight:600;text-decoration:none;color:var(--text);text-align:center}
+  .acts .primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .dbody h3{font-size:13.5px;margin:18px 0 6px}
+  .dbody textarea{width:100%;min-height:64px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);padding:8px 10px;font-size:13.5px;resize:vertical}
+  .related{list-style:none;margin:0;padding:0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .related li{padding:8px 10px;font-size:13px;display:flex;gap:10px;cursor:pointer}
+  .related li + li{border-top:1px solid var(--grid)}
+  .related li:hover{background:var(--surface-2)}
+  .related .rt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .related .rv{color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .note{font-size:12px;color:var(--muted);margin-top:12px}
 
-  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13.5px;opacity:0;transition:.2s;z-index:60;pointer-events:none}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13.5px;opacity:0;transition:.2s;z-index:70;pointer-events:none}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-
   details.notes{font-size:12.5px;color:var(--text-2);margin-top:28px}
   details.notes summary{cursor:pointer}
   footer{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.6}
   footer a{color:var(--text-2)}
+  kbd{font-size:11px;border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--surface)}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+  /* ---------- trial + login ---------- */
+  .acct{display:flex;gap:8px;align-items:center}
+  .trial{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:5px 6px 5px 12px;font-size:12.5px;white-space:nowrap}
+  .trial b{font-variant-numeric:tabular-nums}
+  .trial button{border:0;background:#fff;color:#0d5f44;border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:700}
+  .trial.low{background:rgba(255,190,80,.25);border-color:rgba(255,210,120,.6)}
+  @media (max-width:560px){.trial .tl{display:none}}
+  body.locked .wrap{filter:blur(7px);pointer-events:none;user-select:none}
+  body.locked{overflow:hidden}
+  .gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:rgba(8,20,15,.55);overflow:auto}
+  .gate-card{width:100%;max-width:440px;background:var(--surface);color:var(--text);border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.4);overflow:hidden}
+  .gate-top{background:linear-gradient(130deg,var(--hero-a),var(--hero-b) 55%,var(--hero-c));color:#fff;padding:22px 22px 18px;position:relative}
+  .gate-top h2{margin:0 0 4px;font-size:20px}
+  .gate-top p{margin:0;font-size:13.5px;color:rgba(255,255,255,.88)}
+  .gate-top .close{position:absolute;right:12px;top:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);color:#fff}
+  .gate form{padding:18px 22px 6px;display:grid;gap:10px}
+  .gate label{font-size:12.5px;font-weight:600;color:var(--text-2)}
+  .gate input{width:100%;margin-top:4px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);font-size:15px}
+  .gate .err{color:var(--warn);font-size:13px;min-height:18px}
+  .gate .go{border:0;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:11px;font-weight:700;font-size:15px}
+  .premium{margin:8px 22px 22px;border:1px solid var(--new-border);background:var(--new-bg);border-radius:14px;padding:14px}
+  .premium h3{margin:0 0 4px;font-size:15px}
+  .premium p{margin:0 0 10px;font-size:13px;color:var(--text-2)}
+  .premium .ways{display:grid;gap:6px}
+  .premium a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:14px;font-weight:600}
+  .premium a span{font-weight:400;color:var(--text-2);font-size:12.5px;margin-left:auto}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="top">
-    <div>
-      <h1>Kerala Panchayat Tenders</h1>
-      <p class="sub" id="lastRun">Loading tenders…</p>
+  <header class="hero">
+    <div class="hero-top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg></div>
+        <div>
+          <h1>Kerala Panchayat Tenders</h1>
+          <p class="sub" id="lastRun">Loading tenders…</p>
+        </div>
+      </div>
+      <div class="acct">
+      <div class="trial" id="acct" hidden></div>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+      </div>
     </div>
-    <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+    <div class="stats">
+      <div class="stat"><div class="n" id="sTotal">–</div><div class="l">Open tenders</div></div>
+      <button class="stat" id="sNewBtn" type="button" aria-pressed="false" title="Show tenders first published on the portal today"><div class="n" id="sNew">–</div><div class="l">New today</div></button>
+      <button class="stat" id="sSoonBtn" type="button" aria-pressed="false" title="Show tenders closing within 3 days"><div class="n" id="sSoon">–</div><div class="l">Closing in 3 days</div></button>
+      <div class="stat"><div class="n" id="sBodies">–</div><div class="l">Panchayats / bodies</div></div>
+      <div class="stat"><div class="n" id="sValue">–</div><div class="l" id="sValueL">Total value</div></div>
+    </div>
+    <div class="visit" id="visit" hidden></div>
   </header>
 
-  <div class="stats">
-    <div class="stat"><div class="n" id="sTotal">–</div><div class="l">Open tenders</div></div>
-    <button class="stat" id="sNewBtn" type="button" aria-pressed="false" title="Show only tenders first seen today"><div class="n" id="sNew">–</div><div class="l">New today</div></button>
-    <button class="stat" id="sSoonBtn" type="button" aria-pressed="false" title="Show only tenders closing within 3 days"><div class="n" id="sSoon">–</div><div class="l">Closing in 3 days</div></button>
-    <div class="stat"><div class="n" id="sValue">–</div><div class="l" id="sValueL">Total value</div></div>
-  </div>
+  <div class="mine" id="mine" hidden></div>
 
   <div class="filters" id="filters">
     <div class="frow">
-      <label class="search">
+      <div class="field pbf" id="pbField">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/></svg>
+        <label class="sr" for="pbInput">Panchayat</label>
+        <input id="pbInput" type="text" placeholder="Find a panchayat… (e.g. Kuzhalmannam)" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="pbList" aria-autocomplete="list">
+        <button class="clr" id="pbClear" type="button" aria-label="Clear panchayat" hidden>×</button>
+        <ul class="combo" id="pbList" role="listbox" hidden></ul>
+      </div>
+      <div class="field">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <span class="sr">Search</span>
-        <input type="search" id="q" placeholder="Search work, panchayat, tender ID…" autocomplete="off">
-      </label>
+        <label class="sr" for="q">Search</label>
+        <input type="search" id="q" placeholder="Search work: road, anganwadi, drainage…  (press /)" autocomplete="off">
+      </div>
       <select id="district" aria-label="District"><option value="">All districts</option></select>
       <select id="sort" aria-label="Sort">
         <option value="closing">Closing soonest</option>
@@ -195,38 +341,49 @@
     </div>
     <div class="frow">
       <div class="seg" id="bodySeg" role="group" aria-label="Type of local body"></div>
-      <select id="minValue" aria-label="Minimum value">
-        <option value="0">Any value</option>
-        <option value="500000">₹5 L+</option>
-        <option value="1000000">₹10 L+</option>
-        <option value="2500000">₹25 L+</option>
-        <option value="10000000">₹1 Cr+</option>
-      </select>
-      <select id="category" aria-label="Work category"><option value="">All work types</option></select>
+      <select id="band" aria-label="Contract value"><option value="">Any value</option></select>
+      <select id="category" aria-label="Work type"><option value="">All work types</option></select>
+      <button class="chipbtn" id="followBtn" type="button" aria-pressed="false" title="Only panchayats you follow">♥ Following <span id="followCount"></span></button>
       <button class="chipbtn" id="savedBtn" type="button" aria-pressed="false">★ Saved <span id="savedCount"></span></button>
     </div>
     <div class="frow active-chips" id="chips" hidden></div>
   </div>
 
-  <section class="charts" aria-label="Charts (click a bar to filter)">
-    <div class="chart">
-      <h2>Tenders by district</h2>
-      <p class="hint">Click a bar to filter</p>
-      <div id="cDistrict"></div>
+  <section class="profile" id="profile" hidden aria-live="polite"></section>
+
+  <section class="dash" aria-label="Dashboard (click anything to filter)">
+    <div class="card-c mapcard">
+      <h2>Kerala map</h2>
+      <p class="hint">Open tenders by district · click a district</p>
+      <div id="cMap"></div>
+      <div class="legend"><span>Fewer</span><span class="ramp"></span><span>More</span></div>
     </div>
-    <div class="chart wide">
-      <h2>Closing dates</h2>
-      <p class="hint">Tenders closing each day · click a day to filter</p>
-      <div id="cClosing"></div>
-    </div>
-    <div class="chart">
-      <h2>Type of work</h2>
-      <p class="hint" id="catHint">Click a bar to filter</p>
-      <div id="cCategory"></div>
+    <div class="dash-right">
+      <div class="card-c wide">
+        <h2>Closing dates</h2>
+        <p class="hint">Tenders closing each day · click a day</p>
+        <div id="cClosing"></div>
+      </div>
+      <div class="card-c">
+        <h2>Contract value</h2>
+        <p class="hint" id="bandHint">Click a range</p>
+        <div id="cBand"></div>
+      </div>
+      <div class="card-c">
+        <h2>Type of work</h2>
+        <p class="hint" id="catHint">Click a bar</p>
+        <div id="cCategory"></div>
+      </div>
+      <div class="card-c wide">
+        <h2>Most active panchayats <span class="tg" role="group" aria-label="Rank by"><button type="button" id="lbCount" aria-pressed="true">By tenders</button><button type="button" id="lbValue" aria-pressed="false">By value</button></span></h2>
+        <p class="hint">Click one to see its tenders</p>
+        <ol class="lb" id="leader"></ol>
+      </div>
     </div>
   </section>
 
   <div class="resbar">
+    <h2 id="resTitle">Tenders</h2>
     <div class="count" id="count"></div>
     <div class="spacer"></div>
     <div class="seg" role="group" aria-label="View">
@@ -244,38 +401,63 @@
   <details class="notes" id="notes" hidden><summary>Data notes from the last update</summary><div id="notesBody"></div></details>
   <footer>
     Source: <a href="https://etenders.kerala.gov.in/nicgep/app" target="_blank" rel="noopener">Kerala e-Tenders portal</a>
-    (Local Self Government Department and panchayat organisations). Updated automatically every morning.
+    (Local Self Government Department and panchayat organisations), refreshed automatically every morning.
     To open a tender on the portal, copy its Tender ID and paste it into the portal's search.
-    Contract value and work type are added gradually for older tenders. Always check the official notice before bidding.
-    Unofficial tool, not affiliated with the Government of Kerala.
+    Contract value and work type are added gradually for older tenders. Saved tenders, follows and notes stay in this browser only.
+    Always check the official notice before bidding. Unofficial tool, not affiliated with the Government of Kerala.
+    Shortcuts: <kbd>/</kbd> search · <kbd>p</kbd> panchayat · <kbd>Esc</kbd> close.
   </footer>
+</div>
+
+<div class="gate" id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gate-card">
+    <div class="gate-top">
+      <button class="icon-btn close" id="gateClose" type="button" aria-label="Close" hidden>✕</button>
+      <h2 id="gateTitle">Log in to continue</h2>
+      <p id="gateMsg">Your 5-minute free trial has ended. Log in to keep using Kerala Panchayat Tenders.</p>
+    </div>
+    <form id="loginForm" autocomplete="on">
+      <label>Username<input id="lgUser" name="username" autocomplete="username" required></label>
+      <label>Password<input id="lgPass" name="password" type="password" autocomplete="current-password" required></label>
+      <div class="err" id="lgErr" role="alert"></div>
+      <button class="go" type="submit">Log in</button>
+    </form>
+    <div class="premium">
+      <h3>⭐ Get premium membership</h3>
+      <p>Unlimited access to every panchayat tender in Kerala, updated every morning. Contact Allwin:</p>
+      <div class="ways">
+        <a href="tel:+919946600026">📞 Call <span>99466 00026</span></a>
+        <a href="https://wa.me/919946600026?text=Hi%20Allwin%2C%20I%27d%20like%20premium%20access%20to%20Kerala%20Panchayat%20Tenders." target="_blank" rel="noopener">💬 WhatsApp <span>99466 00026</span></a>
+        <a href="mailto:allwinjeby@gmail.com?subject=Premium%20membership%20-%20Kerala%20Panchayat%20Tenders">✉️ Email <span>allwinjeby@gmail.com</span></a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="tip" role="tooltip"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<dialog id="dlg" aria-labelledby="dTitle">
-  <div class="dlg" id="dlgBody"></div>
-</dialog>
+<dialog id="dlg" aria-labelledby="dTitle"><div id="dlgBody"></div></dialog>
 
 <script>
 (function(){
   "use strict";
-  var PAGE = 40;
+  var PAGE = 42;
   var SEARCH_URL = "https://etenders.kerala.gov.in/nicgep/app?page=FrontEndAdvancedSearch&service=page";
   var PANCHAYAT = {"Grama Panchayat":1,"Block Panchayat":1,"District Panchayat":1,"Panchayat (other)":1};
-  var BODY_OPTS = [["panchayat","All panchayats"],["Grama Panchayat","Grama"],["Block Panchayat","Block"],["District Panchayat","District"],["","All local bodies"]];
-  var DEFAULTS = {q:"", body:"panchayat", district:"", category:"", minValue:"0", sort:"closing", closeDate:"", soon:false, onlyNew:false, saved:false, view:"cards"};
+  var BODY_OPTS = [["panchayat","All panchayats"],["Grama Panchayat","Grama"],["Block Panchayat","Block"],["District Panchayat","District"],["Municipality","Municipality"],["Corporation","Corporation"],["","All"]];
+  var BANDS = [[0,1e5,"Under ₹1 L"],[1e5,5e5,"₹1 – 5 L"],[5e5,1e6,"₹5 – 10 L"],[1e6,2.5e6,"₹10 – 25 L"],[2.5e6,1e7,"₹25 L – 1 Cr"],[1e7,Infinity,"₹1 Cr +"]];
+  var DEFAULTS = {q:"", pb:"", body:"panchayat", district:"", category:"", band:"", sort:"closing", closeDate:"", soon:false, onlyNew:false, sinceVisit:false, saved:false, following:false, view:"cards"};
   var S = Object.assign({}, DEFAULTS);
-  var all = [], meta = {}, newIds = new Set(), saved = new Set(), shown = PAGE, current = [];
+  var all = [], meta = {}, newIds = new Set(), saved = new Set(), follows = new Set(), notes = {}, bodies = {}, byId = {};
+  var shown = PAGE, current = [], visitBase = null, lbMetric = "count", firstPaint = true;
   var $ = function(id){ return document.getElementById(id); };
   var SVGNS = "http://www.w3.org/2000/svg";
 
-  // ---------- storage (best effort) ----------
-  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
-  function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
-  try{ saved = new Set(JSON.parse(lsGet("saved") || "[]")); }catch(e){ saved = new Set(); }
-  var theme = lsGet("theme"); if(theme) document.documentElement.setAttribute("data-theme", theme);
+  // ---------- storage ----------
+  function lsGet(k, d){ try{ var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } }
+  function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  saved = new Set(lsGet("saved", [])); follows = new Set(lsGet("follows", [])); notes = lsGet("notes", {}) || {};
+  var theme = lsGet("theme", null); if(theme) document.documentElement.setAttribute("data-theme", theme);
   $("themeBtn").onclick = function(){
     var cur = document.documentElement.getAttribute("data-theme");
     var dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
@@ -285,14 +467,15 @@
 
   // ---------- formatting ----------
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function trimNum(x){ return x.toFixed(x >= 100 ? 0 : 2).replace(/\.?0+$/, ""); }
   function inr(n){
     if(n == null) return null;
-    if(n >= 1e7) return "₹" + trim(n/1e7) + " Cr";
-    if(n >= 1e5) return "₹" + trim(n/1e5) + " L";
+    if(n >= 1e7) return "₹" + trimNum(n/1e7) + " Cr";
+    if(n >= 1e5) return "₹" + trimNum(n/1e5) + " L";
     return "₹" + Math.round(n).toLocaleString("en-IN");
   }
-  function trim(x){ return x.toFixed(x >= 100 ? 0 : 2).replace(/\.?0+$/, ""); }
   function inrFull(n){ return n == null ? "—" : "₹" + n.toLocaleString("en-IN"); }
+  function num(n){ return n.toLocaleString("en-IN"); }
   function fmtDate(iso, opts){
     if(!iso) return "—";
     var d = new Date(iso + "T00:00:00");
@@ -300,6 +483,19 @@
   }
   function addDays(iso, n){ var d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0,10); }
   function daysLeft(iso){ return iso && meta.today ? Math.round((Date.parse(iso) - Date.parse(meta.today)) / 864e5) : null; }
+  function closingMs(t){
+    var m = /(\d{1,2})-([A-Za-z]{3})-(\d{4})\s+(\d{1,2}):(\d{2})\s*([AP]M)/i.exec(t.closing_time || "");
+    if(!m) return t.closing_date ? Date.parse(t.closing_date + "T17:00:00+05:30") : null;
+    var mon = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12}[m[2].toLowerCase()];
+    var h = +m[4] % 12 + (m[6].toUpperCase() === "PM" ? 12 : 0), p = function(n){ return String(n).padStart(2, "0"); };
+    return Date.parse(m[3] + "-" + p(mon) + "-" + p(m[1]) + "T" + p(h) + ":" + m[5] + ":00+05:30");
+  }
+  function countdown(t){
+    var ms = closingMs(t); if(ms == null) return "—";
+    var left = ms - Date.now(); if(left <= 0) return "Closed";
+    var d = Math.floor(left / 864e5), h = Math.floor(left % 864e5 / 36e5), m = Math.floor(left % 36e5 / 6e4);
+    return d ? d + "d " + h + "h" : h ? h + "h " + m + "m" : m + "m";
+  }
   function closesLabel(t){
     var d = daysLeft(t.closing_date), time = (t.closing_time || "").replace(/^.*?(\d{1,2}:\d{2}\s*[AP]M)$/i, "$1");
     if(d === 0) return "Closes today" + (time ? " " + time : "");
@@ -307,27 +503,34 @@
     if(d !== null && d < 7) return "Closes in " + d + " days";
     return "Closes " + fmtDate(t.closing_date, {day:"numeric", month:"short"});
   }
-  function toast(msg){ var t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("on"); }, 1800); }
+  function initials(name){ return name.replace(/(Grama|Block|District) Panchayat|Municipality|Corporation/, "").trim().split(/\s+/).slice(0, 2).map(function(w){ return w[0]; }).join("").toUpperCase() || "P"; }
+  function toast(msg){ var t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("on"); }, 1900); }
   function copy(text, msg){
     if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function(){ toast(msg); }, function(){ prompt("Copy:", text); });
     else prompt("Copy:", text);
   }
+  function bandOf(v){ if(v == null) return -1; for(var i = 0; i < BANDS.length; i++) if(v >= BANDS[i][0] && v < BANDS[i][1]) return i; return -1; }
+  function isNewForYou(t){ return visitBase && t.first_seen > visitBase; }
 
-  // ---------- filtering (crossfilter: each chart ignores its own dimension) ----------
+  // ---------- filtering (crossfilter: each view ignores its own dimension) ----------
   function pass(t, skip){
+    if(t._close && t._close < NOW) return false;
     if(skip !== "body"){
       if(S.body === "panchayat"){ if(!PANCHAYAT[t.body_type]) return false; }
       else if(S.body && t.body_type !== S.body) return false;
     }
+    if(skip !== "pb" && S.pb && t.body_name !== S.pb) return false;
     if(skip !== "district" && S.district && t.district !== S.district) return false;
-    if(skip !== "category" && S.category && (t.category || "Not yet known") !== S.category) return false;
+    if(skip !== "category" && S.category && t.category !== S.category) return false;
+    if(skip !== "band" && S.band !== "" && bandOf(t.value) !== +S.band) return false;
     if(skip !== "closing"){
       if(S.closeDate && t.closing_date !== S.closeDate) return false;
       if(S.soon){ var d = daysLeft(t.closing_date); if(d === null || d < 0 || d > 3) return false; }
     }
-    if(+S.minValue && !(t.value >= +S.minValue)) return false;
     if(S.onlyNew && !newIds.has(t.id)) return false;
+    if(S.sinceVisit && !isNewForYou(t)) return false;
     if(S.saved && !saved.has(t.id)) return false;
+    if(S.following && !follows.has(t.body_name)) return false;
     if(S.q){
       var words = S.q.toLowerCase().split(/\s+/);
       for(var i = 0; i < words.length; i++) if(words[i] && t._hay.indexOf(words[i]) < 0) return false;
@@ -335,48 +538,96 @@
     return true;
   }
 
+  var NOW = Date.now();
   function update(keepPage){
+    NOW = Date.now();
     current = all.filter(function(t){ return pass(t); });
-    var sort = S.sort;
     current.sort(function(a, b){
-      if(sort === "newest") return (b.published_date || "").localeCompare(a.published_date || "") || (a.closing_date || "").localeCompare(b.closing_date || "");
-      if(sort === "value") return (b.value || -1) - (a.value || -1);
-      return (a.closing_date || "9").localeCompare(b.closing_date || "9") || (a.closing_time || "").localeCompare(b.closing_time || "");
+      if(S.sort === "newest") return (b.published_date || "").localeCompare(a.published_date || "") || (a.closing_date || "").localeCompare(b.closing_date || "");
+      if(S.sort === "value") return (b.value == null ? -1 : b.value) - (a.value == null ? -1 : a.value);
+      return (a.closing_date || "9").localeCompare(b.closing_date || "9") || (closingMs(a) || 0) - (closingMs(b) || 0);
     });
     if(!keepPage) shown = PAGE;
-    renderStats(); renderChips(); renderCharts(); renderResults(); syncControls(); persist();
+    renderStats(); renderChips(); renderProfile(); renderMap(); renderCharts(); renderLeader(); renderMine(); renderResults(); syncControls(); persist();
+    firstPaint = false;
   }
 
   // ---------- stats ----------
+  function animate(el, to, fmt){
+    if(firstPaint && !matchMedia("(prefers-reduced-motion: reduce)").matches){
+      var start = performance.now(), dur = 700;
+      (function step(now){
+        var p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt(to * e);
+        if(p < 1) requestAnimationFrame(step);
+      })(start);
+    } else el.textContent = fmt(to);
+  }
   function renderStats(){
-    var soon = 0, total = 0, known = 0, nNew = 0;
+    var soon = 0, total = 0, known = 0, nNew = 0, bset = new Set();
     current.forEach(function(t){
       var d = daysLeft(t.closing_date); if(d !== null && d >= 0 && d <= 3) soon++;
       if(t.value != null){ total += t.value; known++; }
       if(newIds.has(t.id)) nNew++;
+      bset.add(t.body_name);
     });
-    $("sTotal").textContent = current.length.toLocaleString("en-IN");
-    $("sNew").textContent = nNew.toLocaleString("en-IN");
-    $("sSoon").textContent = soon.toLocaleString("en-IN");
-    $("sValue").textContent = known ? inr(total) : "–";
-    $("sValueL").textContent = known === current.length ? "Total value" : "Total value (" + known.toLocaleString("en-IN") + " with value known)";
-    $("count").innerHTML = "<b>" + current.length.toLocaleString("en-IN") + "</b> tender" + (current.length === 1 ? "" : "s");
+    var intFmt = function(x){ return num(Math.round(x)); };
+    animate($("sTotal"), current.length, intFmt);
+    animate($("sNew"), nNew, intFmt);
+    animate($("sSoon"), soon, intFmt);
+    animate($("sBodies"), bset.size, intFmt);
+    animate($("sValue"), total, function(x){ return known ? inr(x) : "–"; });
+    $("sValueL").textContent = known === current.length ? "Total value" : "Value of " + num(known) + " known";
+    $("count").textContent = num(current.length) + " match" + (current.length === 1 ? "" : "es");
+    $("resTitle").textContent = S.pb ? "Tenders from " + S.pb : S.following ? "Tenders from panchayats you follow" : S.saved ? "Saved tenders" : "Tenders";
   }
 
-  // ---------- active filter chips ----------
+  // ---------- since last visit + my panchayats ----------
+  function renderVisit(){
+    var box = $("visit"), n = 0, nf = 0;
+    if(!visitBase){ box.hidden = true; return; }
+    all.forEach(function(t){ if(isNewForYou(t)){ n++; if(follows.has(t.body_name)) nf++; } });
+    if(!n || lsGet("visitDismissed", "") === meta.today){ box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = "<span>🔔 <b>" + num(n) + "</b> new tender" + (n === 1 ? "" : "s") + " since your last visit (" + esc(fmtDate(visitBase, {day:"numeric", month:"short"})) + ")" +
+      (nf ? " · <b>" + nf + "</b> from panchayats you follow" : "") + "</span>" +
+      '<button type="button" id="visitShow">Show them</button><button type="button" class="x" id="visitX" aria-label="Dismiss">×</button>';
+    $("visitShow").onclick = function(){ S = Object.assign({}, S, {sinceVisit:true, sort:"newest"}); update(); $("filters").scrollIntoView({behavior:"smooth"}); };
+    $("visitX").onclick = function(){ lsSet("visitDismissed", meta.today); box.hidden = true; };
+  }
+  function renderMine(){
+    var box = $("mine");
+    if(!follows.size){ box.hidden = true; return; }
+    box.hidden = false; box.innerHTML = "";
+    var l = document.createElement("span"); l.className = "lbl"; l.textContent = "♥ Your panchayats:"; box.appendChild(l);
+    Array.from(follows).sort().forEach(function(name){
+      var b = bodies[name] || {count:0}, nNew = 0;
+      all.forEach(function(t){ if(t.body_name === name && (newIds.has(t.id) || isNewForYou(t))) nNew++; });
+      var btn = document.createElement("button"); btn.type = "button"; btn.className = "mchip";
+      btn.setAttribute("aria-pressed", S.pb === name);
+      btn.appendChild(document.createTextNode(name.replace(/ (Grama|Block|District) Panchayat$/, " $1")));
+      var c = document.createElement("span"); c.className = "c"; c.textContent = b.count || 0; btn.appendChild(c);
+      if(nNew){ var nn = document.createElement("span"); nn.className = "nn"; nn.textContent = nNew + " new"; btn.appendChild(nn); }
+      btn.onclick = function(){ selectBody(S.pb === name ? "" : name); };
+      box.appendChild(btn);
+    });
+  }
+
+  // ---------- chips ----------
   function renderChips(){
     var chips = [];
+    if(S.pb) chips.push(["pb", S.pb]);
     if(S.q) chips.push(["q", "“" + S.q + "”"]);
     if(S.district) chips.push(["district", S.district]);
     if(S.category) chips.push(["category", S.category]);
+    if(S.band !== "") chips.push(["band", BANDS[+S.band][2]]);
     if(S.closeDate) chips.push(["closeDate", "Closing " + fmtDate(S.closeDate, {day:"numeric", month:"short"})]);
     if(S.soon) chips.push(["soon", "Closing in 3 days"]);
-    if(+S.minValue) chips.push(["minValue", $("minValue").selectedOptions[0].textContent]);
     if(S.onlyNew) chips.push(["onlyNew", "New today"]);
+    if(S.sinceVisit) chips.push(["sinceVisit", "New since last visit"]);
     if(S.saved) chips.push(["saved", "Saved"]);
-    var box = $("chips");
-    box.hidden = !chips.length;
-    box.innerHTML = "";
+    if(S.following) chips.push(["following", "Following"]);
+    var box = $("chips"); box.hidden = !chips.length; box.innerHTML = "";
     chips.forEach(function(c){
       var span = document.createElement("span"); span.className = "achip";
       span.appendChild(document.createTextNode(c[1]));
@@ -389,21 +640,117 @@
       clr.onclick = clearAll; box.appendChild(clr);
     }
   }
-  function clearAll(){ var v = S.view, b = S.body, s = S.sort; S = Object.assign({}, DEFAULTS, {view:v, body:b, sort:s}); update(); }
+  function clearAll(){ S = Object.assign({}, DEFAULTS, {view:S.view, body:S.body, sort:S.sort}); update(); }
   $("clearAll2").onclick = clearAll;
 
-  // ---------- charts ----------
+  // ---------- panchayat profile ----------
+  function renderProfile(){
+    var box = $("profile");
+    if(!S.pb){ box.hidden = true; return; }
+    var list = all.filter(function(t){ return t.body_name === S.pb && !(t._close && t._close < NOW); });
+    var b = bodies[S.pb] || {}, total = 0, known = 0, soon = 0, nNew = 0, cats = {};
+    list.forEach(function(t){
+      if(t.value != null){ total += t.value; known++; }
+      var d = daysLeft(t.closing_date); if(d !== null && d >= 0 && d <= 7) soon++;
+      if(newIds.has(t.id)) nNew++;
+      if(t.category) cats[t.category] = (cats[t.category] || 0) + 1;
+    });
+    var topCat = Object.keys(cats).sort(function(a, c){ return cats[c] - cats[a]; })[0];
+    var isF = follows.has(S.pb);
+    box.hidden = false;
+    box.innerHTML = '<div class="avatar">' + esc(initials(S.pb)) + "</div>" +
+      "<div><h2>" + esc(S.pb) + '</h2><div class="pmeta">' + esc([b.type, b.district].filter(Boolean).join(" · ")) + "</div>" +
+      '<div class="pstats"><div><b>' + num(list.length) + "</b>open tenders</div><div><b>" + num(soon) + "</b>closing this week</div><div><b>" + num(nNew) + "</b>new today</div>" +
+      "<div><b>" + (known ? inr(total) : "–") + "</b>value" + (known < list.length ? " (" + known + " known)" : "") + "</div>" +
+      (topCat ? "<div><b style=\"font-size:14px\">" + esc(topCat) + "</b>most common work</div>" : "") + "</div></div>" +
+      '<div class="pacts"><button class="chipbtn" type="button" id="pFollow" aria-pressed="' + isF + '">' + (isF ? "♥ Following" : "♡ Follow") + '</button>' +
+      '<button class="chipbtn" type="button" id="pClose">Show all panchayats</button></div>';
+    $("pFollow").onclick = function(){ toggleFollow(S.pb); };
+    $("pClose").onclick = function(){ selectBody(""); };
+  }
+  function toggleFollow(name){
+    if(follows.has(name)) follows.delete(name); else follows.add(name);
+    lsSet("follows", Array.from(follows));
+    toast(follows.has(name) ? "Following " + name : "Unfollowed " + name);
+    update(true);
+  }
+  function selectBody(name){
+    S.pb = name;
+    if(name && bodies[name]){
+      var t = bodies[name].type;
+      if(S.body && S.body !== "panchayat" && S.body !== t) S.body = "";
+      if(S.body === "panchayat" && !PANCHAYAT[t]) S.body = "";
+      if(S.district && S.district !== bodies[name].district) S.district = "";
+    }
+    $("pbInput").value = name;
+    update();
+  }
+
+  // ---------- panchayat combobox ----------
+  var pbInput = $("pbInput"), pbList = $("pbList"), pbActive = -1, pbItems = [];
+  function pbMatches(text){
+    var words = text.toLowerCase().split(/\s+/).filter(Boolean);
+    return Object.keys(bodies).filter(function(n){
+      var b = bodies[n];
+      if(S.district && b.district !== S.district) return false;
+      var hay = (n + " " + (b.district || "")).toLowerCase();
+      return words.every(function(w){ return hay.indexOf(w) >= 0; });
+    }).sort(function(a, b){
+      var al = a.toLowerCase().indexOf(words[0] || ""), bl = b.toLowerCase().indexOf(words[0] || "");
+      if(words.length && (al === 0) !== (bl === 0)) return al === 0 ? -1 : 1;
+      return bodies[b].count - bodies[a].count;
+    }).slice(0, 40);
+  }
+  function highlight(name, text){
+    var w = text.trim().split(/\s+/)[0];
+    if(!w) return esc(name);
+    var i = name.toLowerCase().indexOf(w.toLowerCase());
+    return i < 0 ? esc(name) : esc(name.slice(0, i)) + "<mark>" + esc(name.slice(i, i + w.length)) + "</mark>" + esc(name.slice(i + w.length));
+  }
+  function openCombo(){
+    var text = pbInput.value === S.pb ? "" : pbInput.value;
+    pbItems = pbMatches(text); pbActive = pbItems.length ? 0 : -1;
+    pbList.innerHTML = pbItems.length ? pbItems.map(function(n, i){
+      var b = bodies[n];
+      return '<li role="option" id="pbo' + i + '" data-i="' + i + '" aria-selected="' + (i === pbActive) + '"><span class="nm">' + highlight(n, text) + '</span><span class="ds">' + esc(b.district || "") + '</span><span class="ct">' + b.count + "</span></li>";
+    }).join("") : '<li class="none">No panchayat matches “' + esc(text) + "”" + (S.district ? " in " + esc(S.district) : "") + "</li>";
+    pbList.hidden = false; pbInput.setAttribute("aria-expanded", "true");
+  }
+  function closeCombo(){ pbList.hidden = true; pbInput.setAttribute("aria-expanded", "false"); }
+  function moveActive(d){
+    if(!pbItems.length) return;
+    pbActive = (pbActive + d + pbItems.length) % pbItems.length;
+    Array.prototype.forEach.call(pbList.children, function(li, i){ li.setAttribute("aria-selected", i === pbActive); });
+    var el = pbList.children[pbActive]; if(el) el.scrollIntoView({block:"nearest"});
+    pbInput.setAttribute("aria-activedescendant", "pbo" + pbActive);
+  }
+  pbInput.addEventListener("focus", function(){ pbInput.select(); openCombo(); });
+  pbInput.addEventListener("input", openCombo);
+  pbInput.addEventListener("keydown", function(e){
+    if(e.key === "ArrowDown"){ e.preventDefault(); if(pbList.hidden) openCombo(); else moveActive(1); }
+    else if(e.key === "ArrowUp"){ e.preventDefault(); moveActive(-1); }
+    else if(e.key === "Enter"){ e.preventDefault(); if(pbActive >= 0){ selectBody(pbItems[pbActive]); closeCombo(); pbInput.blur(); } }
+    else if(e.key === "Escape"){ closeCombo(); pbInput.value = S.pb; pbInput.blur(); }
+  });
+  pbList.addEventListener("mousedown", function(e){
+    var li = e.target.closest("li[data-i]"); if(!li) return;
+    e.preventDefault(); selectBody(pbItems[+li.dataset.i]); closeCombo(); pbInput.blur();
+  });
+  pbInput.addEventListener("blur", function(){ setTimeout(function(){ closeCombo(); pbInput.value = S.pb; }, 120); });
+  $("pbClear").onclick = function(){ selectBody(""); };
+
+  // ---------- svg helpers + tooltip ----------
   var tip = $("tip");
-  function showTip(ev, strong, label){
-    tip.innerHTML = ""; var b = document.createElement("b"); b.textContent = strong; var s = document.createElement("span"); s.textContent = label;
-    tip.appendChild(b); tip.appendChild(s);
-    var r = ev.target.getBoundingClientRect ? ev.target.getBoundingClientRect() : null;
-    var x = ev.clientX != null && ev.clientX ? ev.clientX : (r ? r.left + r.width / 2 : 0);
-    var y = ev.clientY != null && ev.clientY ? ev.clientY : (r ? r.top : 0);
+  function showTip(ev, strong, label, extra){
+    tip.innerHTML = "";
+    var b = document.createElement("b"); b.textContent = strong; tip.appendChild(b);
+    [label, extra].forEach(function(s){ if(s){ var sp = document.createElement("span"); sp.textContent = s; tip.appendChild(sp); } });
+    var r = ev.currentTarget && ev.currentTarget.getBoundingClientRect ? ev.currentTarget.getBoundingClientRect() : null;
+    var x = ev.clientX || (r ? r.left + r.width / 2 : 0), y = ev.clientY || (r ? r.top : 0);
     tip.style.opacity = 1;
     var w = tip.offsetWidth, h = tip.offsetHeight;
     tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x - w / 2)) + "px";
-    tip.style.top = Math.max(8, y - h - 12) + "px";
+    tip.style.top = (y - h - 14 < 8 ? y + 18 : y - h - 14) + "px";
   }
   function hideTip(){ tip.style.opacity = 0; }
   function el(name, attrs, parent){
@@ -412,61 +759,100 @@
     if(parent) parent.appendChild(n);
     return n;
   }
-  // bar with 4px rounded data-end, square at the baseline
   function hbarPath(x, y, w, h){ var r = Math.min(4, w, h / 2); return "M" + x + "," + y + "h" + (w - r) + "a" + r + "," + r + " 0 0 1 " + r + "," + r + "v" + (h - 2 * r) + "a" + r + "," + r + " 0 0 1 -" + r + "," + r + "h-" + (w - r) + "z"; }
   function vbarPath(x, y, w, h){ var r = Math.min(4, h, w / 2); return "M" + x + "," + (y + h) + "v-" + (h - r) + "a" + r + "," + r + " 0 0 1 " + r + ",-" + r + "h" + (w - 2 * r) + "a" + r + "," + r + " 0 0 1 " + r + "," + r + "v" + (h - r) + "z"; }
-
-  function makeHit(g, opts){
-    g.setAttribute("class", "hit" + (opts.selected ? " sel" : ""));
+  function makeHit(g, o){
+    g.classList.add("hit"); if(o.selected) g.classList.add("sel");
     g.setAttribute("tabindex", "0"); g.setAttribute("role", "button");
-    g.setAttribute("aria-pressed", opts.selected ? "true" : "false");
-    g.setAttribute("aria-label", opts.aria);
-    g.addEventListener("pointermove", function(e){ showTip(e, opts.strong, opts.label); });
+    g.setAttribute("aria-pressed", o.selected ? "true" : "false"); g.setAttribute("aria-label", o.aria);
+    g.addEventListener("pointermove", function(e){ showTip(e, o.strong, o.label, o.extra); });
     g.addEventListener("pointerleave", hideTip);
-    g.addEventListener("focus", function(e){ showTip(e, opts.strong, opts.label); });
+    g.addEventListener("focus", function(e){ showTip(e, o.strong, o.label, o.extra); });
     g.addEventListener("blur", hideTip);
-    g.addEventListener("click", function(){ hideTip(); opts.onClick(); });
-    g.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); opts.onClick(); } });
+    g.addEventListener("click", function(){ hideTip(); o.onClick(); });
+    g.addEventListener("keydown", function(e){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); o.onClick(); } });
   }
 
-  function hbarChart(container, rows, selected, onPick, unit, labelW){
-    container.innerHTML = "";
-    if(!rows.length){ container.innerHTML = '<div class="empty-note">Nothing to show</div>'; return; }
-    labelW = labelW || 118;
-    var W = 360, valW = 44, rowH = 22, barH = 14, plotW = W - labelW - valW, maxChars = Math.floor((labelW - 10) / 6.2);
-    var H = rows.length * rowH;
-    var max = Math.max.apply(null, rows.map(function(r){ return r[1]; })) || 1;
-    var svg = el("svg", {viewBox: "0 0 " + W + " " + H, role: "group"}, container);
-    if(selected) svg.setAttribute("class", "dim");
-    rows.forEach(function(r, i){
-      var y = i * rowH, w = Math.max(r[1] ? 2 : 0, r[1] / max * plotW);
-      var g = el("g", {}, svg);
-      el("rect", {class: "hitbox", x: 0, y: y, width: W, height: rowH}, g);
-      var name = el("text", {class: "lbl", x: labelW - 8, y: y + rowH / 2 + 4, "text-anchor": "end"}, g);
-      name.textContent = r[0].length > maxChars ? r[0].slice(0, maxChars - 1) + "…" : r[0];
-      if(w > 0) el("path", {class: "mark", d: hbarPath(labelW, y + (rowH - barH) / 2, w, barH)}, g);
-      var v = el("text", {class: "val", x: labelW + w + 5, y: y + rowH / 2 + 4}, g);
-      v.textContent = r[1].toLocaleString("en-IN");
+  // ---------- Kerala tile map ----------
+  var TILES = [
+    ["Kasaragod", 0, 0], ["Kannur", .25, 1], ["Wayanad", 1.6, 1.5], ["Kozhikode", .5, 2], ["Malappuram", .75, 3],
+    ["Palakkad", 2.15, 3.5], ["Thrissur", 1, 4], ["Ernakulam", 1.25, 5], ["Idukki", 2.85, 5.5], ["Alappuzha", 1.5, 6],
+    ["Kottayam", 2.85, 6.5], ["Kollam", 1.75, 7], ["Pathanamthitta", 2.95, 7.5], ["Thiruvananthapuram", 1.9, 8]
+  ];
+  var SHORT = {"Thiruvananthapuram":["Thiruvanan-","thapuram"], "Pathanamthitta":["Pathanam-","thitta"]};
+  function renderMap(){
+    var box = $("cMap"); box.innerHTML = "";
+    var counts = {}, vals = {};
+    all.forEach(function(t){ if(t.district && pass(t, "district")){ counts[t.district] = (counts[t.district] || 0) + 1; vals[t.district] = (vals[t.district] || 0) + (t.value || 0); } });
+    var max = 0; TILES.forEach(function(d){ max = Math.max(max, counts[d[0]] || 0); });
+    var U = 100, TW = 100, TH = 88, W = 4 * U, H = 8.9 * U;
+    var svg = el("svg", {viewBox: "-4 -4 " + (W + 8) + " " + (H + 8), role: "group", "aria-label": "Map of Kerala districts"}, box);
+    var sea = el("text", {x: 6, y: H - 10, class: "axis", "font-size": 13}, svg); sea.textContent = "Arabian Sea";
+    var compass = el("text", {x: W - 6, y: 14, class: "axis", "text-anchor": "end", "font-size": 13}, svg); compass.textContent = "N ↑";
+    if(S.district) svg.classList.add("mapdim");
+    TILES.forEach(function(d){
+      var name = d[0], c = counts[name] || 0, x = d[1] * U, y = d[2] * U;
+      var bin = c && max ? Math.min(6, Math.max(1, Math.ceil(c / max * 6))) : 0;
+      var g = el("g", {class: "tile" + (S.district === name ? " sel" : "")}, svg);
+      el("rect", {class: "t", x: x, y: y, width: TW, height: TH, rx: 12, style: "fill:" + (bin ? "var(--seq-" + bin + ")" : "var(--surface-2)")}, g);
+      var ink = bin ? "var(--ink-" + bin + ")" : "var(--muted)";
+      var lines = SHORT[name] || [name];
+      lines.forEach(function(line, i){
+        var tx = el("text", {class: "tname", x: x + TW / 2, y: y + 26 + i * 15 - (lines.length - 1) * 7, "text-anchor": "middle", style: "fill:" + ink}, g);
+        tx.textContent = line;
+      });
+      var cn = el("text", {class: "tcount", x: x + TW / 2, y: y + TH - 18, "text-anchor": "middle", style: "fill:" + ink}, g);
+      cn.textContent = num(c);
       makeHit(g, {
-        selected: selected === r[0], strong: r[1].toLocaleString("en-IN") + " " + unit, label: r[0] + (r[2] ? " · " + inr(r[2]) + " known value" : ""),
-        aria: r[0] + ": " + r[1] + " " + unit + (selected === r[0] ? " (selected)" : ""),
-        onClick: function(){ onPick(selected === r[0] ? "" : r[0]); }
+        selected: S.district === name, strong: num(c) + " tenders", label: name, extra: vals[name] ? inr(vals[name]) + " known value" : "",
+        aria: name + ": " + c + " tenders" + (S.district === name ? " (selected)" : ""),
+        onClick: function(){ S.district = S.district === name ? "" : name; if(S.pb && bodies[S.pb] && bodies[S.pb].district !== S.district) S.pb = ""; update(); }
       });
     });
   }
 
+  // ---------- bar charts ----------
+  function hbarChart(container, rows, selected, onPick, labelW){
+    container.innerHTML = "";
+    if(!rows.length){ container.innerHTML = '<div class="empty-note">Nothing to show for these filters</div>'; return; }
+    labelW = labelW || 118;
+    var W = 360, valW = 46, rowH = 23, barH = 14, plotW = W - labelW - valW, maxChars = Math.floor((labelW - 10) / 6.2);
+    var H = rows.length * rowH, max = Math.max.apply(null, rows.map(function(r){ return r.n; })) || 1;
+    var svg = el("svg", {viewBox: "0 0 " + W + " " + H, role: "group"}, container);
+    if(selected !== "" && selected != null) svg.classList.add("dim");
+    rows.forEach(function(r, i){
+      var y = i * rowH, w = r.n ? Math.max(2, r.n / max * plotW) : 0;
+      var g = el("g", {}, svg);
+      el("rect", {class: "hitbox", x: 0, y: y, width: W, height: rowH}, g);
+      var name = el("text", {class: "lbl", x: labelW - 8, y: y + rowH / 2 + 4, "text-anchor": "end"}, g);
+      name.textContent = r.label.length > maxChars ? r.label.slice(0, maxChars - 1) + "…" : r.label;
+      if(w) el("path", {class: "mark", d: hbarPath(labelW, y + (rowH - barH) / 2, w, barH)}, g);
+      var v = el("text", {class: "val", x: labelW + w + 5, y: y + rowH / 2 + 4}, g); v.textContent = num(r.n);
+      var sel = String(selected) === String(r.key);
+      makeHit(g, {
+        selected: sel, strong: num(r.n) + " tenders", label: r.label, extra: r.v ? inr(r.v) + " total value" : "",
+        aria: r.label + ": " + r.n + " tenders" + (sel ? " (selected)" : ""),
+        onClick: function(){ onPick(sel ? "" : r.key); }
+      });
+    });
+  }
+  function niceStep(max){
+    if(max <= 5) return 1;
+    var raw = max / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
+  }
   function closingChart(container, counts){
     container.innerHTML = "";
     var start = meta.today, last = start;
     Object.keys(counts).forEach(function(d){ if(d > last) last = d; });
     var nDays = Math.max(14, Math.min(45, Math.round((Date.parse(last) - Date.parse(start)) / 864e5) + 1));
     var days = []; for(var i = 0; i < nDays; i++) days.push(addDays(start, i));
-    var W = 520, H = 300, top = 16, bottom = 22, left = 30, plotW = W - left - 4, plotH = H - top - bottom;
+    var W = 720, H = 220, top = 14, bottom = 22, left = 34, plotW = W - left - 4, plotH = H - top - bottom;
     var band = plotW / nDays, bw = Math.min(24, Math.max(3, band - 2));
     var max = 0; days.forEach(function(d){ max = Math.max(max, counts[d] || 0); });
     var step = niceStep(max), yMax = Math.max(step, Math.ceil(max / step) * step);
     var svg = el("svg", {viewBox: "0 0 " + W + " " + H, role: "group"}, container);
-    if(S.closeDate) svg.setAttribute("class", "dim");
+    if(S.closeDate) svg.classList.add("dim");
     for(var v = 0; v <= yMax; v += step){
       var y = top + plotH - v / yMax * plotH;
       el("line", {class: "gridline", x1: left, x2: W, y1: y, y2: y}, svg);
@@ -485,90 +871,111 @@
       }
       var dl = daysLeft(d);
       makeHit(g, {
-        selected: S.closeDate === d,
-        strong: c.toLocaleString("en-IN") + " closing",
-        label: fmtDate(d, {weekday:"short", day:"numeric", month:"short"}) + (dl === 0 ? " · today" : dl === 1 ? " · tomorrow" : " · in " + dl + " days"),
+        selected: S.closeDate === d, strong: num(c) + " closing",
+        label: fmtDate(d, {weekday:"long", day:"numeric", month:"short"}), extra: dl === 0 ? "Today" : dl === 1 ? "Tomorrow" : "In " + dl + " days",
         aria: c + " tenders closing on " + fmtDate(d),
         onClick: function(){ S.closeDate = S.closeDate === d ? "" : d; S.soon = false; update(); }
       });
     });
   }
-  function niceStep(max){
-    if(max <= 5) return 1;
-    var raw = max / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p;
-    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
-  }
-
   function renderCharts(){
-    var dc = {}, dv = {}, cc = {}, cv = {}, closing = {}, known = 0, base = 0;
+    var cc = {}, cv = {}, closing = {}, bc = [0,0,0,0,0,0], bv = [0,0,0,0,0,0], known = 0, base = 0, bknown = 0, bbase = 0;
     all.forEach(function(t){
-      if(pass(t, "district") && t.district){ dc[t.district] = (dc[t.district] || 0) + 1; dv[t.district] = (dv[t.district] || 0) + (t.value || 0); }
       if(pass(t, "category")){ base++; if(t.category){ known++; cc[t.category] = (cc[t.category] || 0) + 1; cv[t.category] = (cv[t.category] || 0) + (t.value || 0); } }
       if(pass(t, "closing") && t.closing_date) closing[t.closing_date] = (closing[t.closing_date] || 0) + 1;
+      if(pass(t, "band")){ bbase++; var b = bandOf(t.value); if(b >= 0){ bknown++; bc[b]++; bv[b] += t.value; } }
     });
-    var dRows = Object.keys(dc).map(function(k){ return [k, dc[k], dv[k]]; }).sort(function(a, b){ return b[1] - a[1]; });
-    hbarChart($("cDistrict"), dRows, S.district, function(v){ S.district = v; update(); }, "tenders");
-
-    var cRows = Object.keys(cc).map(function(k){ return [k, cc[k], cv[k]]; }).sort(function(a, b){ return b[1] - a[1]; });
-    if(cRows.length > 8){
-      var rest = cRows.slice(7), other = ["Other", 0, 0];
-      rest.forEach(function(r){ other[1] += r[1]; other[2] += r[2]; });
-      cRows = cRows.slice(0, 7);
-      if(S.category && !cRows.some(function(r){ return r[0] === S.category; })){
-        var selRow = rest.filter(function(r){ return r[0] === S.category; })[0];
-        if(selRow){ cRows.push(selRow); other[1] -= selRow[1]; other[2] -= selRow[2]; }
-      }
-      cRows.push(other);
-    }
-    hbarChart($("cCategory"), cRows, S.category, function(v){
-      if(v === "Other"){ toast("“Other” groups smaller work types — use the Work type menu"); return; }
-      S.category = v; update();
-    }, "tenders", 168);
-    $("catHint").textContent = known < base ? "Known for " + known.toLocaleString("en-IN") + " of " + base.toLocaleString("en-IN") + " tenders so far · click to filter" : "Click a bar to filter";
     closingChart($("cClosing"), closing);
+    hbarChart($("cBand"), BANDS.map(function(b, i){ return {key: String(i), label: b[2], n: bc[i], v: bv[i]}; }), S.band, function(v){ S.band = v; update(); }, 96);
+    $("bandHint").textContent = bknown < bbase ? "Known for " + num(bknown) + " of " + num(bbase) + " so far · click a range" : "Click a range";
+    var rows = Object.keys(cc).map(function(k){ return {key: k, label: k, n: cc[k], v: cv[k]}; }).sort(function(a, b){ return b.n - a.n; });
+    if(rows.length > 7){
+      var keep = rows.slice(0, 6), rest = rows.slice(6);
+      var selRow = S.category && rest.filter(function(r){ return r.key === S.category; })[0];
+      if(selRow){ keep.push(selRow); rest = rest.filter(function(r){ return r !== selRow; }); }
+      var other = {key: "__other", label: "Other", n: 0, v: 0}; rest.forEach(function(r){ other.n += r.n; other.v += r.v; });
+      rows = keep.concat([other]);
+    }
+    hbarChart($("cCategory"), rows, S.category, function(v){
+      if(v === "__other"){ toast("“Other” groups smaller work types: pick one from the Work type menu"); return; }
+      S.category = v; update();
+    }, 150);
+    $("catHint").textContent = known < base ? "Known for " + num(known) + " of " + num(base) + " so far · click a bar" : "Click a bar";
   }
+
+  // ---------- leaderboard ----------
+  function renderLeader(){
+    var agg = {};
+    all.forEach(function(t){
+      if(!pass(t, "pb")) return;
+      var a = agg[t.body_name] || (agg[t.body_name] = {n: 0, v: 0});
+      a.n++; a.v += t.value || 0;
+    });
+    var key = lbMetric === "value" ? "v" : "n";
+    var rows = Object.keys(agg).map(function(k){ return [k, agg[k]]; }).filter(function(r){ return r[1][key] > 0; })
+      .sort(function(a, b){ return b[1][key] - a[1][key]; }).slice(0, 8);
+    var max = rows.length ? rows[0][1][key] : 1, box = $("leader");
+    if(!rows.length){ box.innerHTML = '<li class="empty-note" style="display:block">Nothing to show for these filters</li>'; return; }
+    box.innerHTML = rows.map(function(r, i){
+      var b = bodies[r[0]] || {};
+      return '<li tabindex="0" role="button" data-pb="' + esc(r[0]) + '"' + (S.pb === r[0] ? ' style="background:var(--accent-soft)"' : "") + '><span class="rk">' + (i + 1) + '</span><div><div class="nm">' + (follows.has(r[0]) ? "♥ " : "") + esc(r[0]) + ' <span class="ds">' + esc(b.district || "") + '</span></div><div class="bar" style="width:' + Math.max(2, r[1][key] / max * 100) + '%"></div></div>' +
+        '<span class="v">' + (key === "v" ? inr(r[1].v) : num(r[1].n)) + "<small>" + (key === "v" ? num(r[1].n) + " tenders" : (r[1].v ? inr(r[1].v) : "")) + "</small></span></li>";
+    }).join("");
+  }
+  $("leader").addEventListener("click", function(e){ var li = e.target.closest("[data-pb]"); if(li) selectBody(S.pb === li.dataset.pb ? "" : li.dataset.pb); });
+  $("leader").addEventListener("keydown", function(e){ if(e.key === "Enter"){ var li = e.target.closest("[data-pb]"); if(li) selectBody(li.dataset.pb); } });
+  $("lbCount").onclick = function(){ lbMetric = "count"; $("lbCount").setAttribute("aria-pressed", "true"); $("lbValue").setAttribute("aria-pressed", "false"); renderLeader(); };
+  $("lbValue").onclick = function(){ lbMetric = "value"; $("lbValue").setAttribute("aria-pressed", "true"); $("lbCount").setAttribute("aria-pressed", "false"); renderLeader(); };
 
   // ---------- results ----------
-  function renderResults(){
-    var box = $("results"), list = current.slice(0, shown);
-    $("empty").hidden = current.length > 0;
-    $("more").hidden = shown >= current.length;
-    $("more").textContent = "Show more (" + (current.length - Math.min(shown, current.length)).toLocaleString("en-IN") + " left)";
-    if(S.view === "table") box.innerHTML = tableHtml(list);
-    else box.innerHTML = '<div class="cards">' + list.map(cardHtml).join("") + "</div>";
-  }
   function pills(t){
     var d = daysLeft(t.closing_date), out = "";
     if(newIds.has(t.id)) out += '<span class="pill new">NEW</span>';
-    if(d !== null && d >= 0 && d <= 3) out += '<span class="pill soon">' + (d === 0 ? "Today" : d + "d left") + "</span>";
+    else if(isNewForYou(t)) out += '<span class="pill new">NEW FOR YOU</span>';
+    if(d !== null && d >= 0 && d <= 3) out += '<span class="pill soon">' + (d === 0 ? "Closes today" : d + "d left") + "</span>";
     return out;
+  }
+  function timeBar(t){
+    var total = t.published_date && t.closing_date ? (Date.parse(t.closing_date) - Date.parse(t.published_date)) / 864e5 : 0;
+    var left = daysLeft(t.closing_date);
+    if(!total || left == null || left < 0) return "";
+    var pct = Math.max(3, Math.min(100, left / total * 100));
+    return '<div class="bar-time' + (left <= 3 ? " urgent" : "") + '" style="width:' + pct.toFixed(0) + '%" title="Time left to bid"></div>';
   }
   function cardHtml(t){
     var val = inr(t.value), isSaved = saved.has(t.id);
-    return '<article class="card' + (newIds.has(t.id) ? " is-new" : "") + '" data-id="' + esc(t.id) + '" tabindex="0">' +
-      '<div class="row1"><h3>' + esc(t.title) + '</h3><button class="star" type="button" data-star="' + esc(t.id) + '" aria-pressed="' + isSaved + '" aria-label="' + (isSaved ? "Unsave" : "Save") + ' tender">' + (isSaved ? "★" : "☆") + "</button></div>" +
-      '<div class="org">' + esc(t.organisation) + (t.district ? " · " + esc(t.district) : "") + "</div>" +
+    return '<article class="card' + (newIds.has(t.id) || isNewForYou(t) ? " is-new" : "") + '" data-id="' + esc(t.id) + '" tabindex="0">' +
+      '<div class="row1"><h3>' + esc(t.title) + '</h3><button class="star" type="button" data-star="' + esc(t.id) + '" aria-pressed="' + isSaved + '" aria-label="' + (isSaved ? "Unsave" : "Save") + ' tender" title="Save">' + (isSaved ? "★" : "☆") + "</button></div>" +
+      '<div class="org"><a href="#" data-body="' + esc(t.body_name) + '" title="See all tenders from this panchayat">' + (follows.has(t.body_name) ? "♥ " : "") + esc(t.body_name) + "</a>" + (t.district ? "<span>· " + esc(t.district) + "</span>" : "") + "</div>" +
       '<div class="foot">' + (val ? '<span class="value">' + val + "</span>" : '<span class="value na">Value pending</span>') +
         (t.category ? '<span class="pill">' + esc(t.category) + "</span>" : "") + pills(t) +
-        '<span class="closes">' + esc(closesLabel(t)) + "</span></div></article>";
+        '<span class="closes">' + esc(closesLabel(t)) + "</span></div>" + timeBar(t) + "</article>";
   }
   function tableHtml(list){
-    var cols = [["title","Work"],["organisation","Issued by"],["district","District"],["value","Value"],["closing","Closes"],["tender_id","Tender ID"]];
+    var cols = [["title","Work"],["body_name","Panchayat / body"],["district","District"],["value","Value"],["closing","Closes"],["tender_id","Tender ID"]];
     var head = cols.map(function(c){
       var sortable = c[0] === "value" || c[0] === "closing";
-      var mark = (c[0] === "value" && S.sort === "value") || (c[0] === "closing" && S.sort === "closing") ? " ↓" : "";
+      var mark = S.sort === c[0] ? " ↓" : "";
       return "<th" + (c[0] === "value" ? ' style="text-align:right"' : "") + ">" + (sortable ? '<button type="button" data-sort="' + c[0] + '">' + c[1] + mark + "</button>" : c[1]) + "</th>";
     }).join("");
     var rows = list.map(function(t){
-      return '<tr data-id="' + esc(t.id) + '"><td class="t">' + (saved.has(t.id) ? "★ " : "") + esc(t.title) + " " + pills(t) + "</td><td>" + esc(t.organisation) + "</td><td>" + esc(t.district || "") +
+      return '<tr data-id="' + esc(t.id) + '"><td class="t">' + (saved.has(t.id) ? "★ " : "") + esc(t.title) + " " + pills(t) + "</td><td>" + esc(t.body_name) + "</td><td>" + esc(t.district || "") +
         '</td><td class="num">' + (inr(t.value) || "—") + '</td><td class="num">' + fmtDate(t.closing_date, {day:"numeric", month:"short"}) + "</td><td><code>" + esc(t.tender_id) + "</code></td></tr>";
     }).join("");
     return '<div class="tblwrap"><table class="tbl"><thead><tr>' + head + "</tr></thead><tbody>" + rows + "</tbody></table></div>";
   }
-  var byId = {};
+  function renderResults(){
+    var box = $("results"), list = current.slice(0, shown);
+    $("empty").hidden = current.length > 0;
+    $("more").hidden = shown >= current.length;
+    $("more").textContent = "Show more (" + num(current.length - Math.min(shown, current.length)) + " left)";
+    box.innerHTML = S.view === "table" ? tableHtml(list) : '<div class="cards">' + list.map(cardHtml).join("") + "</div>";
+  }
   $("results").addEventListener("click", function(e){
     var star = e.target.closest("[data-star]");
     if(star){ e.stopPropagation(); toggleSave(star.getAttribute("data-star")); return; }
+    var body = e.target.closest("[data-body]");
+    if(body){ e.preventDefault(); selectBody(body.getAttribute("data-body")); window.scrollTo({top: $("profile").offsetTop - 120, behavior: "smooth"}); return; }
     var sortBtn = e.target.closest("[data-sort]");
     if(sortBtn){ S.sort = sortBtn.getAttribute("data-sort"); update(); return; }
     var item = e.target.closest("[data-id]");
@@ -577,87 +984,98 @@
   $("results").addEventListener("keydown", function(e){
     if(e.key !== "Enter") return;
     var item = e.target.closest(".card[data-id]");
-    if(item && !e.target.closest("button")) openDetail(byId[item.getAttribute("data-id")]);
+    if(item && !e.target.closest("button,a")) openDetail(byId[item.getAttribute("data-id")]);
   });
   $("more").onclick = function(){ shown += PAGE; renderResults(); };
-
   function toggleSave(id){
     if(saved.has(id)) saved.delete(id); else saved.add(id);
-    lsSet("saved", JSON.stringify(Array.from(saved)));
+    lsSet("saved", Array.from(saved));
     toast(saved.has(id) ? "Saved ★" : "Removed from saved");
-    $("savedCount").textContent = saved.size ? "(" + saved.size + ")" : "";
-    if(S.saved) update(true); else renderResults();
+    if(S.saved) update(true); else { renderResults(); syncControls(); }
   }
 
   // ---------- detail dialog ----------
-  var dlg = $("dlg");
+  var dlg = $("dlg"), cdTimer = null;
   function openDetail(t){
     if(!t) return;
     var rows = [
       ["Tender ID", "<code>" + esc(t.tender_id) + "</code>"],
       ["Reference", esc(t.tender_ref && t.tender_ref !== t.title ? t.tender_ref : "—")],
-      ["Issued by", esc(t.organisation)],
-      ["District", esc(t.district || "—")],
-      ["Body type", esc(t.body_type)],
+      ["Office", esc(t.organisation)],
       ["Work type", esc(t.category || "—")],
+      ["Tender type", esc(t.tender_type || "—")],
       ["Closes", esc(t.closing_time || fmtDate(t.closing_date))],
       ["Bids open", fmtDate(t.opening_date)],
       ["Published", fmtDate(t.published_date)],
-      ["EMD", inrFull(t.emd)],
       ["Tender fee", inrFull(t.tender_fee)],
       ["Work period", t.work_days ? esc(t.work_days) + " days" : "—"],
       ["Location", esc([t.location, t.pincode].filter(Boolean).join(" · ") || "—")],
       ["Department path", esc((t.org_chain || "").split("||").join(" › "))]
     ];
-    var isSaved = saved.has(t.id);
+    var related = all.filter(function(o){ return o.body_name === t.body_name && o.id !== t.id && !(o._close && o._close < Date.now()); })
+      .sort(function(a, b){ return (a.closing_date || "").localeCompare(b.closing_date || ""); }).slice(0, 6);
+    var isSaved = saved.has(t.id), isF = follows.has(t.body_name);
     $("dlgBody").innerHTML =
-      '<button class="icon-btn close" type="button" data-act="close" aria-label="Close">✕</button>' +
+      '<div class="dhead"><button class="icon-btn close" type="button" data-act="close" aria-label="Close">✕</button>' +
       '<h2 id="dTitle">' + esc(t.title) + "</h2>" +
-      '<div class="big">' + (t.value != null ? inrFull(t.value) : '<span class="value na">Contract value not fetched yet</span>') + "</div>" +
-      '<div class="pills">' + pills(t) + '<span class="pill">' + esc(closesLabel(t)) + "</span></div>" +
+      '<div class="org"><button type="button" data-act="body">' + esc(t.body_name) + " →</button> " + esc([t.district, t.body_type].filter(Boolean).join(" · ")) + "</div>" +
+      '<div class="kpis"><div class="kpi"><b>' + (t.value != null ? inr(t.value) : "Pending") + "</b><span>Contract value</span></div>" +
+      '<div class="kpi"><b>' + (t.emd != null ? inr(t.emd) : "—") + "</b><span>EMD</span></div>" +
+      '<div class="kpi"><b id="cd">' + esc(countdown(t)) + "</b><span>Time left to bid</span></div></div></div>" +
+      '<div class="dbody">' + (pills(t) ? '<div style="display:flex;gap:6px;margin-bottom:10px">' + pills(t) + "</div>" : "") +
       "<dl>" + rows.map(function(r){ return "<dt>" + r[0] + "</dt><dd>" + r[1] + "</dd>"; }).join("") + "</dl>" +
       '<div class="acts">' +
         '<button type="button" class="primary" data-act="copy">Copy Tender ID</button>' +
         '<a href="' + SEARCH_URL + '" target="_blank" rel="noopener">Open portal search ↗</a>' +
-        '<button type="button" data-act="save">' + (isSaved ? "★ Saved" : "☆ Save") + "</button>" +
-        '<button type="button" data-act="cal">Add closing to calendar</button>' +
+        '<button type="button" data-act="save">' + (isSaved ? "★ Saved" : "☆ Save tender") + "</button>" +
+        '<button type="button" data-act="follow">' + (isF ? "♥ Following panchayat" : "♡ Follow panchayat") + "</button>" +
+        '<button type="button" data-act="cal">📅 Add to calendar</button>' +
         '<a href="' + whatsapp(t) + '" target="_blank" rel="noopener">Share on WhatsApp</a>' +
-        '<button type="button" data-act="share">Copy details</button>' +
       "</div>" +
-      '<p class="note">The portal only opens tenders from its own search: copy the Tender ID, open portal search, paste it into “Tender ID”, fill the captcha.</p>';
+      '<h3>My notes</h3><textarea id="noteBox" placeholder="Private notes (saved in this browser), e.g. site visit done, rates checked…">' + esc(notes[t.id] || "") + "</textarea>" +
+      (related.length ? "<h3>More from " + esc(t.body_name) + '</h3><ul class="related">' + related.map(function(o){
+        return '<li data-rel="' + esc(o.id) + '"><span class="rt">' + esc(o.title) + '</span><span class="rv">' + (inr(o.value) || "") + " · " + fmtDate(o.closing_date, {day:"numeric", month:"short"}) + "</span></li>";
+      }).join("") + "</ul>" : "") +
+      '<p class="note">To open it on the portal: copy the Tender ID, open portal search, paste it into “Tender ID” and fill the captcha. ' +
+      'Who won? After bids are opened, the result is published on the portal\'s <a href="https://etenders.kerala.gov.in/nicgep/app?page=ResultOfTenders&service=page" target="_blank" rel="noopener">Results of Tenders</a> page: search the same Tender ID there.</p></div>';
     dlg._t = t;
-    if(dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+    $("noteBox").addEventListener("input", function(e){
+      var v = e.target.value.trim(); if(v) notes[t.id] = e.target.value; else delete notes[t.id];
+      lsSet("notes", notes);
+    });
+    clearInterval(cdTimer);
+    cdTimer = setInterval(function(){ var c = $("cd"); if(c) c.textContent = countdown(t); }, 30000);
+    if(!dlg.open){ if(dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", ""); }
+    dlg.scrollTop = 0;
   }
+  dlg.addEventListener("close", function(){ clearInterval(cdTimer); });
   dlg.addEventListener("click", function(e){
     if(e.target === dlg){ dlg.close(); return; }
+    var rel = e.target.closest("[data-rel]"); if(rel){ openDetail(byId[rel.dataset.rel]); return; }
     var b = e.target.closest("[data-act]"); if(!b) return;
     var t = dlg._t, act = b.getAttribute("data-act");
     if(act === "close") dlg.close();
     if(act === "copy") copy(t.tender_id, "Tender ID copied");
-    if(act === "share") copy(summary(t), "Details copied");
     if(act === "cal") downloadIcs(t);
-    if(act === "save"){ toggleSave(t.id); b.textContent = saved.has(t.id) ? "★ Saved" : "☆ Save"; }
+    if(act === "body"){ dlg.close(); selectBody(t.body_name); window.scrollTo({top: 0, behavior: "smooth"}); }
+    if(act === "save"){ toggleSave(t.id); b.textContent = saved.has(t.id) ? "★ Saved" : "☆ Save tender"; }
+    if(act === "follow"){ toggleFollow(t.body_name); b.textContent = follows.has(t.body_name) ? "♥ Following panchayat" : "♡ Follow panchayat"; }
   });
   function summary(t){
-    return t.title + "\n" + t.organisation + (t.district ? ", " + t.district : "") +
+    return t.title + "\n" + t.body_name + (t.district ? ", " + t.district : "") +
       (t.value != null ? "\nValue: " + inrFull(t.value) : "") + (t.emd != null ? " · EMD: " + inrFull(t.emd) : "") +
       "\nCloses: " + (t.closing_time || t.closing_date) + "\nTender ID: " + t.tender_id + "\nKerala e-Tenders: https://etenders.kerala.gov.in";
   }
   function whatsapp(t){ return "https://wa.me/?text=" + encodeURIComponent(summary(t)); }
   function downloadIcs(t){
-    var m = /(\d{1,2})-([A-Za-z]{3})-(\d{4})\s+(\d{1,2}):(\d{2})\s*([AP]M)/i.exec(t.closing_time || "");
-    var mon = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
-    var pad = function(n){ return String(n).padStart(2, "0"); };
-    var date, h = 17, mi = 0;
-    if(m){ date = m[3] + pad(mon[m[2].toLowerCase()]) + pad(m[1]); h = +m[4] % 12 + (m[6].toUpperCase() === "PM" ? 12 : 0); mi = +m[5]; }
-    else date = (t.closing_date || "").replace(/-/g, "");
-    var start = date + "T" + pad(h) + pad(mi) + "00";
+    var ms = closingMs(t); if(ms == null){ toast("No closing time available"); return; }
+    var ist = new Date(ms + 5.5 * 36e5), p = function(n){ return String(n).padStart(2, "0"); };
+    var start = ist.getUTCFullYear() + p(ist.getUTCMonth() + 1) + p(ist.getUTCDate()) + "T" + p(ist.getUTCHours()) + p(ist.getUTCMinutes()) + "00";
     var icsEsc = function(s){ return String(s || "").replace(/[\\,;]/g, "\\$&").replace(/\n/g, "\\n"); };
     var ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Kerala Panchayat Tenders//EN","BEGIN:VEVENT",
       "UID:" + t.tender_id + "@kerala-panchayat-tenders","DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0,15) + "Z",
       "DTSTART;TZID=Asia/Kolkata:" + start, "DURATION:PT30M",
-      "SUMMARY:" + icsEsc("Tender closes: " + t.title.slice(0, 80)),
-      "DESCRIPTION:" + icsEsc(summary(t)),
+      "SUMMARY:" + icsEsc("Tender closes: " + t.title.slice(0, 80)), "DESCRIPTION:" + icsEsc(summary(t)),
       "BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:Tender closes tomorrow","END:VALARM",
       "END:VEVENT","END:VCALENDAR"].join("\r\n");
     download("tender-" + t.tender_id + ".ics", ics, "text/calendar");
@@ -671,28 +1089,48 @@
 
   // ---------- CSV + share ----------
   $("csvBtn").onclick = function(){
-    var cols = ["tender_id","title","organisation","district","body_type","category","value","emd","published_date","closing_time","opening_date","location","pincode","tender_ref"];
+    var cols = ["tender_id","title","body_name","district","body_type","category","value","emd","tender_fee","published_date","closing_time","opening_date","location","pincode","tender_ref","organisation"];
     var q = function(v){ v = v == null ? "" : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
-    var lines = [cols.join(",")].concat(current.map(function(t){ return cols.map(function(c){ return q(t[c]); }).join(","); }));
+    var lines = [cols.concat(["my_note"]).join(",")].concat(current.map(function(t){ return cols.map(function(c){ return q(t[c]); }).concat([q(notes[t.id])]).join(","); }));
     download("kerala-panchayat-tenders-" + (meta.today || "") + ".csv", "﻿" + lines.join("\n"), "text/csv");
-    toast(current.length.toLocaleString("en-IN") + " tenders downloaded");
+    toast(num(current.length) + " tenders downloaded");
   };
   $("shareBtn").onclick = function(){ copy(location.href, "Link to this view copied"); };
 
-  // ---------- controls <-> state ----------
+  // ---------- controls ----------
   var bodySeg = $("bodySeg");
   BODY_OPTS.forEach(function(o){
     var b = document.createElement("button"); b.type = "button"; b.textContent = o[1]; b.dataset.v = o[0];
-    b.onclick = function(){ S.body = o[0]; update(); }; bodySeg.appendChild(b);
+    b.onclick = function(){
+      S.body = o[0];
+      var t = S.pb && bodies[S.pb] && bodies[S.pb].type;
+      if(t && S.body && (S.body === "panchayat" ? !PANCHAYAT[t] : S.body !== t)) S.pb = "";
+      update();
+    };
+    bodySeg.appendChild(b);
   });
+  BANDS.forEach(function(b, i){ var o = document.createElement("option"); o.value = String(i); o.textContent = b[2]; $("band").appendChild(o); });
   var qTimer;
   $("q").addEventListener("input", function(){ clearTimeout(qTimer); qTimer = setTimeout(function(){ S.q = $("q").value.trim(); update(); }, 160); });
-  ["district","category","minValue","sort"].forEach(function(id){ $(id).addEventListener("change", function(){ S[id] = $(id).value; update(); }); });
+  ["district","category","band","sort"].forEach(function(id){ $(id).addEventListener("change", function(){
+    S[id] = $(id).value;
+    if(id === "district" && S.pb && bodies[S.pb] && S.district && bodies[S.pb].district !== S.district) S.pb = "";
+    update();
+  }); });
   $("savedBtn").onclick = function(){ S.saved = !S.saved; update(); };
+  $("followBtn").onclick = function(){
+    if(!follows.size){ toast("Follow a panchayat first: open one and press ♡ Follow"); return; }
+    S.following = !S.following; update();
+  };
   $("sNewBtn").onclick = function(){ S.onlyNew = !S.onlyNew; update(); };
   $("sSoonBtn").onclick = function(){ S.soon = !S.soon; if(S.soon) S.closeDate = ""; update(); };
   $("vCards").onclick = function(){ S.view = "cards"; update(true); };
   $("vTable").onclick = function(){ S.view = "table"; update(true); };
+  document.addEventListener("keydown", function(e){
+    if(e.target.closest("input,textarea,select") || e.metaKey || e.ctrlKey || e.altKey || dlg.open || document.body.classList.contains("locked")) return;
+    if(e.key === "/"){ e.preventDefault(); $("q").focus(); }
+    if(e.key === "p"){ e.preventDefault(); pbInput.focus(); }
+  });
 
   function ensureOption(sel, v){
     if(v && !Array.prototype.some.call(sel.options, function(o){ return o.value === v; })){
@@ -701,41 +1139,109 @@
   }
   function syncControls(){
     if(document.activeElement !== $("q")) $("q").value = S.q;
+    if(document.activeElement !== pbInput) pbInput.value = S.pb;
+    $("pbClear").hidden = !S.pb;
+    $("pbField").classList.toggle("pb", !!S.pb);
     ensureOption($("category"), S.category);
-    ["district","category","minValue","sort"].forEach(function(id){ $(id).value = S[id]; });
+    ["district","category","band","sort"].forEach(function(id){ $(id).value = S[id]; });
     Array.prototype.forEach.call(bodySeg.children, function(b){ b.setAttribute("aria-pressed", b.dataset.v === S.body); });
     $("savedBtn").setAttribute("aria-pressed", S.saved);
+    $("followBtn").setAttribute("aria-pressed", S.following);
     $("sNewBtn").setAttribute("aria-pressed", S.onlyNew);
     $("sSoonBtn").setAttribute("aria-pressed", S.soon);
     $("vCards").setAttribute("aria-pressed", S.view === "cards");
     $("vTable").setAttribute("aria-pressed", S.view === "table");
     $("savedCount").textContent = saved.size ? "(" + saved.size + ")" : "";
+    $("followCount").textContent = follows.size ? "(" + follows.size + ")" : "";
   }
   function persist(){
     var p = new URLSearchParams();
-    Object.keys(DEFAULTS).forEach(function(k){ if(S[k] !== DEFAULTS[k]) p.set(k, S[k]); });
+    Object.keys(DEFAULTS).forEach(function(k){ if(S[k] !== DEFAULTS[k] && k !== "sinceVisit") p.set(k, S[k]); });
     var h = p.toString();
     history.replaceState(null, "", h ? "#" + h : location.pathname + location.search);
-    lsSet("view", JSON.stringify({body:S.body, sort:S.sort, view:S.view}));
+    lsSet("view", {body:S.body, sort:S.sort, view:S.view});
   }
   function restore(){
     var h = location.hash.slice(1);
     if(h){
       var p = new URLSearchParams(h);
-      Object.keys(DEFAULTS).forEach(function(k){
-        if(!p.has(k)) return;
-        S[k] = typeof DEFAULTS[k] === "boolean" ? p.get(k) === "true" : p.get(k);
-      });
-    } else {
-      try{ Object.assign(S, JSON.parse(lsGet("view") || "{}")); }catch(e){}
-    }
+      Object.keys(DEFAULTS).forEach(function(k){ if(p.has(k)) S[k] = typeof DEFAULTS[k] === "boolean" ? p.get(k) === "true" : p.get(k); });
+    } else Object.assign(S, lsGet("view", {}) || {});
     if(S.closeDate && S.closeDate < (meta.today || "")) S.closeDate = "";
+    if(S.pb && !bodies[S.pb]) S.pb = "";
   }
+
+  // ---------- free trial + login (demo gate: client-side only) ----------
+  var TRIAL_SECONDS = 300;
+  var AUTH_HASH = "135f33f7ae7639f880ec63e5741e7836def68a873a0d7fcec86f986f7c561027";
+  var gate = $("gate"), acct = $("acct");
+  var authed = lsGet("auth", "") === AUTH_HASH;
+  var used = +lsGet("trialUsed", 0) || 0;
+  function mmss(s){ s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  function renderAcct(){
+    acct.hidden = false;
+    if(authed){
+      acct.className = "trial";
+      acct.innerHTML = '<span>👤 <b>' + esc(lsGet("authUser", "member")) + '</b></span><button type="button" id="logoutBtn">Log out</button>';
+      $("logoutBtn").onclick = function(){
+        authed = false; lsSet("auth", ""); toast("Logged out");
+        if(used >= TRIAL_SECONDS) lock(); else renderAcct();
+      };
+    } else {
+      var left = TRIAL_SECONDS - used;
+      acct.className = "trial" + (left <= 60 ? " low" : "");
+      acct.innerHTML = '<span><span class="tl">Free trial · </span><b>' + mmss(left) + '</b> left</span><button type="button" id="loginBtn">Log in</button>';
+      $("loginBtn").onclick = function(){ openGate(false); };
+    }
+  }
+  function openGate(forced){
+    gate.hidden = false;
+    $("gateClose").hidden = forced;
+    $("gateTitle").textContent = forced ? "Free trial ended" : "Log in";
+    $("gateMsg").textContent = forced ? "Your 5-minute free trial has ended. Log in to keep using Kerala Panchayat Tenders." : "Log in for unlimited access.";
+    $("lgErr").textContent = "";
+    setTimeout(function(){ $("lgUser").focus(); }, 50);
+  }
+  function lock(){
+    if(dlg.open) dlg.close();
+    document.body.classList.add("locked");
+    openGate(true); renderAcct();
+  }
+  function unlock(){ document.body.classList.remove("locked"); gate.hidden = true; renderAcct(); }
+  $("gateClose").onclick = function(){ gate.hidden = true; };
+  $("loginForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var user = $("lgUser").value.trim().toLowerCase(), pass = $("lgPass").value;
+    if(!(window.crypto && crypto.subtle)){ $("lgErr").textContent = "Login needs a secure (https) connection."; return; }
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode("kpt-v1|" + user + "|" + pass)).then(function(buf){
+      var hex = Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2, "0"); }).join("");
+      if(hex === AUTH_HASH){
+        authed = true; lsSet("auth", hex); lsSet("authUser", user);
+        $("lgPass").value = ""; unlock(); toast("Welcome, " + user + "!");
+      } else {
+        $("lgErr").textContent = "Wrong username or password.";
+        $("lgPass").select();
+      }
+    });
+  });
+  setInterval(function(){
+    if(authed || document.visibilityState !== "visible") return;
+    used++;
+    if(used % 5 === 0 || used >= TRIAL_SECONDS) lsSet("trialUsed", used);
+    if(used >= TRIAL_SECONDS && !document.body.classList.contains("locked")) lock();
+    else renderAcct();
+  }, 1000);
+  renderAcct();
+  if(!authed && used >= TRIAL_SECONDS) lock();
 
   var filtersEl = $("filters");
   new IntersectionObserver(function(es){ filtersEl.classList.toggle("stuck", es[0].intersectionRatio < 1); }, {threshold:[1], rootMargin:"-1px 0px 0px 0px"}).observe(filtersEl);
 
   // ---------- load ----------
+  function cleanName(org){
+    return (org || "").replace(/^(office of the|ofc of|o\/o)\s+/i, "").replace(/^(ae|asst\.? exec engg|assistant engineer|secretary|municipal engineer)\s+/i, "")
+      .replace(/grama\s*panchay\w*$/i, "Grama Panchayat").replace(/block\s*panchay\w*$/i, "Block Panchayat").trim();
+  }
   function getJson(p){ return fetch(p, {cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
   Promise.all([getJson("data/tenders.json").catch(function(){ return []; }),
                getJson("data/meta.json").catch(function(){ return {}; }),
@@ -743,18 +1249,29 @@
     all = res[0] || []; meta = res[1] || {}; newIds = new Set((res[2] || []).map(function(t){ return t.id; }));
     if(!meta.today) meta.today = new Date().toISOString().slice(0, 10);
     all.forEach(function(t){
+      if(!t.body_name) t.body_name = cleanName(t.organisation);
+      t._close = closingMs(t);
       byId[t.id] = t;
-      t._hay = [t.title, t.organisation, t.tender_id, t.tender_ref, t.district, t.location, t.category, t.pincode].join(" ").toLowerCase();
+      var b = bodies[t.body_name] || (bodies[t.body_name] = {count: 0, value: 0, district: t.district, type: t.body_type});
+      b.count++; b.value += t.value || 0;
+      t._hay = [t.title, t.body_name, t.organisation, t.tender_id, t.tender_ref, t.district, t.location, t.category, t.pincode].join(" ").toLowerCase();
     });
+    var v = lsGet("visit", null);
+    if(!v) lsSet("visit", {today: meta.today, base: null});
+    else if(v.today !== meta.today){ visitBase = v.today; lsSet("visit", {today: meta.today, base: v.today}); }
+    else visitBase = v.base;
+
     $("lastRun").textContent = meta.last_run
       ? "Updated " + new Date(meta.last_run).toLocaleString("en-IN", {dateStyle:"medium", timeStyle:"short"}) + " · refreshed every morning from the Kerala e-Tenders portal"
       : "No data yet. The first daily update hasn't finished.";
-    var uniq = function(k){ return Array.from(new Set(all.map(function(t){ return t[k]; }).filter(Boolean))).sort(); };
-    uniq("district").forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = v; $("district").appendChild(o); });
+    Array.from(new Set(all.map(function(t){ return t.district; }).filter(Boolean))).sort().forEach(function(d){
+      var o = document.createElement("option"); o.value = d; o.textContent = d; $("district").appendChild(o);
+    });
     var catCounts = {}; all.forEach(function(t){ if(t.category) catCounts[t.category] = (catCounts[t.category] || 0) + 1; });
-    Object.keys(catCounts).sort().forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = v + " (" + catCounts[v] + ")"; $("category").appendChild(o); });
+    Object.keys(catCounts).sort().forEach(function(c){ var o = document.createElement("option"); o.value = c; o.textContent = c + " (" + catCounts[c] + ")"; $("category").appendChild(o); });
     if(meta.notes && meta.notes.length){ $("notes").hidden = false; $("notesBody").innerHTML = meta.notes.map(esc).join("<br>"); }
     restore();
+    renderVisit();
     update();
   });
   window.addEventListener("hashchange", function(){ restore(); update(); });

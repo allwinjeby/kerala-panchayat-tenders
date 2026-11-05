@@ -140,4 +140,47 @@ def classify_body(chain: str) -> str:
     return "Other LSGD"
 
 
-PANCHAYAT_TYPES = {"Grama Panchayat", "Block Panchayat", "District Panchayat", "Panchayat (other)"}
+_ROLE_WORDS = {
+    "office", "ofc", "of", "the", "o/o", "ae", "asst", "assistant", "exec", "exe", "executive", "engg", "engr",
+    "eng", "engineer", "engineers", "secretary", "superintending", "municipal", "corporation", "dy", "deputy", "division", "section",
+}
+_SUFFIXES = (
+    (re.compile(r"\s*\bgrama\s*panch\w*$|\s*\bgramapanch\w*$|\s*\bgp$", re.I), "Grama Panchayat"),
+    (re.compile(r"\s*\bblock\s*panch\w*$|\s*\bbp$", re.I), "Block Panchayat"),
+    (re.compile(r"\s*\b(?:district|jilla)\s*panch\w*$", re.I), "District Panchayat"),
+    (re.compile(r"\s*\bmunicipal\s*corporation$|\s*\bcorporation$", re.I), "Corporation"),
+    (re.compile(r"\s*\bmunicip\w*$", re.I), "Municipality"),
+)
+
+
+def body_name(organisation: str, body_type: str | None = None, district: str | None = None) -> str:
+    """Clean local-body name for grouping and search, e.g.
+    'Office of the AE Kuzhalmannam Grama Panchayath' -> 'Kuzhalmannam Grama Panchayat',
+    'Ofc of Exec Engg District Panchayath Thrissur' -> 'Thrissur District Panchayat'."""
+    raw = re.sub(r"\s+", " ", organisation or "").strip(" .,-")
+    low = raw.lower()
+    if re.search(r"\b(?:district|jilla)\s*p(?:a)?n?ch", low):
+        d = find_district(raw) or district
+        if d:
+            return f"{d} District Panchayat"
+    words = raw.split(" ")
+    while words and words[0].lower().strip(".,") in _ROLE_WORDS:
+        words.pop(0)
+    name = " ".join(words).strip(" .,-")
+    for pattern, suffix in _SUFFIXES:
+        if pattern.search(name):
+            core = pattern.sub("", name).strip(" .,-")
+            if core:
+                return f"{_tidy(core)} {suffix}"
+    if body_type == "District Panchayat" and (district or find_district(raw)):
+        return f"{district or find_district(raw)} District Panchayat"
+    if body_type in ("Grama Panchayat", "Block Panchayat", "Municipality", "Corporation") and name:
+        return f"{_tidy(name)} {body_type}"
+    return _tidy(name) if name else raw
+
+
+def _tidy(text: str) -> str:
+    return text.title() if text.isupper() or text.islower() else text
+
+
+PANCHAYAT_TYPES ={"Grama Panchayat", "Block Panchayat", "District Panchayat", "Panchayat (other)"}

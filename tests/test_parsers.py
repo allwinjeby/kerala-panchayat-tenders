@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from scraper.common import classify_body, find_district, parse_date, parse_rupees
+from scraper.common import body_name, classify_body, find_district, parse_date, parse_rupees
 from scraper.kerala_etenders import parse_detail, parse_org_list, parse_tender_list, split_title_cell, wanted_org
 from scraper.run import merge
 
@@ -53,6 +53,22 @@ def test_helpers():
     assert classify_body("LSGD||Kozhikode||Koduvally Block Panchayat") == "Block Panchayat"
     assert classify_body("LSGD||Palakkad||Municipal Engineers office PKD||Municipal Engineer Pattambi Municipality") == "Municipality"
     assert classify_body("LSGD||Kannur||Secretary Kannur District Panchayath") == "District Panchayat"
+
+
+def test_body_name():
+    cases = {
+        ("Office of the AE Kuzhalmannam Grama Panchayath", "Grama Panchayat", "Palakkad"): "Kuzhalmannam Grama Panchayat",
+        ("Mullankolly Gramapanchayat", "Grama Panchayat", "Wayanad"): "Mullankolly Grama Panchayat",
+        ("O/O Asst. Exec Engg Chalakkudy Block Panchayath", "Block Panchayat", "Thrissur"): "Chalakkudy Block Panchayat",
+        ("Ofc of Exec Engg District Panchayath Thrissur", "District Panchayat", "Thrissur"): "Thrissur District Panchayat",
+        ("Office of the Exe Engineer Kannur District Pnchyth", "District Panchayat", "Kannur"): "Kannur District Panchayat",
+        ("Office of the Executive Engineer Kottayam", "District Panchayat", "Kottayam"): "Kottayam District Panchayat",
+        ("Municipal Engineer Pattambi Municipality", "Municipality", "Palakkad"): "Pattambi Municipality",
+        ("Corporation Engineer Kochi Corporation", "Corporation", "Ernakulam"): "Kochi Corporation",
+        ("Office of the Assistant Engineer Mangalpady", "Grama Panchayat", "Kasaragod"): "Mangalpady Grama Panchayat",
+    }
+    for (org, bt, dist), want in cases.items():
+        assert body_name(org, bt, dist) == want, (org, body_name(org, bt, dist))
 
 
 def test_merge_tracks_new_and_drops_expired():

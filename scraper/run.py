@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from . import kerala_etenders
-from .common import IST, today_ist
+from .common import IST, body_name, today_ist
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "docs" / "data"
 TENDERS_FILE = DATA_DIR / "tenders.json"
@@ -62,6 +62,8 @@ def main() -> None:
 
     first_run = not existing
     records, new_ids = merge(existing, fresh, today)
+    for r in records:
+        r["body_name"] = body_name(r.get("organisation", ""), r.get("body_type"), r.get("district"))
     new_today = [] if first_run else [r for r in records if r["id"] in new_ids]
 
     def dump(path: Path, obj) -> None:
