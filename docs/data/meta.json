@@ -1,16 +1,16 @@
 {
-  "last_run": "2026-11-17T14:41:33+05:30",
-  "today": "2026-11-17",
-  "total_active": 5617,
-  "new_today": 678,
-  "scraped_this_run": 5431,
+  "last_run": "2026-11-18T14:02:50+05:30",
+  "today": "2026-11-18",
+  "total_active": 5520,
+  "new_today": 604,
+  "scraped_this_run": 5385,
   "notes": [
-    "kerala_etenders: Directorate of Panchayat: 177 tenders (portal says 177)",
-    "kerala_etenders: Local Self Government Department: 5240 tenders (portal says 5240)",
+    "kerala_etenders: Directorate of Panchayat: 175 tenders (portal says 175)",
+    "kerala_etenders: Local Self Government Department: 5196 tenders (portal says 5196)",
     "kerala_etenders: Secretary Kannur District Panchayat: 2 tenders (portal says 2)",
     "kerala_etenders: Secretary Kollam District Panchayath: 1 tenders (portal says 1)",
     "kerala_etenders: Secretary Pathanamthitta District Panchayath: 10 tenders (portal says 10)",
     "kerala_etenders: Secretary Thrissur District Panchayath: 1 tenders (portal says 1)",
-    "kerala_etenders: fetched 678 detail pages this run; 0 tenders still waiting for details"
+    "kerala_etenders: fetched 604 detail pages this run; 0 tenders still waiting for details"
   ]
 }
